@@ -1,0 +1,143 @@
+/* bilingual data — default EN, optional ZH. pick with P(lang, obj) */
+const P = (lang, o) => (o && (o[lang] !== undefined ? o[lang] : o.en));
+
+/* landing headline (locked to B) */
+const HEADLINE = {
+  en: { a: "Turn passers-by ", b: "into regulars", c: "" },
+  zh: { a: "把路过的人，", b: "变成回头客", c: "" },
+};
+const SUB_LANDING = {
+  en: ["Customers play for a voucher and walk in to use it. ", "Regulars who stop coming get brought back automatically."],
+  zh: ["客人玩游戏赢券，凭券进店。", "老客太久没来，自动召回。"],
+};
+
+/* prizes (shared by hero wheel + flow); lose flag instead of string match */
+const PRIZES = [
+  { en: "Free Americano", zh: "一杯美式" },
+  { en: "1-for-1",        zh: "买一送一" },
+  { en: "Free topping",   zh: "加料免费" },
+  { en: "10% off",        zh: "全单 9 折" },
+  { en: "Try again",      zh: "谢谢惠顾", lose: true },
+  { en: "A slice of cake",zh: "一块蛋糕" },
+];
+
+/* landing gallery */
+const GAMES = [
+  { kind:"spin",    g:["#16A34A","#22C55E"], n:{en:"Lucky Spin",zh:"幸运大转盘"}, t:{en:"Scan & spin",zh:"扫码就转"} },
+  { kind:"scratch", g:["#0EA5E9","#38BDF8"], n:{en:"Scratch Card",zh:"刮刮乐"}, t:{en:"Scratch to win",zh:"刮出今天的奖"} },
+  { kind:"stack",   g:["#F59E0B","#FBBF24"], n:{en:"Stack It",zh:"叠叠乐"}, t:{en:"Higher = bigger",zh:"越叠越高"} },
+  { kind:"merge",   g:["#EF4444","#FB7185"], n:{en:"Fruit Merge",zh:"合成水果"}, t:{en:"Merge up",zh:"合成升级"} },
+  { kind:"drop",    g:["#8B5CF6","#A78BFA"], n:{en:"Gift Drop",zh:"天降好礼"}, t:{en:"Catch to win",zh:"接住就中"} },
+  { kind:"flip",    g:["#EC4899","#F9A8D4"], n:{en:"Match Pairs",zh:"翻翻配对"}, t:{en:"Memory flip",zh:"记忆翻牌"} },
+  { kind:"hoop",    g:["#0EA5E9","#22C55E"], n:{en:"Hoop Shot",zh:"投篮赢奖"}, t:{en:"Beat the clock",zh:"手速挑战"} },
+  { kind:"draw",    g:["#14B8A6","#5EEAD4"], n:{en:"Lucky Draw",zh:"幸运抽签"}, t:{en:"One draw decides",zh:"一抽定输赢"} },
+];
+
+const COUNTRIES = [
+  { flag:"🇸🇬", en:"Singapore", zh:"新加坡" },
+  { flag:"🇲🇾", en:"Malaysia", zh:"马来西亚" },
+  { flag:"🇮🇩", en:"Indonesia", zh:"印度尼西亚" },
+  { flag:"🇹🇭", en:"Thailand", zh:"泰国" },
+  { flag:"🇭🇰", en:"Hong Kong", zh:"香港" },
+];
+
+/* flow: describe chips (first run — shop name or type). preset = 选了就自动套用的样例品牌包(logo色/字母/商品图色) */
+const EXAMPLES = [
+  {en:"Starbucks",zh:"星巴克",    mark:"S", color:["#0B6E4F","#1E9E73"], prod:["#0B6E4F","#1E9E73","#C8A96A"]},
+  {en:"McDonald's",zh:"麦当劳",   mark:"M", color:["#C8102E","#FFC72C"], prod:["#C8102E","#FFC72C","#7A4B2B"]},
+  {en:"Coffee shop",zh:"咖啡店",  mark:"C", color:["#7A4B2B","#B07A4B"], prod:["#7A4B2B","#B07A4B","#E0C9A6"]},
+  {en:"Bubble tea",zh:"奶茶店",   mark:"B", color:["#8B5E34","#C9A26B"], prod:["#8B5E34","#C9A26B","#F0E0C0"]},
+  {en:"Bakery",zh:"面包烘焙",     mark:"B", color:["#E0883B","#F6B26B"], prod:["#E0883B","#F6B26B","#7A4B2B"]},
+  {en:"Nail salon",zh:"美甲美睫", mark:"N", color:["#DB2777","#F472B6"], prod:["#DB2777","#F472B6","#FBCFE8"]},
+];
+
+/* flow: describe chips (returning — campaign goal, shop already known) */
+const GOALS = [
+  {en:"New customers",zh:"拉新客"}, {en:"Win back regulars",zh:"老客回流"}, {en:"Weekend traffic",zh:"周末客流"},
+  {en:"Festival promo",zh:"节日活动"}, {en:"Clear stock",zh:"清库存"},
+];
+
+/* flow: matched templates */
+const TEMPLATES = [
+  { id:"wheel", kind:"spin", g:["#16A34A","#22C55E"], demo:"wheel", recommended:true,
+    name:{en:"Lucky Spin",zh:"幸运大转盘"}, tag:{en:"Scan & spin · easiest",zh:"扫码就转 · 最快上手"},
+    lede:{en:"One spin to win — the classic foot-traffic game for shops.",zh:"转一下就赢 —— 街边店最经典的到店引流玩法。"},
+    feats:{en:["Anyone gets it in 10 seconds","You set the prizes and win-rate","Winners walk in to redeem — no walk-in, no count"],
+           zh:["10 秒上手，老人小孩都会玩","奖品和中奖率，你自己说了算","赢家到店扫码核销，没核销不计数"]} },
+  { id:"scratch", kind:"scratch", g:["#0EA5E9","#38BDF8"], demo:"scratch",
+    name:{en:"Scratch Card",zh:"刮刮乐"}, tag:{en:"Scratch today's prize",zh:"刮出今天的奖"},
+    lede:{en:"A swipe of the finger reveals today's surprise.",zh:"手指一刮，揭晓今天的惊喜。"},
+    feats:{en:["High suspense, very shareable","Set a 'try again' slice to control cost","A win creates a redemption code"],
+           zh:["悬念感强，朋友间爱分享","可设“谢谢惠顾”稳稳控成本","刮中即生成到店核销码"]} },
+  { id:"stack", kind:"stack", g:["#F59E0B","#FBBF24"], demo:"wheel",
+    name:{en:"Stack It",zh:"叠叠乐"}, tag:{en:"Higher = bigger",zh:"越叠越高"},
+    lede:{en:"The higher you stack, the bigger the prize.",zh:"叠得越高，奖越大 —— 越玩越上头。"},
+    feats:{en:["Fast pace, longer dwell time","Adjustable difficulty","Top prize saved for in-store"],
+           zh:["节奏快，停留时长更长","难度可调，新客也敢试","封顶大奖留给到店核销"]} },
+  { id:"fruit", kind:"merge", g:["#EF4444","#FB7185"], demo:"scratch",
+    name:{en:"Fruit Merge",zh:"合成水果"}, tag:{en:"Merge up",zh:"合成升级"},
+    lede:{en:"Crash two together, merge into a big prize.",zh:"两两相撞，合出大奖。"},
+    feats:{en:["Lively visuals catch the eye","Short rounds, great for queues","Big merge creates a code"],
+           zh:["画面热闹，吸引路过目光","回合短，适合排队时玩","大奖即生成核销码"]} },
+  { id:"gift", kind:"drop", g:["#8B5CF6","#A78BFA"], demo:"wheel",
+    name:{en:"Gift Drop",zh:"天降好礼"}, tag:{en:"Catch to win",zh:"接住就中"},
+    lede:{en:"Catch the falling gift boxes to open a prize.",zh:"接住掉下来的礼物盒，开出奖。"},
+    feats:{en:["Intuitive, zero learning curve","Freely mix your prizes","A win goes straight to redemption"],
+           zh:["操作直觉，零学习成本","奖品组合自由配","中奖直达到店核销"]} },
+  { id:"pair", kind:"flip", g:["#EC4899","#F9A8D4"], demo:"scratch",
+    name:{en:"Match Pairs",zh:"翻翻配对"}, tag:{en:"Memory flip",zh:"记忆翻牌"},
+    lede:{en:"Flip two matching cards to win a reward.",zh:"翻开两张相同的牌，赢奖励。"},
+    feats:{en:["Relaxing, high replay","Three difficulty levels","A match creates a code"],
+           zh:["轻松解压，复玩率高","难度三档可调","配对成功生成核销码"]} },
+];
+
+const SAMPLE_LOGOS = [
+  { id:"kopi", name:"Kopi Corner", color:"#7A4B2B", mark:"K" },
+  { id:"boba", name:"Boba Lab",   color:"#7C3AED", mark:"B" },
+  { id:"bake", name:"Sunny Bake", color:"#E0883B", mark:"S" },
+];
+const COLOR_SETS = [
+  ["#16A34A","#22C55E"], ["#0EA5E9","#38BDF8"], ["#7A4B2B","#B07A4B"],
+  ["#7C3AED","#A78BFA"], ["#E0883B","#F6B26B"], ["#DB2777","#F472B6"],
+];
+
+/* dashboard */
+const TREND = [{d:{en:"Mon",zh:"一"},v:8},{d:{en:"Tue",zh:"二"},v:12},{d:{en:"Wed",zh:"三"},v:9},{d:{en:"Thu",zh:"四"},v:15},{d:{en:"Fri",zh:"五"},v:11},{d:{en:"Sat",zh:"六"},v:18},{d:{en:"Sun",zh:"日"},v:13}];
+const GAME_PERF = [
+  { n:{en:"Lucky Spin",zh:"幸运大转盘"}, v:52, c:"linear-gradient(90deg,#16A34A,#22C55E)" },
+  { n:{en:"Scratch Card",zh:"刮刮乐"}, v:21, c:"linear-gradient(90deg,#0EA5E9,#38BDF8)" },
+  { n:{en:"Stack It",zh:"叠叠乐"}, v:13, c:"linear-gradient(90deg,#F59E0B,#FBBF24)" },
+];
+const FEED = [
+  { ic:"gift", bg:"#EEF1FF", c:"#4F46E5", who:{en:"User 88**",zh:"张**"}, act:{en:'redeemed “Free Americano” · counter',zh:'核销「一杯美式」· 收银台'}, z:{en:"just now",zh:"刚刚"} },
+  { ic:"star", bg:"#FFF3DA", c:"#F59E0B", who:{en:"New customer",zh:"新客"}, act:{en:"first visit ever",zh:"第一次到店"}, z:{en:"2 min ago",zh:"2 分钟前"} },
+  { ic:"gift", bg:"#EEF1FF", c:"#4F46E5", who:{en:"User 44**",zh:"李**"}, act:{en:'redeemed “1-for-1” · counter',zh:'核销「买一送一」· 收银台'}, z:{en:"5 min ago",zh:"5 分钟前"} },
+  { ic:"ret", bg:"#ECFDF3", c:"#16A34A", who:{en:"Returning",zh:"回头客"}, act:{en:"3rd visit",zh:"第 3 次到店"}, z:{en:"8 min ago",zh:"8 分钟前"} },
+  { ic:"star", bg:"#FFF3DA", c:"#F59E0B", who:{en:"New customer",zh:"新客"}, act:{en:'played “Lucky Spin”, won a voucher',zh:'玩了「幸运大转盘」赢了券'}, z:{en:"12 min ago",zh:"12 分钟前"} },
+];
+
+/* vouchers — merchant只填「折扣 + 张数」，无中奖率概念。发券概率按剩余张数自然分布、发完即停。 */
+/* 建游戏起步只给一张券（商家再自己加） */
+const STARTER_VOUCHERS = [
+  { name:{en:"Free drink",zh:"一杯免费饮品"}, price:"S$6.00", discount:{en:"Free",zh:"免费"}, qty:100, awarded:0, redeemed:0, perCust:1 },
+];
+const DEFAULT_VOUCHERS = [
+  { name:{en:"Cappuccino",zh:"卡布奇诺"}, price:"S$6.00",  discount:{en:"Free",zh:"免费"},      qty:100, awarded:62,  redeemed:41, perCust:1 },
+  { name:{en:"Any drink",zh:"任意饮品"},  price:"S$6.50",  discount:{en:"1-for-1",zh:"买一送一"}, qty:300, awarded:140, redeemed:96, perCust:1 },
+  { name:{en:"Whole order",zh:"全单"},    price:"—",        discount:{en:"20% off",zh:"8 折"},    qty:200, awarded:88,  redeemed:53, perCust:1 },
+];
+/* outlets — 一个账号可有多家店，结构化地址 */
+const OUTLETS = [
+  { id:"o1", name:{en:"Kopi Corner · Tampines",zh:"Kopi Corner · 淡滨尼"}, line1:"10 Tampines Central 1, #01-12", city:"Singapore", region:"", postal:"529536", country:0, primary:true },
+  { id:"o2", name:{en:"Kopi Corner · Jurong",zh:"Kopi Corner · 裕廊"},     line1:"63 Jurong West Central 3, #B1-05", city:"Singapore", region:"", postal:"648331", country:0, primary:false },
+];
+
+/* activities — 经营决策（门店+券+绑定游戏），与游戏视觉分离 */
+const DEFAULT_ACTIVITIES = [
+  { id:"a1", name:{en:"Weekend Coffee Promo",zh:"周末咖啡促销"},
+    outletIds:["o1","o2"],
+    vouchers: DEFAULT_VOUCHERS.map(v=>({...v})),
+    gameId:"wheel", status:"live" },
+];
+
+Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
