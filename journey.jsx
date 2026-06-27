@@ -204,7 +204,6 @@ function Hero({ go }) {
   return (
     <section className="hero">
       <div>
-        <div className="eyebrow"><span className="pin"></span>{tr(lang,"Built for neighbourhood shops — cafés, bubble tea, street food & more","给街边小店 · 咖啡 / 奶茶 / 小吃 / 美甲 / …")}</div>
         <h1 className="hero-h">{H.a}<span className="hl">{H.b}</span>{H.c}</h1>
         <p className="lede">{P(lang,SUB_LANDING)[0]}<b>{P(lang,SUB_LANDING)[1]}</b></p>
         <div className="cta-row">
@@ -243,8 +242,8 @@ function ThreeThings() {
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.pin/></span>{tr(lang,"Within 300m · office · walked in","300m 内 · 上班族 · 已到店")}</div><div className="vrow"><span className="vp" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.pin/></span>{tr(lang,"Within 500m · student · played","500m 内 · 学生 · 玩了一把")}</div></div></div>
         <div className="tcard"><div className="tnum">{tr(lang,"02 · RETAIN","02 · 召回老客")}</div><h3>{tr(lang,"Bring regulars back automatically","老顾客太久没来，自动请回来")}</h3><p>{tr(lang,"Members who haven't visited in 30 days get an auto voucher — turning one-time guests into regulars.","30 天没到店的会员，KiX 自动发一张券召回 —— 把一次性客人，变成回头客。")}</p>
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"#EEF1FF", color:"#4F46E5" }}><Ic.bell/></span>{tr(lang,"Miss you — here's a free coffee","想你了，送你一杯免费咖啡")}</div><div className="vbignum"><b>29%</b> <span className="vmini">{tr(lang,"win-back rate","召回复购率")}</span></div></div></div>
-        <div className="tcard"><div className="tnum">{tr(lang,"03 · MEASURE","03 · 看得清")}</div><h3>{tr(lang,"What each walk-in costs you","每一位到店，花了多少钱")}</h3><p>{tr(lang,"The dashboard counts only people who actually walked in — cost per head at a glance.","后台只算真正走进门的人，每位成本一目了然 —— 值不值，一眼看穿。")}</p>
-          <div className="viz"><div className="vbignum">S$4.6 <span className="vmini">{tr(lang,"per walk-in","每位到店成本")}</span></div><div className="vbar"><i style={{ width:"68%" }}></i></div><div className="vmini">{tr(lang,"walk-in rate 48% · S$0 on views","到店率 48% · 曝光花费 S$0")}</div></div></div>
+        <div className="tcard"><div className="tnum">{tr(lang,"03 · ZERO WASTE","03 · 零浪费")}</div><h3>{tr(lang,"Only pay when they walk in","没进店，不花一分钱")}</h3><p>{tr(lang,"No impressions, no clicks, no wasted budget. You only pay when a customer actually walks through your door.","不为曝光付费，不为点击付费。客人真正走进你的店，才算一次。")}</p>
+          <div className="viz"><div className="vbignum"><b>S$0</b> <span className="vmini">{tr(lang,"for views & clicks","曝光和点击的花费")}</span></div><div className="vbar"><i style={{ width:"100%" }}></i></div><div className="vmini">{tr(lang,"vs traditional ads: 90% of budget wasted on non-visitors","传统广告：90% 预算花在不会来的人身上")}</div></div></div>
       </div>
     </section>
   );
@@ -602,7 +601,7 @@ const SB_ITEMS = [
   { id:"me",         icon:"user",      en:"Me",         zh:"我的" },
 ];
 
-function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRedeem }) {
+function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRedeem, onGoActivity }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
   const [scanOk, setScanOk] = useState(false);
@@ -643,9 +642,10 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
       <div className="home-grid">
         <div className="panel nudge">
           <h4 style={{ marginBottom:14 }}>{tr(lang,"Get your first wave playing","让第一波人玩起来")}</h4>
-          <div className="nstep done"><span className="nt"><Ic.check/></span>{tr(lang,"Game published","游戏已上线")}</div>
-          <div className="nstep cur"><span className="nt">2</span>{tr(lang,"Share your game · print the QR","分享游戏 · 打印二维码")}<button className="btn ghost sm na" onClick={onShare}>{tr(lang,"Share","去分享")}</button></div>
-          <div className="nstep"><span className="nt">3</span>{tr(lang,"First customer redeems in store","第一位客人到店核销")}</div>
+          <div className="nstep done"><span className="nt"><Ic.check/></span>{tr(lang,"Game created","游戏已创建")}</div>
+          <div className="nstep cur"><span className="nt">2</span>{tr(lang,"Complete activity details","补充活动细节")}<button className="btn ghost sm na" onClick={onGoActivity}>{tr(lang,"Go","去完善")}</button></div>
+          <div className="nstep"><span className="nt">3</span>{tr(lang,"Share & print the QR","分享游戏 · 打印二维码")}</div>
+          <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer redeems in store","第一位客人到店核销")}</div>
         </div>
         <div className="panel">
           <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
@@ -1038,7 +1038,7 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
-          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} />
+          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} />
           : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} />
