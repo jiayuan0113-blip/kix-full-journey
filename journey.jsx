@@ -445,7 +445,7 @@ function VoucherEditor({ vouchers, setVouchers, showStock }) {
               <label><span>{tr(lang,"Price","原价")}</span><input value={v.price||""} onChange={e=>upd(i,"price",e.target.value)} placeholder="S$6"/></label>
               <label><span>{tr(lang,"Discount","折扣")}</span><input value={P(lang,v.discount)} onChange={e=>upd(i,"discount",{en:e.target.value,zh:e.target.value})} placeholder={tr(lang,"Free / 1-for-1","免费 / 8折")}/></label>
               <label><span>{tr(lang,"Qty","张数")}</span><input className="num" type="number" min="1" value={v.qty} onChange={e=>upd(i,"qty",+e.target.value||0)}/></label>
-              <label><span>{tr(lang,"Per person","每人")}</span><input className="num" type="number" min="1" value={v.perCust} onChange={e=>upd(i,"perCust",+e.target.value||1)}/></label>
+              <label><span style={{ display:"flex", alignItems:"center", gap:3 }}>{tr(lang,"Validity","有效期")}<span title={tr(lang,"Days to redeem after winning the voucher","用户获得券后几天内可兑换")} style={{ width:14, height:14, borderRadius:"50%", border:"1.5px solid var(--muted-2)", display:"inline-grid", placeItems:"center", fontSize:9, fontWeight:800, color:"var(--muted-2)", cursor:"help" }}>?</span></span><input className="num" type="number" min="1" value={v.perCust} onChange={e=>upd(i,"perCust",+e.target.value||1)} placeholder={tr(lang,"days","天")}/></label>
             </div>
             {v.image
               ? <span className="thumb-x" style={{ flexShrink:0 }}><img src={v.image} alt="" style={{ width:64, height:64, borderRadius:10 }}/><button onClick={()=>upd(i,"image",null)} title={tr(lang,"Remove","删除")}>x</button></span>
@@ -779,6 +779,10 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
         <div className="field" style={{ margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
+        <div style={{ display:"flex", gap:12, marginTop:14 }}>
+          <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={activity.startDate||""} onChange={e=>upd("startDate",e.target.value)}/></div>
+          <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")}</label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
+        </div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <OutletScope outlets={outlets} gameOutlets={activity.outletIds} setGameOutlets={ids => upd("outletIds", ids)} setOutlets={setOutlets} />
