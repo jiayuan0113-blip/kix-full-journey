@@ -171,7 +171,7 @@ function Demo({ game, brand }) {
 
 /* ===================== flow chrome + loader ===================== */
 const STEPS = [{en:"Describe",zh:"描述"},{en:"Pick a game",zh:"选游戏"},{en:"Preview & publish",zh:"预览发布"}];
-const STEPS_RET = [{en:"Pick a game",zh:"选游戏"},{en:"Preview & publish",zh:"预览发布"}]; // 登录后建游戏：免描述，2 步
+const STEPS_RET = [{en:"Pick a game",zh:"选游戏"},{en:"Edit game",zh:"修改游戏"}]; // 登录后建游戏：免描述，2 步
 function Stepper({ idx, steps = STEPS }) {
   const lang = useLang();
   return (<div className="stepper">{steps.map((s, i) => (
@@ -1097,7 +1097,8 @@ function App() {
   if (screen === "describe") flowStep = <Describe need={need} setNeed={setNeed} site={site} setSite={setSite} setBrand={setBrand} onNext={()=>setScreen("building")} />;
   else if (screen === "building") flowStep = <div className="canvas narrow"><Loader title={tr(lang,"Building your games","正在生成你的游戏")} who={need || tr(lang,"your shop","你的店")} tasks={buildTasks} onDone={()=>setScreen("results")} /></div>;
   else if (screen === "results") flowStep = <Results need={need} onPick={t=>{ setGame(t); setScreen("preview"); top(); }} onBack={()=> authed ? enterApp(appSec) : setScreen("describe")} />;
-  else if (screen === "preview") flowStep = <Preview game={game} brand={brand} setBrand={setBrand} onLaunch={authed ? publishDone : toPublishGate} onBack={()=>{ setScreen("results"); top(); }} />;
+  else if (screen === "preview" && authed) flowStep = <div><Workspace game={game} brand={brand} setBrand={setBrand} /><div style={{ display:"flex", gap:12, justifyContent:"flex-end", padding:"16px 28px" }}><button className="btn ghost lg" onClick={()=>{ setScreen("results"); top(); }}><Ic.back style={{ width:16, height:16 }}/> {tr(lang,"Back","上一步")}</button><button className="btn primary lg" onClick={publishDone}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Save game","保存游戏")}</button></div></div>;
+  else if (screen === "preview") flowStep = <Preview game={game} brand={brand} setBrand={setBrand} onLaunch={toPublishGate} onBack={()=>{ setScreen("results"); top(); }} />;
 
   const shellProps = { game, brand, setBrand, lang, setLang, sec:appSec, setSec:setAppSec, onExit:toLanding, outlets, setOutlets, activities, setActivities, myGames };
 
