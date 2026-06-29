@@ -127,7 +127,7 @@ h1.hero-h .hl::after{content:"";position:absolute;left:-1px;right:-1px;bottom:.0
 .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:42px}
 .gtile{border-radius:18px;overflow:hidden;box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s;cursor:pointer}
 .gtile:hover{transform:translateY(-5px) rotate(-1deg);box-shadow:var(--sh)}
-.gtile .art{aspect-ratio:1/1;display:grid;place-items:center;position:relative}
+.gtile .art{aspect-ratio:9/16;display:grid;place-items:center;position:relative}
 .gtile .art .m{font-size:58px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.22))}
 .gtile .cap{background:#fff;padding:11px 13px;font-size:13.5px;font-weight:700}
 .gtile .cap .sm{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
@@ -305,10 +305,10 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .results-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .results-head h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:6px 0 0}.results-head h1 b{color:var(--green-d)}
 .relink{font-size:14px;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:10px}.relink:hover{background:#EAF1EE;color:var(--ink-2)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:24px}
 .gcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s;position:relative}
 .gcard:hover{transform:translateY(-4px);box-shadow:var(--sh);border-color:var(--green-100)}
-.thumb{aspect-ratio:4/3;display:grid;place-items:center;position:relative;overflow:hidden}
+.thumb{aspect-ratio:9/16;display:grid;place-items:center;position:relative;overflow:hidden}
 .thumb .motif{font-size:74px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.22));transition:transform .25s}
 .gcard:hover .thumb .motif{transform:scale(1.08) rotate(-3deg)}
 .thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.30);opacity:0;transition:opacity .2s}
@@ -594,9 +594,9 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .nstep .na{margin-left:auto}
 
 /* my games */
-.mygames{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.mygames{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .mgcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh-sm)}
-.mgcard .mgart{aspect-ratio:16/10;display:grid;place-items:center;position:relative}
+.mgcard .mgart{aspect-ratio:9/16;display:grid;place-items:center;position:relative}
 .mgcard .mgart .m{font-size:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.22))}
 .mgcard .mglive{position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;color:#fff;background:rgba(11,18,32,.55);padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
 .mgcard .mglive .b{width:6px;height:6px;border-radius:999px;background:var(--green-br)}
@@ -651,7 +651,7 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
   .hero{grid-template-columns:1fr;gap:36px;text-align:center}
   .kpis{grid-template-columns:1fr 1fr}.panels{grid-template-columns:1fr}
   .app-shell{flex-direction:column}.sidebar{width:auto;height:auto;position:static;flex-direction:row;overflow-x:auto}.sb-nav{flex-direction:row}.sb-bottom{display:none}
-  .home-grid,.mygames{grid-template-columns:1fr}
+  .home-grid{grid-template-columns:1fr}.mygames{grid-template-columns:1fr 1fr}
   .lede{margin-left:auto;margin-right:auto}.cta-row,.proof{justify-content:center}
   .navlinks{display:none}
   .three,.gallery,.steps,.tiers{grid-template-columns:1fr 1fr}
@@ -659,7 +659,7 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
   .detail,.preview,.preview.lite{grid-template-columns:1fr;gap:24px}
   .step .lbl{display:none}.upload-grid{grid-template-columns:1fr}
 }
-@media(max-width:600px){.three,.gallery,.steps,.tiers,.grid{grid-template-columns:1fr}}
+@media(max-width:600px){.three,.gallery,.steps,.tiers,.grid{grid-template-columns:1fr 1fr}.mygames{grid-template-columns:1fr}}
 </style>
 <div id="root"></div>
 

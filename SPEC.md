@@ -381,7 +381,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 ---
 
 ## 8. 占位与待办（研发/设计需补）
-1. **游戏库 = 玩法短视频（重点）**：首页游戏库 / 匹配结果 / My games 的缩略图，原型用 **`GamePreview` 组件做的循环 CSS 动画**（每种玩法一套独立动效：spin/scratch/stack/merge/drop/flip/hoop/draw，见 `journey.jsx` + `index.html` 的 `.gp-*`）。这是**真实玩法短视频的占位**——上线请替换为各玩法的 **静音自动循环 `<video>`（webm/mp4，loop muted playsinline）**，按 `kind` 取对应视频。组件已带 `Gameplay` 角标 + 播放图标，保持「会动的预览」观感。
+1. **游戏库 = 玩法短视频（重点）**：首页游戏库 / 匹配结果 / My games / 活动卡片 / 活动编辑器游戏选择器的缩略图，原型用 **`GamePreview` 组件做的循环 CSS 动画**（每种玩法一套独立动效：spin/scratch/stack/merge/drop/flip/hoop/draw）。所有预览区域统一使用 **9:16 竖屏比例**（与手机竖屏游戏视频一致），上线替换为 **静音自动循环 `<video>`（webm/mp4，loop muted playsinline，9:16 竖屏录制）**，按 `kind` 取对应视频。研发录制时直接录手机竖屏，不用裁剪。网格布局已从 3 列调整为 4 列以适配竖屏卡片高度。
 2. **图标全部为真实 SVG**：全站 UI 图标统一走 `icons.jsx` 的 `Ic.*`（line/solid SVG），**不再使用 emoji 文字图标**。导航(home/gamepad/target/chart/user)、动态流(gift/star/ret)、召回(bell)、核销(target)、步骤(gamepad/palette/store)、数据涨跌(up/down)、完成页奖杯(trophy)、退出(logout) 等均为 SVG。仅 **国家旗帜**（COUNTRIES 的 🇸🇬🇲🇾…）与流程连接箭头 `→` 保留为字符，属正常内容。样例店 logo 用首字母 monogram（K/B/S）占位，上线由商家上传真实 logo 图。
 3. **后端**：注册/登录、游戏生成、核销、数据、召回、**多店/多券库存**均为前端 mock，需接真实服务（数据模型见 3.7 / 3.8）。
 4. **AI 对话改游戏（工作台）**：左栏对话回复为前端关键词 mock（→改色/加券+确认卡），上线接真实模型；撤销/重做/历史为占位按钮，需接版本快照。
