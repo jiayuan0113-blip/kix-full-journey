@@ -367,7 +367,7 @@ function Describe({ need, setNeed, site, setSite, setBrand, onNext }) {
         <h1 className="big">{tr(lang,"First — what's your shop?","先说说，你的店是做什么的？")}</h1>
         <p className="sub">{tr(lang,"Your shop name or type — AI picks the fit & sample brand kit.","填店名或店型，AI 挑玩法、并带上样例品牌包。")}</p>
       </div>
-      <div className="bigfield"><input autoFocus value={need} placeholder={tr(lang,"e.g. Starbucks, or “a corner coffee shop”","例如：星巴克，或「街角的咖啡店」")} onChange={e=>setNeed(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"&&need.trim())onNext(); }}/></div>
+      <div className="bigfield"><input autoFocus value={need} placeholder={tr(lang,'e.g. Starbucks, or "a corner coffee shop"',"例如：星巴克，或「街角的咖啡店」")} onChange={e=>setNeed(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"&&need.trim())onNext(); }}/></div>
       <div className="chips">{EXAMPLES.map((ex,i) => (<button key={i} className="chip" onClick={()=>pick(ex)}><span className="pre">{tr(lang,"try","试试")}</span>{P(lang,ex)}</button>))}</div>
       <div className="site-field"><input value={site} onChange={e=>setSite(e.target.value)} placeholder={tr(lang,"Website or social (optional) — we'll pull your logo & colors","网站或社媒（选填）—— 帮你自动取 logo 和配色")}/></div>
       <div className="btn-row"><button className="btn primary lg" disabled={!need.trim()} onClick={onNext}>{tr(lang,"Match games","匹配游戏")} <Ic.arrow/></button></div>
@@ -378,7 +378,7 @@ function Results({ need, onPick, onBack }) {
   const lang = useLang();
   return (
     <div className="canvas">
-      <div className="results-head"><div><div className="f-eye">{tr(lang,"Tap any to try it","点开任意一款即可试玩")}</div><h1>{tr(lang,”8 games for “,”为”)}<b>{tr(lang,”“”,”「”)}{need || tr(lang,”your shop”,”你的店”)}{tr(lang,”””,”」”)}</b>{tr(lang,””,”挑了 8 款”)}</h1></div><button className="relink" onClick={onBack}><Ic.back style={{ width:14, height:14, verticalAlign:"-2px" }}/> {tr(lang,"Back","返回")}</button></div>
+      <div className="results-head"><div><div className="f-eye">{tr(lang,"Tap any to try it","点开任意一款即可试玩")}</div><h1>{tr(lang,"8 games for ","为")}<b>{tr(lang,'"','「')}{need || tr(lang,"your shop","你的店")}{tr(lang,'"','」')}</b>{tr(lang,"","挑了 8 款")}</h1></div><button className="relink" onClick={onBack}><Ic.back style={{ width:14, height:14, verticalAlign:"-2px" }}/> {tr(lang,"Back","返回")}</button></div>
       <div className="grid">{TEMPLATES.map(t => (
         <div key={t.id} className="gcard" onClick={()=>onPick(t)}>
           {t.recommended && <div className="ribbon"><span className="dot"></span>{tr(lang,"AI pick","AI 首选")}</div>}
@@ -569,10 +569,10 @@ function Done({ game, brand, onRestart, onDash }) {
     <div className="canvas narrow">
       <div className="confetti">{Array.from({ length:60 }).map((_, i) => (<i key={i} style={{ left:Math.random()*100+"%", background:[brand.color[0],brand.color[1],"#F59E0B","#0EA5E9"][i%4], animationDuration:(1.6+Math.random()*1.4)+"s", animationDelay:(Math.random()*0.5)+"s" }}></i>))}</div>
       <div className="launchcard">
-        <div className="done-hero"><div className="done-badge"><Ic.trophy/></div><div className="f-eye">{tr(lang,"LIVE","已上线")}</div><h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,`“${P(lang,game.name)}” is open for business`,`「${P(lang,game.name)}」开始营业了`)}</h1><p className="sub center">{tr(lang,"Stick this QR on your counter — customers scan to play.","把这张二维码贴在收银台，客人扫码就能玩。")}</p></div>
+        <div className="done-hero"><div className="done-badge"><Ic.trophy/></div><div className="f-eye">{tr(lang,"LIVE","已上线")}</div><h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,`"${P(lang,game.name)}" is open for business`,`「${P(lang,game.name)}」开始营业了`)}</h1><p className="sub center">{tr(lang,"Stick this QR on your counter — customers scan to play.","把这张二维码贴在收银台，客人扫码就能玩。")}</p></div>
         <div style={{ display:"flex", gap:28, justifyContent:"center", alignItems:"center", flexWrap:"wrap", marginTop:26 }}>
           <div className="qr"><Ic.qr style={{ width:84, height:84, color:"#0B1220" }}/></div>
-          <div style={{ textAlign:"left", maxWidth:280 }}><div style={{ fontSize:14, fontWeight:700, color:"var(--muted)" }}>{tr(lang,"How redemption works","核销流程")}</div><p style={{ fontSize:15, color:"var(--ink-2)", marginTop:8 }}>{tr(lang,"Winners show their ","客人赢奖后凭")}<b style={{ color:"var(--green-d)" }}>{tr(lang,"prize QR","奖品二维码")}</b>{tr(lang," in store; you scan it or ","到店，你手机一扫、或在后台")}<b style={{ color:"var(--green-d)" }}>{tr(lang,"swipe to redeem","滑动核销")}</b>{tr(lang," — only then it counts as a real walk-in."," —— 这一次才计入“真实到店”。")}</p></div>
+          <div style={{ textAlign:"left", maxWidth:280 }}><div style={{ fontSize:14, fontWeight:700, color:"var(--muted)" }}>{tr(lang,"How redemption works","核销流程")}</div><p style={{ fontSize:15, color:"var(--ink-2)", marginTop:8 }}>{tr(lang,"Winners show their ","客人赢奖后凭")}<b style={{ color:"var(--green-d)" }}>{tr(lang,"prize QR","奖品二维码")}</b>{tr(lang," in store; you scan it or ","到店，你手机一扫、或在后台")}<b style={{ color:"var(--green-d)" }}>{tr(lang,"swipe to redeem","滑动核销")}</b>{tr(lang," — only then it counts as a real walk-in.",' —— 这一次才计入「真实到店」。')}</p></div>
         </div>
         <div className="btn-row" style={{ justifyContent:"center", marginTop:30 }}><button className="btn primary lg" onClick={onDash}>{tr(lang,"Go to my dashboard","进入我的后台")} <Ic.arrow/></button><button className="btn ghost lg" onClick={onRestart}>{tr(lang,"Make another game","再做一个游戏")}</button></div>
       </div>
@@ -798,13 +798,12 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
             const sel = activity.gameId === g.id;
             return (
               <div key={g.id} className={"mgcard" + (sel?" sel":"")}>
-                <div className="mgart"><GamePreview kind={g.kind} colors={g.g} /></div>
+                <div className="mgart" style={{ cursor:"pointer" }} onClick={() => onViewGame && onViewGame(g)}><GamePreview kind={g.kind} colors={g.g} /><div className="play"><span><Ic.play/> {tr(lang,"Details","查看详情")}</span></div></div>
                 <div className="mgmeta">
                   <div className="nm">{P(lang, g.name)}</div>
                   <div className="st">{P(lang, g.tag)}</div>
-                  <div style={{ display:"flex", gap:8, marginTop:10 }}>
-                    <button className={sel ? "btn primary sm" : "btn ghost sm"} onClick={() => upd("gameId", g.id)}>{sel ? tr(lang,"Selected","已选择") : tr(lang,"Select","选择")}</button>
-                    <button className="btn ghost sm" onClick={() => onViewGame && onViewGame(g)}>{tr(lang,"Details","查看详情")}</button>
+                  <div style={{ marginTop:10 }}>
+                    <button className={sel ? "btn primary sm" : "btn ghost sm"} style={{ width:"100%" }} onClick={() => upd("gameId", g.id)}>{sel ? tr(lang,"Selected","已选择") : tr(lang,"Select","选择")}</button>
                   </div>
                 </div>
               </div>

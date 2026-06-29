@@ -596,7 +596,9 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 /* my games */
 .mygames{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .mgcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh-sm)}
-.mgcard .mgart{aspect-ratio:9/16;display:grid;place-items:center;position:relative}
+.mgcard .mgart{aspect-ratio:9/16;display:grid;place-items:center;position:relative;overflow:hidden}
+.mgcard .mgart .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.30);opacity:0;transition:opacity .2s;z-index:6}
+.mgcard .mgart:hover .play{opacity:1}
 .mgcard .mgart .m{font-size:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.22))}
 .mgcard .mglive{position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;color:#fff;background:rgba(11,18,32,.55);padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
 .mgcard .mglive .b{width:6px;height:6px;border-radius:999px;background:var(--green-br)}
