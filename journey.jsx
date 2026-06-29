@@ -378,7 +378,7 @@ function Results({ need, onPick, onBack }) {
   const lang = useLang();
   return (
     <div className="canvas">
-      <div className="results-head"><div><div className="f-eye">{tr(lang,"Tap any to try it","点开任意一款即可试玩")}</div><h1>{tr(lang,"6 games for ","为")}<b>{tr(lang,"“","「")}{need || tr(lang,"your shop","你的店")}{tr(lang,"”","」")}</b>{tr(lang,"","挑了 6 款")}</h1></div><button className="relink" onClick={onBack}><Ic.back style={{ width:14, height:14, verticalAlign:"-2px" }}/> {tr(lang,"Back","返回")}</button></div>
+      <div className="results-head"><div><div className="f-eye">{tr(lang,"Tap any to try it","点开任意一款即可试玩")}</div><h1>{tr(lang,”8 games for “,”为”)}<b>{tr(lang,”“”,”「”)}{need || tr(lang,”your shop”,”你的店”)}{tr(lang,”””,”」”)}</b>{tr(lang,””,”挑了 8 款”)}</h1></div><button className="relink" onClick={onBack}><Ic.back style={{ width:14, height:14, verticalAlign:"-2px" }}/> {tr(lang,"Back","返回")}</button></div>
       <div className="grid">{TEMPLATES.map(t => (
         <div key={t.id} className="gcard" onClick={()=>onPick(t)}>
           {t.recommended && <div className="ribbon"><span className="dot"></span>{tr(lang,"AI pick","AI 首选")}</div>}

@@ -89,6 +89,16 @@ const TEMPLATES = [
     lede:{en:"Flip two matching cards to win a reward.",zh:"翻开两张相同的牌，赢奖励。"},
     feats:{en:["Relaxing, high replay","Three difficulty levels","A match creates a code"],
            zh:["轻松解压，复玩率高","难度三档可调","配对成功生成核销码"]} },
+  { id:"hoop", kind:"hoop", g:["#0EA5E9","#22C55E"], demo:"wheel",
+    name:{en:"Hoop Shot",zh:"投篮赢奖"}, tag:{en:"Beat the clock",zh:"手速挑战"},
+    lede:{en:"Shoot the ball into the hoop before time runs out.",zh:"在倒计时内投进篮筐，赢取奖品。"},
+    feats:{en:["Action-packed, high energy","Timer creates urgency","A basket wins a voucher"],
+           zh:["动感十足，节奏紧凑","倒计时制造紧迫感","投中即赢券"]} },
+  { id:"draw", kind:"draw", g:["#14B8A6","#5EEAD4"], demo:"scratch",
+    name:{en:"Lucky Draw",zh:"幸运抽签"}, tag:{en:"One draw decides",zh:"一抽定输赢"},
+    lede:{en:"Pull a ticket from the box — one draw, one prize.",zh:"从箱子里抽一张签，一抽定奖。"},
+    feats:{en:["Simple, no learning curve","Classic lucky-draw excitement","Instant result, instant code"],
+           zh:["最简单，零门槛","经典抽签的期待感","即抽即出核销码"]} },
 ];
 
 const SAMPLE_LOGOS = [
