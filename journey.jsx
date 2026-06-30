@@ -658,26 +658,40 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
               </div>
             </div>
           </div>}
-      <div className="home-grid">
-        <div className="panel nudge">
-          <h4 style={{ marginBottom:14 }}>{tr(lang,"Get your first wave playing","让第一波人玩起来")}</h4>
-          <div className="nstep done"><span className="nt"><Ic.check/></span>{tr(lang,"Game created","游戏已创建")}</div>
-          <div className="nstep cur"><span className="nt">2</span>{tr(lang,"Complete activity details","补充活动细节")}<button className="btn ghost sm na" onClick={onGoActivity}>{tr(lang,"Go","去完善")}</button></div>
-          <div className="nstep"><span className="nt">3</span>{tr(lang,"Share & print the QR","分享游戏 · 打印二维码")}</div>
-          <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer redeems in store","第一位客人到店核销")}</div>
-        </div>
-        <div className="panel">
-          <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
-          {FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
-        </div>
-      </div>
-      <div className={"recall" + (recalled ? " ok" : "")}>
-        <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
-        {recalled
-          ? <><div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来核销就行。")}</p></div></>
-          : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder — your easiest repeat business.","一键发送召回通知，把他们请回来 —— 这是你最容易赢回的复购。")}</p></div>
-            <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
-      </div>
+      {/* 上手清单：未上线/首次登录也显示（这是引导，不是数据）。第 2 步按是否已有活动动态切换 */}
+      {(() => {
+        const nudge = (
+          <div className="panel nudge">
+            <h4 style={{ marginBottom:14 }}>{tr(lang,"Get your first wave playing","让第一波人玩起来")}</h4>
+            <div className="nstep done"><span className="nt"><Ic.check/></span>{tr(lang,"Game created","游戏已创建")}</div>
+            {hasActs
+              ? <div className={"nstep "+(liveAct?"done":"cur")}><span className="nt">{liveAct?<Ic.check/>:"2"}</span>{tr(lang,"Set up & publish the activity","配置并上线活动")}{!liveAct && <button className="btn ghost sm na" onClick={onGoActivity}>{tr(lang,"Go","去完善")}</button>}</div>
+              : <div className="nstep cur"><span className="nt">2</span>{tr(lang,"Create your first activity","新建第一个活动")}<button className="btn ghost sm na" onClick={onNewAct}>{tr(lang,"Create","去新建")}</button></div>}
+            <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Share & print the QR","分享游戏 · 打印二维码")}</div>
+            <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer redeems in store","第一位客人到店核销")}</div>
+          </div>
+        );
+        // 没有已上线活动 = 还没有任何真实数据：只给上手清单，不显示「最近」动态与「召回老客」
+        if (!liveAct) return <div style={{ marginTop:18 }}>{nudge}</div>;
+        return (
+          <>
+            <div className="home-grid">
+              {nudge}
+              <div className="panel">
+                <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
+                {FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
+              </div>
+            </div>
+            <div className={"recall" + (recalled ? " ok" : "")}>
+              <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
+              {recalled
+                ? <><div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来核销就行。")}</p></div></>
+                : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder — your easiest repeat business.","一键发送召回通知，把他们请回来 —— 这是你最容易赢回的复购。")}</p></div>
+                  <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
@@ -1086,7 +1100,7 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
         <div className="sb-id">{avatar}<div className="sb-idtxt"><div className="sb-name">{shopName}</div><div className="sb-outlet">{outletsLine}</div></div></div>
         <nav className="sb-nav">{SB_ITEMS.map(it => (
           <button key={it.id} className={"sb-item " + (!inBuild && !inEdit && !inActEdit && sec===it.id?"on":"")} onClick={()=>navClick(it.id)}>
-            <span className="si">{Ic[it.icon] && Ic[it.icon]()}</span>{P(lang,it)}{it.badge && (inBuild || inEdit || inActEdit || sec!==it.id) && <span className="nbadge">{it.badge}</span>}
+            <span className="si">{Ic[it.icon] && Ic[it.icon]()}</span>{P(lang,it)}{it.badge && liveAct && (inBuild || inEdit || inActEdit || sec!==it.id) && <span className="nbadge">{it.badge}</span>}
           </button>))}</nav>
         <div className="sb-bottom">
           <LangToggle lang={lang} setLang={setLang} />
@@ -1145,7 +1159,9 @@ function App() {
   const [brand, setBrand] = useState({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] });
   const [outlets, setOutlets] = useState(OUTLETS.map(o => ({ ...o })));
   const [myGames, setMyGames] = useState([TEMPLATES[0]]);
-  const [activities, setActivities] = useState(DEFAULT_ACTIVITIES.map(a => ({...a, vouchers:a.vouchers.map(v=>({...v}))})));
+  // fresh=1：模拟全新商家首次登录（还没有任何活动）；否则用 demo 活动（老商家演示）
+  const _fresh = _p.get("fresh") === "1";
+  const [activities, setActivities] = useState(_fresh ? [] : DEFAULT_ACTIVITIES.map(a => ({...a, vouchers:a.vouchers.map(v=>({...v}))})));
 
   const top = () => window.scrollTo(0,0);
   const toLanding = () => { setScreen("landing"); top(); };
@@ -1155,8 +1171,10 @@ function App() {
   const backToPreview = () => { setScreen("preview"); top(); };
   // 第三步「确认」= 保存游戏(视觉)，不自动建活动；直接进主页（此时有游戏、无活动 → 主页空态引导建活动）
   const publishDone = () => {
+    const firstTime = !authed;          // 经注册首次发布 = 全新商家
     setAuthed(true);
     if (!myGames.find(g => g.id === game.id)) setMyGames(gs => [...gs, game]);
+    if (firstTime) setActivities([]);   // 新商家还没有任何活动，主页落到空态（不显示假数据）
     setAppSec("home"); setScreen("app"); top();
   };
   const signIn = () => { setScreen("login"); top(); };
