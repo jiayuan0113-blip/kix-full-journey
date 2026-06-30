@@ -41,14 +41,10 @@ const COUNTRIES = [
   { flag:"🇭🇰", en:"Hong Kong", zh:"香港" },
 ];
 
-/* flow: describe chips (first run — shop name or type). preset = 选了就自动套用的样例品牌包(logo色/字母/商品图色) */
+/* flow: describe chips — 只选「店型」(品牌化全放第三步，第一步不取品牌/不要店名) */
 const EXAMPLES = [
-  {en:"Starbucks",zh:"星巴克",    mark:"S", color:["#0B6E4F","#1E9E73"], prod:["#0B6E4F","#1E9E73","#C8A96A"]},
-  {en:"McDonald's",zh:"麦当劳",   mark:"M", color:["#C8102E","#FFC72C"], prod:["#C8102E","#FFC72C","#7A4B2B"]},
-  {en:"Coffee shop",zh:"咖啡店",  mark:"C", color:["#7A4B2B","#B07A4B"], prod:["#7A4B2B","#B07A4B","#E0C9A6"]},
-  {en:"Bubble tea",zh:"奶茶店",   mark:"B", color:["#8B5E34","#C9A26B"], prod:["#8B5E34","#C9A26B","#F0E0C0"]},
-  {en:"Bakery",zh:"面包烘焙",     mark:"B", color:["#E0883B","#F6B26B"], prod:["#E0883B","#F6B26B","#7A4B2B"]},
-  {en:"Nail salon",zh:"美甲美睫", mark:"N", color:["#DB2777","#F472B6"], prod:["#DB2777","#F472B6","#FBCFE8"]},
+  {en:"Coffee shop",zh:"咖啡店"}, {en:"Bubble tea",zh:"奶茶店"}, {en:"Bakery",zh:"面包烘焙"},
+  {en:"Nail salon",zh:"美甲美睫"}, {en:"Street food",zh:"小吃摊"}, {en:"Gym",zh:"健身房"},
 ];
 
 /* flow: describe chips (returning — campaign goal, shop already known) */
@@ -146,8 +142,20 @@ const OUTLETS = [
 const DEFAULT_ACTIVITIES = [
   { id:"a1", name:{en:"Weekend Coffee Promo",zh:"周末咖啡促销"},
     outletIds:["o1","o2"],
-    vouchers: DEFAULT_VOUCHERS.map(v=>({...v})),
+    vouchers: [ {...DEFAULT_VOUCHERS[0]} ],
     gameId:"wheel", status:"live" },
+  { id:"a2", name:{en:"Mid-Autumn Mooncake",zh:"中秋月饼礼"},
+    outletIds:["o1"],
+    vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"Free mooncake",zh:"月饼一份"}, qty:60} ],
+    gameId:"scratch", status:"review" },
+  { id:"a3", name:{en:"New Drink Launch",zh:"新品上市试饮"},
+    outletIds:["o2"],
+    vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"$2 off new drink",zh:"新品减 2 元"}, qty:100} ],
+    gameId:"stack", status:"draft" },
+  { id:"a5", name:{en:"Birthday Cake Giveaway",zh:"生日蛋糕赠券"},
+    outletIds:["o1"],
+    vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"Free slice",zh:"蛋糕一块"}, qty:500} ],
+    gameId:"fruit", status:"rejected" },
 ];
 
 Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });

@@ -61,10 +61,11 @@
 | `landing` | 无 | 营销落地页 |
 | `describe`/`building`/`results`/`preview` | **未登录=全屏 flow shell；已登录=App Shell（带侧栏）** | 建游戏三步（`building`=合并后的单个叙事 loader） |
 | `register` | 简化顶栏（仅未登录到达） | 发布闸门 |
-| `done` | 简化顶栏 | 上线成功庆祝 |
+| `login` | 简化顶栏 | 统一手机验证码登录=注册（同一页） |
 | `app`（含旧 `dashboard` 别名） | App Shell | 登录后后台，`appSec` 决定显示哪个区 |
 
 > ⚠️ 旧的 `matching`/`detail`/`upload`/`generating` 四个 screen **已废除**：两个 loader 合并为一个 `building`；`detail`（试玩）和 `upload`（品牌）**折叠进 `preview`**（预览本身可试玩、可改品牌）。
+> ⚠️ 旧的 `done`（上线成功庆祝页）**已废除（2026-06-30）**：发布游戏后直接落到 **主页（`app`/home）**，不再有独立庆祝页。
 
 关键全局变量：
 - `authed`：是否已登录。首次发布成功（注册完成）后置 `true`，此后不再回到未登录建游戏形态。
@@ -77,7 +78,7 @@
 - `activities`：商家的活动数组，每项含 `{id, name, outletIds, vouchers, gameId, status}`。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/done/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器)。
 
 ---
 
@@ -97,7 +98,8 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - 即：登录用户永远不会进入「没有侧栏、出不去」的状态。
 
 ### 3.3 已登录跳过注册
-- 登录后再建游戏，`preview` 点「上线」**跳过注册**，直接 `done`（已是登录态）。
+- 登录后再建游戏，第二步用**完整工作台**（Workspace），点「保存游戏」**跳过注册**，把游戏存进 myGames，直接落到**主页**（已是登录态，不再有 done 页）。
+- **发布游戏 ≠ 自动建活动**：保存游戏只进 My games；要让客人扫码玩，得去「活动」里新建活动并绑定该游戏、配券、选门店、提交审核上线。
 
 ### 3.4 Describe 仅首次出现
 - **首次（未登录）**：问「你的店是做什么的？」，可填**店名或店型**，chips=店名(星巴克/麦当劳)+店型(咖啡/奶茶/烘焙/美甲)，底部可选「网站/社媒」。
@@ -126,8 +128,11 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 ### 3.9 活动与游戏的关系（2026-06-27 新增）⭐
 - **一对一**：一个活动绑定一个游戏。活动 = 经营决策（哪些门店、发什么券），游戏 = 视觉体验（玩法模板、品牌配色）。
-- **活动状态**：`draft`（未上线）/ `live`（已上线）/ `offline`（已下线）。状态显示在活动编辑器顶栏。
-- **活动编辑器**（`ActivityEditor`）：从上到下 = 活动名称 + 活动期限（开始/结束日期） → 参与门店（`OutletScope`） → 奖品券（`VoucherEditor`，有效期字段带?提示） → 选游戏（展示用户已创建的所有游戏大卡片，点选即绑定；卡片下方「选择」「查看详情」按钮；末尾「+ 新建游戏」卡） → 活动二维码 → 底部上线/下线 + 保存。
+- **活动状态机（4 态，2026-06-30 收敛，删除 offline）**：`draft`（修改中）/ `review`（审批中）/ `live`（已上线）/ `rejected`（被驳回）。
+  - 转移：`draft` —提交审核→ `review` —平台通过→ `live`；`live` —点下线→ **`draft`**（下线即回修改中，不再有独立 offline 态）；`review` —取消提交→ `draft`；`rejected` —修改重提→ `review`；`review` —平台驳回→ `rejected`。
+  - **下线 = 要改东西**，所以回到可编辑的修改中；任何重新上线都要再走审批。无「原样秒开」快捷路径。
+  - 活动编辑器顶部用 **3 段 stepper（修改 → 审批 → 上线）** 可视化当前所处阶段。
+- **活动编辑器**（`ActivityEditor`）：从上到下 = 顶部进度条（修改/审批/上线） → 活动名称 + 活动期限（开始/结束日期） → 奖品券（`VoucherEditor`，**单券、无有效期**） → 选游戏（展示用户已创建的所有游戏大卡片，点选即绑定；卡片下方「选择」「查看详情」按钮；末尾「+ 新建游戏」卡） → **参与门店（`OutletScope`，移到底部、紧挨二维码；已上线时置灰锁定，改门店需先下线）** → 活动二维码（**上线后每门店各一个 + 下载**） → 底部按钮（按状态：提交审核 / 取消提交 / 下线活动 / 修改并重新提交）+ 保存。
 - **游戏选择器**：活动编辑器中展示商家已创建的所有游戏（大卡片 + 玩法动画预览），已绑定的游戏标记「已选」，可点击切换。末尾有「+ 新建游戏」大卡片入口。
 
 ### 3.10 二维码体系（两种码，用途不同）⭐
@@ -228,8 +233,9 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 **入口**：点击活动卡或「新建活动」进入。在 App Shell 内，左侧栏常驻。
 
 **顶栏**：
-- 返回箭头（← 回活动列表）+ 活动名称。
-- 右侧状态标签：绿色「已上线」/ 红色「已下线」/ 灰色「未上线」。状态**实时反映**当前 `activity.status`。
+- 返回箭头（← 回活动列表）+ 活动名称 + 状态徽章（已上线/审批中/草稿/被驳回）。
+- 顶栏下方一行 **3 段进度条（修改 → 审批 → 上线）**，按 `activity.status` 高亮当前阶段。状态**实时反映**当前 `activity.status`。
+- **活动列表**（`ActivitiesView`）顶部有筛选 pill：全部 / 修改中（草稿+被驳回）/ 审批中 / 已上线；**零计数标签自动隐藏**（全部除外）。
 
 **编辑器内容（从上到下，每块一个 panel 卡片）**：
 
@@ -431,13 +437,14 @@ Activity（活动，经营决策，2026-06-27 新增）
   id, account_id, name,
   game_id,                              # 绑定的游戏（一对一）
   participating_outlet_ids[],           # 作用门店，默认全部
-  status(draft/live/offline),
+  status(draft/review/live/rejected),   # 2026-06-30：删除 offline；下线→draft
+  start_date, end_date,
   created_at, published_at
 
-Voucher（奖品券，挂在 Activity 下，可多张不同券）
+Voucher（奖品券，挂在 Activity 下，一个活动一张券）
   id, activity_id,
   name(如"卡布奇诺"), price(原价,字符串如"S$6.00"), discount(如"免费/买一送一/8折"),
-  qty(总张数=发行上限), per_customer_limit,
+  qty(总张数=发行上限),                 # 无有效期、无中奖率字段
   awarded_count(已发/已被赢走), redeemed_count(已核销),
   remaining = qty - awarded_count        # 派生
   status(active/exhausted)
@@ -476,7 +483,7 @@ Player（客人，端侧最小化）
 | **活动列表** | `GET /api/activities` | — | `activity[]`（含 vouchers、game_id、status） |
 | **活动详情** | `GET /api/activities/:id` | — | 完整 Activity + vouchers + 统计 |
 | **活动增删改** | `POST/PATCH/DELETE /api/activities` | Activity 字段 | activity |
-| **活动上线/下线** | `POST /api/activities/:id/publish` · `/unpublish` | — | `{ status }` |
+| **活动提交审核/下线** | `POST /api/activities/:id/submit`（→review）· `/unpublish`（**下线→draft**，非 offline） | — | `{ status }` |
 | **奖品券增删改** | 含在 `PATCH /api/activities/:id` 的 `vouchers[]`（或 `/activities/:id/vouchers` CRUD） | voucher 字段 | vouchers |
 | **门店增删改**（我的/Me & 预览内联加） | `GET/POST/PATCH/DELETE /api/outlets` | Outlet 字段 | outlet[] |
 | 账户/品牌素材库（Me） | `GET/PATCH /api/account` | name/phone/brandKit | account |

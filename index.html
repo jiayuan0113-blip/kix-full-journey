@@ -373,6 +373,27 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .preview.lite{grid-template-columns:minmax(0,400px) minmax(0,440px);justify-content:center;gap:30px}
 .preview.lite .demo-stage{min-height:420px}
 .preview.lite .bc-btns{margin-left:0}
+/* 品牌化「生成定制游戏」变身 */
+.demo-skin{width:100%;display:flex;justify-content:center}
+.demo-skin.on{animation:skinReveal .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes skinReveal{0%{opacity:.3;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+.gen-hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:13px;color:var(--muted);font-weight:600}
+.branded-badge{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--green-d);background:var(--green-50);padding:5px 11px;border-radius:999px;z-index:4}
+.branded-badge svg{width:14px;height:14px}
+.regen-link{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 11px;box-shadow:var(--sh-sm);z-index:4}
+.regen-link:hover{border-color:var(--muted-2);color:var(--ink)}
+.canvas-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--muted);padding:6px 10px;border-radius:9px;margin-bottom:6px}
+.canvas-back:hover{background:#EFF3F1;color:var(--ink-2)}
+.bc-site{display:flex;align-items:center;gap:8px;margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#FCFEFD}
+.bc-site input{flex:1;border:none;background:transparent;font-size:13.5px;color:var(--ink)}
+.bc-site input:focus{outline:none}
+.bc-site input::placeholder{color:var(--muted-2)}
+.gen-overlay{position:absolute;inset:0;background:rgba(255,255,255,.85);backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;border-radius:26px;z-index:6}
+.gen-spin{width:38px;height:38px;border-radius:50%;border:3px solid var(--green-100);border-top-color:var(--green);animation:genspin .8s linear infinite}
+@keyframes genspin{to{transform:rotate(360deg)}}
+.gen-tasks{text-align:center;display:flex;flex-direction:column;gap:7px}
+.gen-tasks .gt{font-size:14px;font-weight:600;color:var(--ink-2);opacity:0;animation:gtfade .45s ease forwards}
+@keyframes gtfade{to{opacity:1}}
 .editbox{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--sh-sm)}
 .editrow{padding:16px 0;border-top:1px solid var(--line-2)}.editrow:first-child{padding-top:0;border-top:none}
 .editrow .k{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;text-transform:uppercase;margin-bottom:10px}
@@ -396,6 +417,7 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .vc-name:focus{outline:none;border-color:var(--green)}
 .vc-stock{font-size:12px;color:var(--muted);white-space:nowrap}.vc-stock b{color:var(--green-d)}
 .vc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.vc-grid.g3{grid-template-columns:repeat(3,1fr)}
 .vc-grid label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.02em}
 .vc-grid input{border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:13.5px;font-weight:600;color:var(--ink);width:100%}
 .vc-grid input:focus{outline:none;border-color:var(--green)}
@@ -413,6 +435,8 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .ock{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:14px;color:var(--ink-2);cursor:pointer}
 .ock input{width:16px;height:16px;accent-color:var(--green);flex:none}
 .ock em{color:var(--muted-2);font-style:normal}
+.ock.disabled{cursor:default;opacity:.6}
+.ock.disabled input{cursor:default}
 .outlet-add{margin-top:10px;display:flex;flex-direction:column;gap:8px;padding:12px;border:1px dashed var(--green-100);border-radius:11px;background:var(--green-50)}
 .outlet-add input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px;color:var(--ink);background:#fff;width:100%}
 .outlet-add input:focus{outline:none;border-color:var(--green)}
@@ -574,6 +598,45 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 
 /* home */
 .home-hero{background:linear-gradient(135deg,#0B1220,#1b2940);color:#fff;border-radius:22px;padding:26px 28px;display:flex;gap:26px;align-items:center;flex-wrap:wrap;box-shadow:var(--sh)}
+.home-hero.clickable{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.home-hero.clickable:hover{transform:translateY(-3px);box-shadow:0 18px 40px -16px rgba(11,18,32,.5)}
+/* activity approval status */
+.act-steps{display:flex;align-items:center;gap:0;margin:2px 0 18px;padding:16px 22px;background:#fff;border:1px solid var(--line);border-radius:16px}
+.act-step{display:flex;align-items:center;gap:9px;flex:none}
+.act-step .dot{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:#EEF1F4;color:#94A3B2;flex:none}
+.act-step .lbl{font-size:14px;font-weight:700;color:#94A3B2;white-space:nowrap}
+.act-step.done .dot{background:var(--green);color:#fff}
+.act-step.done .lbl{color:var(--ink-2)}
+.act-step.now .dot{background:var(--green);color:#fff;box-shadow:0 0 0 4px var(--green-50)}
+.act-step.now .lbl{color:var(--green-d);font-weight:800}
+.act-step.fail .dot{background:#DC2626;color:#fff}
+.act-step.fail .lbl{color:#DC2626}
+.act-step.off .dot{background:#EAEFF3;color:#516074}
+.act-step.off .lbl{color:#516074}
+.step-line{flex:1;height:2px;background:#E3E8ED;margin:0 12px;min-width:24px}
+.step-line.done{background:var(--green)}
+.act-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.afilt{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13.5px;font-weight:700;color:var(--ink-2);cursor:pointer}
+.afilt em{font-style:normal;font-size:12px;font-weight:800;color:var(--muted-2);background:#F1F4F7;border-radius:999px;padding:1px 7px;min-width:18px;text-align:center}
+.afilt:hover{border-color:var(--green-200,#BBE7C9)}
+.afilt.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.afilt.on em{background:rgba(255,255,255,.22);color:#fff}
+.act-statusbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.act-badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;padding:5px 12px;border-radius:999px}
+.act-badge .b{width:6px;height:6px;border-radius:999px;background:currentColor}
+.act-badge.st-draft{background:#EEF1F4;color:#5C6B7A}
+.act-badge.st-review{background:#FEF6E0;color:#B7791F}
+.act-badge.st-live{background:var(--green-50);color:var(--green-d)}
+.act-badge.st-rejected{background:#FEECEC;color:#DC2626}
+.act-badge.st-offline{background:#EAEFF3;color:#516074}
+.act-note{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:7px}.act-note.danger{color:#DC2626}
+.dotwait{width:7px;height:7px;border-radius:50%;background:#B7791F;animation:genspin 1.2s linear infinite;box-shadow:0 0 0 3px #FEF6E0}
+.qr-list{display:flex;flex-wrap:wrap;gap:16px;padding:6px 0}
+.qr-card{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:14px;min-width:260px;flex:1}
+.qr-card .qr-meta .nm{font-size:14.5px;font-weight:700;color:var(--ink)}
+.qr-card .qr-meta .ad{font-size:12.5px;color:var(--muted);margin-top:2px}
+.act-actions{display:flex;gap:12px;align-items:center;margin-top:24px;justify-content:space-between}
+.mgcard .mgstatus{position:absolute;top:12px;left:12px;z-index:6;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .home-hero .hl-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#bdf5cf;background:rgba(34,197,94,.16);padding:5px 11px;border-radius:999px}
 .home-hero .hl-live .b{width:7px;height:7px;border-radius:999px;background:var(--green-br)}
 .home-hero h3{font-size:22px;font-weight:800;margin:12px 0 16px;letter-spacing:-.01em}
