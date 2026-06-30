@@ -615,6 +615,21 @@ const SB_ITEMS = [
   { id:"me",         icon:"user",      en:"Me",         zh:"我的" },
 ];
 
+// 统一空状态：图标 + 标题 + 一句副文案 + 一个主动作（可选次按钮）。全站复用，视觉一致。
+function EmptyState({ icon, title, sub, actLabel, onAct, ghostLabel, onGhost }) {
+  return (
+    <div className="empty-state">
+      <div className="es-ic">{icon}</div>
+      <h3>{title}</h3>
+      <p>{sub}</p>
+      {(actLabel || ghostLabel) && <div className="es-actions">
+        {actLabel && <button className="btn primary lg" onClick={onAct}>{actLabel}</button>}
+        {ghostLabel && <button className="btn ghost lg" onClick={onGhost}>{ghostLabel}</button>}
+      </div>}
+    </div>
+  );
+}
+
 function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRedeem, onGoActivity }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
@@ -696,14 +711,15 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
   );
 }
 
-function MyGamesView({ game, onNew, onOpen }) {
+function MyGamesView({ game, onNew, onOpen, hasLive }) {
   const lang = useLang();
   return (
     <div className="app-body">
       <div className="mygames">
         <div className="mgcard clickable" onClick={()=>onOpen(game)}>
-          <div className="mgart"><GamePreview kind={game.kind} colors={game.g} /><span className="mglive" style={{ zIndex:6 }}><span className="b"></span>LIVE</span></div>
-          <div className="mgmeta"><div className="nm">{P(lang,game.name)}</div><div className="st">{tr(lang,"312 plays · 86 walk-ins","312 次游玩 · 86 到店")}</div><div className="mgedit">{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></div></div>
+          {/* 游戏只在被 live 活动使用时才有真实战绩；否则显示中性状态，不编数字 */}
+          <div className="mgart"><GamePreview kind={game.kind} colors={game.g} />{hasLive && <span className="mglive" style={{ zIndex:6 }}><span className="b"></span>LIVE</span>}</div>
+          <div className="mgmeta"><div className="nm">{P(lang,game.name)}</div><div className="st">{hasLive ? tr(lang,"312 plays · 86 walk-ins","312 次游玩 · 86 到店") : tr(lang,"Not in a live activity yet","还没用在已上线的活动里")}</div><div className="mgedit">{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></div></div>
         </div>
         <button className="mgnew" onClick={onNew}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
       </div>
@@ -711,7 +727,7 @@ function MyGamesView({ game, onNew, onOpen }) {
   );
 }
 
-function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport }) {
+function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, onNewAct, onGoActivities, liveName }) {
   const lang = useLang();
   const [code, setCode] = useState(""), [ok, setOk] = useState(false), [scanning, setScanning] = useState(false);
   const success = () => { setOk(true); setCode(""); setTimeout(()=>setOk(false), 2800); };
@@ -720,6 +736,31 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport }) {
   const reds = FEED.filter(f => f.ic === "gift");
   const totRedeemed = vouchers.reduce((s,v)=>s+(v.redeemed||0),0);
   const toCome = vouchers.reduce((s,v)=>s+Math.max(0,(v.awarded||0)-(v.redeemed||0)),0);
+  const totAwarded = vouchers.reduce((s,v)=>s+(v.awarded||0),0);
+  const dlQR = () => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(liveName||"activity",100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
+  // 空状态分级：没 live 活动 = 无券可核销；有 live 但还没人赢券 = 等客人玩
+  if (!hasLive) return (
+    <div className="app-body"><EmptyState
+      icon={<Ic.target/>}
+      title={hasActs ? tr(lang,"Your activity isn't live yet","活动还没上线") : tr(lang,"Nothing to redeem yet","还没有可核销的奖品")}
+      sub={hasActs
+        ? tr(lang,"It's still being edited or reviewed. Once it's live, customers play, win vouchers — then you scan to redeem here.","活动还在修改/审批中。上线后客人才能玩、赢券，你才能在这里扫码核销。")
+        : tr(lang,"Create an activity and publish it. Customers play, win a voucher, walk in — you scan it here, and that counts as a real walk-in.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次真实到店。")}
+      actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
+      onAct={hasActs ? onGoActivities : onNewAct}
+    /></div>
+  );
+  if (totAwarded === 0) return (
+    <div className="app-body"><EmptyState
+      icon={<Ic.target/>}
+      title={tr(lang,"No prizes won yet","还没有人赢到奖品")}
+      sub={tr(lang,"Stick your activity QR on the counter and share it. As soon as someone plays and wins, their prize shows up here to redeem.","把活动二维码贴到收银台、分享出去。客人一玩、一赢券，就会出现在这里等你核销。")}
+      actLabel={tr(lang,"Download activity QR","下载活动二维码")}
+      onAct={dlQR}
+      ghostLabel={tr(lang,"View activity","查看活动")}
+      onGhost={onGoActivities}
+    /></div>
+  );
   return (
     <div className="app-body redeem-wrap">
       <div className="rd-left">
@@ -794,12 +835,13 @@ function ActivitiesView({ activities, onNew, onOpen }) {
         ))}
       </div>}
       {activities.length === 0
-        ? <div style={{ textAlign:"center", padding:"60px 20px" }}>
-            <div style={{ fontSize:48, marginBottom:16 }}><Ic.clipboard style={{ width:48, height:48, color:"var(--muted-2)" }}/></div>
-            <h3 style={{ fontSize:20, fontWeight:800, margin:"0 0 8px" }}>{tr(lang,"No activities yet","还没有活动")}</h3>
-            <p style={{ color:"var(--muted)", fontSize:15, margin:"0 0 24px" }}>{tr(lang,"Create your first activity — pick outlets, set vouchers, and link a game.","创建你的第一个活动 —— 选门店、设券、绑游戏。")}</p>
-            <button className="btn primary lg" onClick={onNew}>+ {tr(lang,"New activity","新建活动")}</button>
-          </div>
+        ? <EmptyState
+            icon={<Ic.clipboard/>}
+            title={tr(lang,"No activities yet","还没有活动")}
+            sub={tr(lang,"An activity is how customers reach you — pick outlets, set a voucher, link your game, then publish.","活动是客人触达你的方式 —— 选门店、设一张券、绑上游戏，再上线。")}
+            actLabel={"+ " + tr(lang,"New activity","新建活动")}
+            onAct={onNew}
+          />
         : <div className="mygames">
             {shown.map(act => {
               const tpl = TEMPLATES.find(t => t.id === act.gameId) || TEMPLATES[0];
@@ -932,7 +974,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
   );
 }
 
-function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS }) {
+function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, onNewAct, onGoActivities, liveName }) {
   const lang = useLang();
   const ranges = [{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
   const [ri, setRi] = useState(1);
@@ -944,6 +986,30 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS })
   let acc = 0;
   const outRed = outlets.map((o,i)=>{ const v = i===outlets.length-1 ? totRed-acc : Math.round(totRed*(outlets.length-i)/sumW); acc += v; return { o, v }; });
   const omax = Math.max(1, ...outRed.map(x=>x.v));
+  const dlQR = () => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(liveName||"activity",100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
+  // 空状态分级：没 live 活动 = 无数据来源；有 live 但还没核销 = 等首笔到店
+  if (!hasLive) return (
+    <div className="app-body"><EmptyState
+      icon={<Ic.chart/>}
+      title={hasActs ? tr(lang,"No data until you go live","上线后才有数据") : tr(lang,"No data yet","还没有数据")}
+      sub={hasActs
+        ? tr(lang,"Your activity is still being edited or reviewed. Once it's live and customers redeem in store, walk-ins, new vs returning, and per-outlet stats appear here.","活动还在修改/审批中。上线、客人到店核销后，这里会显示真实到店、新客/回头客、各门店表现。")
+        : tr(lang,"This page only counts people who actually walked in. Create an activity, go live, and your real walk-in data will build up here.","这页只统计真正走进门的人。建活动、上线后，真实到店数据会在这里累积。")}
+      actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
+      onAct={hasActs ? onGoActivities : onNewAct}
+    /></div>
+  );
+  if (totRed === 0) return (
+    <div className="app-body"><EmptyState
+      icon={<Ic.chart/>}
+      title={tr(lang,"Live — waiting for the first walk-in","已上线，等第一位到店")}
+      sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your walk-in numbers and trends will appear here.","只要有客人扫码玩、赢券、到店核销，到店数据和趋势就会出现在这里。")}
+      actLabel={tr(lang,"Download activity QR","下载活动二维码")}
+      onAct={dlQR}
+      ghostLabel={tr(lang,"Manage activities","管理活动")}
+      onGhost={onGoActivities}
+    /></div>
+  );
   return (
     <div className="app-body">
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:12, flexWrap:"wrap" }}>
@@ -1132,10 +1198,10 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} />
-          : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} />
-          : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} />
+          : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} hasLive={!!liveAct} />
+          : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} />
-          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} />}
+          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
     </div>
   );
