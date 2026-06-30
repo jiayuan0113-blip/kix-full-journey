@@ -122,13 +122,26 @@ const FEED = [
   { ic:"star", bg:"#FFF3DA", c:"#F59E0B", who:{en:"New customer",zh:"新客"}, act:{en:'played “Lucky Spin”, won a voucher',zh:'玩了「幸运大转盘」赢了券'}, z:{en:"12 min ago",zh:"12 分钟前"} },
 ];
 
+/* 统一 demo 指标 —— 全站(主页/核销/数据/我的游戏)从这里取数，口径自洽。
+   场景：live 活动 a1 / 2 门店 / 单券。7 天为主窗口，today 为其子集。改这一处，全站同步、不穿帮。
+   自洽校验：new 61 + returning 25 = walkins 86；trend 7 天求和 = 86，末位 = today 12；
+   漏斗 plays 312 → awarded 120 → walkins/redeemed 86；byOutlet 50+36 = 86；券 awarded 120 / redeemed 86 → 待核销 34。 */
+const DEMO_METRICS = {
+  plays: 312, awarded: 120, walkins: 86, newCust: 61, returning: 25,
+  delta: { plays:"+18%", walkins:"+24%", newCust:"+31%", returning:"+12%" },
+  today: { plays: 47, walkins: 12, redeemed: 9 },
+  trend: [{d:{en:"Mon",zh:"一"},v:10},{d:{en:"Tue",zh:"二"},v:12},{d:{en:"Wed",zh:"三"},v:11},{d:{en:"Thu",zh:"四"},v:14},{d:{en:"Fri",zh:"五"},v:13},{d:{en:"Sat",zh:"六"},v:14},{d:{en:"Sun",zh:"日"},v:12}],
+  byOutlet: { o1: 50, o2: 36 },
+  spark: { plays:[20,28,24,32,30,40,44], walkins:[5,7,6,9,8,11,13], newCust:[3,5,4,7,6,9,11], returning:[2,3,3,4,3,5,5] },
+};
+
 /* vouchers — merchant只填「折扣 + 张数」，无中奖率概念。发券概率按剩余张数自然分布、发完即停。 */
 /* 建游戏起步只给一张券（商家再自己加） */
 const STARTER_VOUCHERS = [
   { name:{en:"Free drink",zh:"一杯免费饮品"}, price:"S$6.00", discount:{en:"Free",zh:"免费"}, qty:100, awarded:0, redeemed:0, perCust:1 },
 ];
 const DEFAULT_VOUCHERS = [
-  { name:{en:"Cappuccino",zh:"卡布奇诺"}, price:"S$6.00",  discount:{en:"Free",zh:"免费"},      qty:100, awarded:62,  redeemed:41, perCust:1 },
+  { name:{en:"Cappuccino",zh:"卡布奇诺"}, price:"S$6.00",  discount:{en:"Free",zh:"免费"},      qty:200, awarded:120, redeemed:86, perCust:1 },
   { name:{en:"Any drink",zh:"任意饮品"},  price:"S$6.50",  discount:{en:"1-for-1",zh:"买一送一"}, qty:300, awarded:140, redeemed:96, perCust:1 },
   { name:{en:"Whole order",zh:"全单"},    price:"—",        discount:{en:"20% off",zh:"8 折"},    qty:200, awarded:88,  redeemed:53, perCust:1 },
 ];
@@ -158,4 +171,4 @@ const DEFAULT_ACTIVITIES = [
     gameId:"fruit", status:"rejected" },
 ];
 
-Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
+Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });

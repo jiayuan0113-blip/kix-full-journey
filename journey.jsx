@@ -656,9 +656,9 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
               <span className="hl-live"><span className="b"></span>LIVE</span>
               <h3>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")}</h3>
               <div className="live3">
-                <div className="lc"><div className="n">47</div><div className="l">{tr(lang,"plays today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">12</div><div className="l">{tr(lang,"walked in","到店")}</div></div>
-                <div className="lc"><div className="n">9</div><div className="l">{tr(lang,"redeemed","已核销")}</div></div>
+                <div className="lc"><div className="n">{DEMO_METRICS.today.plays}</div><div className="l">{tr(lang,"plays today","今天玩了")}</div></div>
+                <div className="lc"><div className="n">{DEMO_METRICS.today.walkins}</div><div className="l">{tr(lang,"walked in","到店")}</div></div>
+                <div className="lc"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed","已核销")}</div></div>
               </div>
             </div>
             <div style={{ marginLeft:"auto", display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
@@ -719,7 +719,7 @@ function MyGamesView({ game, onNew, onOpen, hasLive }) {
         <div className="mgcard clickable" onClick={()=>onOpen(game)}>
           {/* 游戏只在被 live 活动使用时才有真实战绩；否则显示中性状态，不编数字 */}
           <div className="mgart"><GamePreview kind={game.kind} colors={game.g} />{hasLive && <span className="mglive" style={{ zIndex:6 }}><span className="b"></span>LIVE</span>}</div>
-          <div className="mgmeta"><div className="nm">{P(lang,game.name)}</div><div className="st">{hasLive ? tr(lang,"312 plays · 86 walk-ins","312 次游玩 · 86 到店") : tr(lang,"Not in a live activity yet","还没用在已上线的活动里")}</div><div className="mgedit">{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></div></div>
+          <div className="mgmeta"><div className="nm">{P(lang,game.name)}</div><div className="st">{hasLive ? `${DEMO_METRICS.plays} ${tr(lang,"plays","次游玩")} · ${DEMO_METRICS.walkins} ${tr(lang,"walk-ins","到店")}` : tr(lang,"Not in a live activity yet","还没用在已上线的活动里")}</div><div className="mgedit">{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></div></div>
         </div>
         <button className="mgnew" onClick={onNew}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
       </div>
@@ -784,7 +784,7 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
       <div className="rd-right">
         {/* 简要概览 — 当下要瞄一眼的数；完整分析在「数据」页 */}
         <div className="rd-summary" style={{ marginTop:0 }}>
-          <div className="rd-sum"><div className="n">9</div><div className="l">{tr(lang,"redeemed today","今日核销")}</div></div>
+          <div className="rd-sum"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed today","今日核销")}</div></div>
           <div className="rd-sum"><div className="n">{toCome}</div><div className="l">{tr(lang,"not yet redeemed","待核销")}</div></div>
           <div className="rd-sum"><div className="n">{totRedeemed}</div><div className="l">{tr(lang,"redeemed total","累计核销")}</div></div>
         </div>
@@ -974,18 +974,22 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
   );
 }
 
-function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, onNewAct, onGoActivities, liveName }) {
+function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, multiAct, onNewAct, onGoActivities, liveName }) {
   const lang = useLang();
+  const M = DEMO_METRICS;
   const ranges = [{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
   const [ri, setRi] = useState(1);
-  const tmax = Math.max(...TREND.map(t => t.v)), gmax = Math.max(...GAME_PERF.map(g => g.v));
   const note = tr(lang,"vs last week","比上周");
-  // 各门店核销（mock：按权重把总核销分摊到门店）
   const totRed = vouchers.reduce((s,v)=>s+(v.redeemed||0),0);
-  const sumW = outlets.reduce((s,_,i)=>s+(outlets.length-i),0);
-  let acc = 0;
-  const outRed = outlets.map((o,i)=>{ const v = i===outlets.length-1 ? totRed-acc : Math.round(totRed*(outlets.length-i)/sumW); acc += v; return { o, v }; });
+  // 漏斗转化率 + 新客占比
+  const wonRate = Math.round(M.awarded / M.plays * 100);   // 扫码玩→赢券
+  const redRate = Math.round(M.walkins / M.awarded * 100);  // 赢券→到店
+  const newPct = Math.round(M.newCust / M.walkins * 100), retPct = 100 - newPct;
+  const tmax = Math.max(...M.trend.map(t => t.v));
+  // 各门店到店（来自统一 demo 口径，自洽求和=walkins）
+  const outRed = outlets.map(o => ({ o, v: M.byOutlet[o.id] || 0 }));
   const omax = Math.max(1, ...outRed.map(x=>x.v));
+  const gmax = Math.max(...GAME_PERF.map(g => g.v));
   const dlQR = () => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(liveName||"activity",100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
   // 空状态分级：没 live 活动 = 无数据来源；有 live 但还没核销 = 等首笔到店
   if (!hasLive) return (
@@ -1012,62 +1016,75 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   );
   return (
     <div className="app-body">
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:12, flexWrap:"wrap" }}>
-        <p className="dash-sub" style={{ margin:0 }}>{tr(lang,`Only people who actually walked in — ${P(lang,ranges[ri])}.`,`只看真实走进门的人 —— ${P(lang,ranges[ri])}的数据。`)}</p>
+      <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:14 }}>
         <div className="datepills">{ranges.map((r,i) => <button key={i} className={ri===i?"on":""} onClick={()=>setRi(i)}>{P(lang,r)}</button>)}</div>
       </div>
-      <div className="kpis">
-        <Kpi label={tr(lang,"Game plays","玩了游戏")} num="312" delta="+18%" up note={note} spark={[20,28,24,32,30,40,44]} />
-        <Kpi label={tr(lang,"Verified walk-ins","到店核销")} num="86" delta="+24%" up note={note} spark={[5,7,6,9,8,11,13]} />
-        <Kpi label={tr(lang,"New customers","新客到店")} num="61" delta="+31%" up note={note} spark={[3,5,4,7,6,9,11]} />
-        <Kpi label={tr(lang,"Returning","回头客到店")} num="25" delta="+12%" up note={note} spark={[2,3,3,4,3,5,5]} />
+      {/* Hero：真实到店核销 = 唯一付费指标、唯一独家证明，做绝对主角 */}
+      <div className="rep-hero">
+        <div className="rh-l">
+          <span className="rh-eye"><span className="b"></span>{tr(lang,`Verified walk-ins · ${P(lang,ranges[ri])}`,`真实到店核销 · ${P(lang,ranges[ri])}`)}</span>
+          <div className="rh-num">{M.walkins}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{M.delta.walkins} {note}</span></div>
+          <p className="rh-sub">{tr(lang,"Only customers who actually walked in and were redeemed — the only thing you pay for.","只算真正走进门、被核销的客人 —— 也是你唯一付费的对象。")}</p>
+        </div>
+        <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
       </div>
       <div className="panels">
+        {/* 转化漏斗：吸收"玩了游戏"作为分母，证明全链路通 */}
         <div className="panel">
-          <h3>{tr(lang,"Walk-ins per day","每天有多少人到店")}</h3>
-          <p className="ph-sub">{tr(lang,`${P(lang,ranges[ri])} · played, then walked in and redeemed`,`${P(lang,ranges[ri])} · 扫码玩过、再走进门核销的人数`)}</p>
-          <div className="bars7">{TREND.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
+          <h3>{tr(lang,"From scan to walk-in","从扫码到到店")}</h3>
+          <p className="ph-sub">{tr(lang,"Every step of the funnel — play, win, walk in","扫码玩 → 赢到券 → 真实到店，每一步的转化")}</p>
+          <div className="funnel">
+            <div className="fstep"><div className="fn">{M.plays}</div><div className="fl">{tr(lang,"Played","扫码玩")}</div></div>
+            <div className="farrow"><b>{wonRate}%</b><span>{tr(lang,"won","赢券")}</span></div>
+            <div className="fstep"><div className="fn">{M.awarded}</div><div className="fl">{tr(lang,"Won a voucher","赢到券")}</div></div>
+            <div className="farrow"><b>{redRate}%</b><span>{tr(lang,"walked in","到店")}</span></div>
+            <div className="fstep on"><div className="fn">{M.walkins}</div><div className="fl">{tr(lang,"Walked in","到店核销")}</div></div>
+          </div>
         </div>
+        {/* 新客 vs 回头：证明"把路过变回头客" */}
         <div className="panel">
-          <h3>{tr(lang,"New vs returning","谁是新客，谁是回头客")}</h3>
-          <p className="ph-sub">{tr(lang,"More returning = customers keep coming back","回头客越多，说明客人愿意一来再来")}</p>
-          <div className="donut-wrap">
-            <div className="donut" style={{ background:"conic-gradient(var(--green) 0 71%, var(--amber) 71% 100%)" }}><div className="hole"><b>86</b><span>{tr(lang,"walk-ins","到店")}</span></div></div>
-            <div className="legend">
-              <div className="lg"><span className="sw" style={{ background:"var(--green)" }}></span>{tr(lang,"New","新客")} <b>61</b> · 71%</div>
-              <div className="lg"><span className="sw" style={{ background:"var(--amber)" }}></span>{tr(lang,"Returning","回头客")} <b>25</b> · 29%</div>
+          <h3>{tr(lang,"New vs returning","新客 vs 回头客")}</h3>
+          <p className="ph-sub">{tr(lang,"Bringing in new faces — and getting them to come back","既在拉新客，也在让老客回头")}</p>
+          <div className="nvr">
+            <div className="nvr-bar"><i className="nv-new" style={{ width:newPct+"%" }}></i><i className="nv-ret" style={{ width:retPct+"%" }}></i></div>
+            <div className="nvr-legend">
+              <div className="d"><span className="sw" style={{ background:"var(--green)" }}></span><span><b>{M.newCust}</b>{tr(lang,"New","新客")} · {newPct}%</span></div>
+              <div className="d"><span className="sw" style={{ background:"var(--amber)" }}></span><span><b>{M.returning}</b>{tr(lang,"Returning","回头客")} · {retPct}%</span></div>
             </div>
           </div>
         </div>
       </div>
-      <div className="panels">
+      {/* 每日到店趋势 */}
+      <div className="panel">
+        <h3>{tr(lang,"Walk-ins per day","每天有多少人到店")}</h3>
+        <p className="ph-sub">{tr(lang,"Played, then walked in and redeemed","扫码玩过、再走进门核销的人数")}</p>
+        <div className="bars7">{M.trend.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
+      </div>
+      {/* 条件区：多活动才有"排名"意义；多门店才有"分店"意义 */}
+      {(multiAct && outlets.length>=2) ? <div className="panels">
         <div className="panel">
-          <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage activities","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Ranked by walk-ins — back the one that works","按带来的到店人数排序 —— 把预算押在最有效的那个")}</p>
+          <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
+          <p className="ph-sub">{tr(lang,"Ranked by walk-ins — back the one that works","按到店人数排序 —— 把预算押在最有效的")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
-        <div className="panel">
-          <h3>{tr(lang,"Redeemed by outlet","各门店核销")}</h3>
-          <p className="ph-sub">{tr(lang,"Which shop redeemed the most — voucher stock is shared across the game","哪家店核销最多 —— 库存为该游戏全门店共享")}</p>
-          {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"redeemed","张核销")}</span></div><div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div></div>))}
-        </div>
+        <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
       </div>
-      <div className="panels">
-        <div className="panel">
-          <h3>{tr(lang,"Recent walk-ins","最近到店")}</h3>
-          <p className="ph-sub">{tr(lang,"Live · redemptions & new customers","实时 · 核销与新客")}</p>
-          {FEED.map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
+      : multiAct ? <div className="panel">
+          <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
+          <p className="ph-sub">{tr(lang,"Ranked by walk-ins — back the one that works","按到店人数排序 —— 把预算押在最有效的")}</p>
+          {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
-        <div className="panel">
-          <h3>{tr(lang,"Voucher stock left","奖品券剩余")}</h3>
-          <p className="ph-sub">{tr(lang,"Redeemed vs still to redeem vs left to win, per voucher","每张券：已核销 / 待核销 / 还可发")}</p>
-          {vouchers.map((v,i)=>{ const cap=+v.qty||0, given=v.awarded||0, red=v.redeemed||0, come=Math.max(0,given-red); return (
-            <div key={i} className="hbar"><div className="hl"><span>{P(lang,v.name)}</span><span className="hv">{red}/<b style={{color:"var(--ink)"}}>{cap}</b></span></div><div className="rd-bar" style={{ marginTop:2 }}><i className="rdR" style={{ width:(cap?red/cap*100:0)+"%" }}></i><i className="rdC" style={{ width:(cap?come/cap*100:0)+"%" }}></i></div></div>
-          ); })}
-        </div>
-      </div>
+      : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
+      : null}
     </div>
   );
+}
+function OutletPanel({ lang, outRed, omax }) {
+  return (<>
+    <h3>{tr(lang,"Walk-ins by outlet","各门店到店")}</h3>
+    <p className="ph-sub">{tr(lang,"Which shop pulls the most — voucher stock is shared across outlets","哪家店带客最多 —— 库存为活动全门店共享")}</p>
+    {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div></div>))}
+  </>);
 }
 
 function MeView({ brand, setBrand, outlets, setOutlets }) {
@@ -1201,7 +1218,7 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
           : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} hasLive={!!liveAct} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} />
-          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
+          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
     </div>
   );
