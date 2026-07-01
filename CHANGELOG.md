@@ -6,6 +6,68 @@
 
 ## 2026-07-01
 
+### 27. 活动列表页顶部新增「+ 新建活动」按钮
+**改了什么**：`AppShell` 的 `app-bar` 右侧区域（`app-bar-r`），当 `sec === "activities"` 且不在编辑态时，插入「+ New activity / + 新建活动」绿色按钮，点击行为与原底部 `mgnew` 卡片相同（调用 `newAct`）。
+
+**影响文件**：`journey.jsx`（AppShell app-bar）
+
+**研发注意**：按钮仅在 Activities 列表页显示，进入活动编辑器后自动隐藏；复用现有 `newAct` 逻辑，无需新接口。
+
+---
+
+### 26. ActivityEditor QR 区新增「上传自定义图片」功能
+**改了什么**：
+- `ActivityEditor` 新增 `customQRs` state（`{outletId: objectURL}`），`pickQR(outletId)` 触发文件选择。
+- QR 面板改为**逐门店卡片**（live 和非 live 状态统一），每张卡片底部新增「上传自定义图 / Upload custom」按钮。
+- 上传后卡片图示替换为商家上传的图片；二次上传显示「已上传自定义 ✓」+ 「更换」按钮。
+- 非 live 态下原灰色单一占位改为按门店展开（`actOutlets`），逻辑与 live 态保持一致。
+
+**影响文件**：`journey.jsx`（ActivityEditor）
+
+**研发注意**：
+- 真实工程需要上传接口（`PUT /activities/:id/outlets/:oid/qr-image`），返回持久化 URL 存入 Activity。
+- 商家上传的是 QR 图片文件（PNG/JPG）；系统不验证图片内容，商家自行保证二维码指向正确 URL。
+- 若商家未上传，上线后仍按现有逻辑自动生成（一门店一 QR）。
+
+---
+
+### 25. 落地页次 CTA 改为「看游戏样片」
+**改了什么**：Hero 白色 ghost 按钮从「看 30 秒怎么玩」改为「See sample games / 看游戏样片」，点击后平滑滚动到页面内游戏展示区（`id="gallery-sec"`）；Gallery `<section>` 新增该 id。
+
+**影响文件**：`journey.jsx`（Hero + Gallery）
+
+**研发注意**：不再跳转 game creation 流程，改为页内锚点滚动；视频自动播放（右侧占位框）已覆盖"看效果"的需求，次 CTA 改为"看真实游戏样本"以区分功能。
+
+---
+
+### 24. 主页 Hero 布局优化 — LIVE 内联小标签 + 核销按钮右置
+**改了什么**：在 #23 基础上进一步调整 Hero 布局：
+- **LIVE 标签内联**：不再独占一行，改为与活动名 `<h3>` 同行排列（`display:flex; alignItems:center; gap:10px`）。
+- **核销按钮右置**：「扫码核销」从全宽底部按钮缩回为普通尺寸按钮（`btn primary`），`alignSelf:center` 固定在 Hero 右侧，Hero 整体回到左右两栏 flex 布局。
+- `.home-hero` CSS 改回 `flex-direction:row; align-items:center`。
+
+**影响文件**：`journey.jsx`（HomeView）、`index.html`（`.home-hero`）
+
+---
+
+### 23. 主页（Home）重设计 — 移除 QR 码，核销升为主动作，增多门店分条
+**改了什么**：
+- **Hero 移除 QR 码**：删掉 `qr-sm`（打印型 QR 图）及「下载」按钮；QR 下载的正确出口是「活动」页（逐门店生成）。
+- **核销升为唯一主动作**：Hero 底部新增全宽绿色「扫码核销」按钮（`btn primary lg`），取代原来藏在 QR 右侧的小「核销」按钮。
+- **多门店今日分条**：Hero 内新增 `outlet-bar`，当门店数 ≥ 2 时显示各门店今日到店数（如「淡滨尼 7 到店 · 裕廊 5 到店」）；单门店不显示。
+- **活动名可点**：`<h3>` 加 `onClick={onGoActivity}` + 箭头图标，点进去跳活动编辑；Hero 不再整卡可点。
+- **上手清单第 3 步**：文案改为「打印各门店二维码」，上线后出现「去下载」链接（`onGoActivities` → 活动页）。
+- **DEMO_METRICS** `today` 新增 `byOutlet: { o1: 7, o2: 5 }` 驱动分条展示。
+
+**影响文件**：`data.jsx`（DEMO_METRICS.today.byOutlet）、`journey.jsx`（HomeView + AppShell）、`index.html`（`.home-hero` 布局 + `.outlet-bar` + `.ob-chip`）
+
+**研发注意**：
+- `byOutlet` 应来自"当日按门店归因的核销/到店数"接口；Key = `outlet.id`。
+- `onGoActivities` 从 AppShell 传入（`() => setSec("activities")`），真实工程中跳转到活动列表 `/activities`。
+- Hero 内 h3 的"活动名 → 活动编辑"导航在真实工程中跳转至 `/activities/:id`。
+
+---
+
 ### 22. 落地页 Hero + 定价区文案与视觉整改
 **改了什么**：
 - **Hero 副标题**：改为「AI做好你的品牌游戏；客人玩游戏赢券进店，**下次自动发券召回。**」（原"没进店，就不用花钱"改为机制+召回的完整描述）。

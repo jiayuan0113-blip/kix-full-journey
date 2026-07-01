@@ -602,9 +602,13 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .app-body{padding:26px 28px 70px;width:100%;max-width:1080px;animation:rise .4s ease both}
 
 /* home */
-.home-hero{background:linear-gradient(135deg,#0B1220,#1b2940);color:#fff;border-radius:22px;padding:26px 28px;display:flex;gap:26px;align-items:center;flex-wrap:wrap;box-shadow:var(--sh)}
-.home-hero.clickable{cursor:pointer;transition:transform .15s,box-shadow .15s}
-.home-hero.clickable:hover{transform:translateY(-3px);box-shadow:0 18px 40px -16px rgba(11,18,32,.5)}
+.home-hero{background:linear-gradient(135deg,#0B1220,#1b2940);color:#fff;border-radius:22px;padding:26px 28px;display:flex;align-items:center;gap:24px;box-shadow:var(--sh)}
+.home-hero h3{cursor:pointer;font-size:20px;font-weight:800;margin:0;letter-spacing:-.01em}
+.home-hero h3:hover{opacity:.82}
+.outlet-bar{display:flex;flex-wrap:wrap;gap:0;margin-top:16px;font-size:13px;color:#9fb0c4}
+.ob-chip{display:inline-flex;align-items:center;gap:5px}
+.ob-chip+.ob-chip::before{content:"·";margin:0 8px;opacity:.5}
+.ob-chip b{color:#bdf5cf;font-weight:700}
 /* activity approval status */
 .act-steps{display:flex;align-items:center;gap:0;margin:2px 0 18px;padding:16px 22px;background:#fff;border:1px solid var(--line);border-radius:16px}
 .act-step{display:flex;align-items:center;gap:9px;flex:none}

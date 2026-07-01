@@ -208,7 +208,7 @@ function Hero({ go }) {
         <p className="lede">{P(lang,SUB_LANDING)[0]}<b>{P(lang,SUB_LANDING)[1]}</b></p>
         <div className="cta-row">
           <button className="btn primary lg" onClick={go}>{tr(lang,"Create your first game — free","免费创建第一个游戏")}</button>
-          <button className="btn ghost lg" onClick={go}>{tr(lang,"See how it works","看 30 秒怎么玩")}</button>
+          <button className="btn ghost lg" onClick={()=>document.getElementById("gallery-sec")?.scrollIntoView({behavior:"smooth"})}>{tr(lang,"See sample games","看游戏样片")}</button>
         </div>
         <div className="proof">
           <div className="tagm">{tr(lang,"An ice-cream shop","某冰激凌店")}</div>
@@ -246,7 +246,7 @@ function ThreeThings() {
 function Gallery({ go }) {
   const lang = useLang();
   return (
-    <section className="sec">
+    <section className="sec" id="gallery-sec">
       <div className="sec-eye">{tr(lang,"SAMPLE GAMES","游戏样片")}</div>
       <h2 className="sec-h">{tr(lang,"1,000+ formats — every one becomes your brand","上千种玩法，每个都能变成你的品牌")}</h2>
       <p className="sec-sub">{tr(lang,"Coffee, bubble tea, nails, snacks — there's a fit for every shop.","咖啡、奶茶、美甲、小吃…都有适配的玩法。")}</p>
@@ -625,7 +625,7 @@ function EmptyState({ icon, title, sub, actLabel, onAct, ghostLabel, onGhost }) 
   );
 }
 
-function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRedeem, onGoActivity }) {
+function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRedeem, onGoActivity, onGoActivities, outlets = OUTLETS }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
   const [scanOk, setScanOk] = useState(false);
@@ -646,27 +646,30 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
               <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","新建活动")}</button>
             </div>
           </div>
-        : <div className="home-hero clickable" onClick={onGoActivity} title={tr(lang,"Open activity","进入活动")}>
-            <div>
-              <span className="hl-live"><span className="b"></span>LIVE</span>
-              <h3>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")}</h3>
+        : <div className="home-hero">
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+                <span className="hl-live"><span className="b"></span>LIVE</span>
+                <h3 style={{ margin:0 }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
+              </div>
               <div className="live3">
                 <div className="lc"><div className="n">{DEMO_METRICS.today.plays}</div><div className="l">{tr(lang,"plays today","今天玩了")}</div></div>
                 <div className="lc"><div className="n">{DEMO_METRICS.today.walkins}</div><div className="l">{tr(lang,"walked in","到店")}</div></div>
                 <div className="lc"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed","已核销")}</div></div>
               </div>
+              {outlets.length >= 2 && (
+                <div className="outlet-bar">
+                  {outlets.map((o) => {
+                    const label = P(lang, o.name).split("·")[1]?.trim() || P(lang, o.name);
+                    const n = (DEMO_METRICS.today.byOutlet || {})[o.id] ?? 0;
+                    return <span key={o.id} className="ob-chip">{label} <b>{n}</b> {tr(lang,"in","到店")}</span>;
+                  })}
+                </div>
+              )}
             </div>
-            <div style={{ marginLeft:"auto", display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
-              <div className="qr-sm"><Ic.qr style={{ width:60, height:60, color:"#0B1220" }}/></div>
-              <div style={{ display:"flex", gap:8 }}>
-                <button className="btn primary sm" onClick={(e)=>{ e.stopPropagation(); const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 24px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,90); ctx.font="13px sans-serif"; ctx.fillText(P(lang,liveAct.name),100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); }}><Ic.upload style={{ width:14, height:14, transform:"rotate(180deg)" }}/> {tr(lang,"Download","下载")}</button>
-                {scanning
-                  ? <button className="btn white sm" disabled><span className="spin" style={{ width:11, height:11, borderColor:"rgba(22,163,74,.25)", borderTopColor:"var(--green)" }}></span> {tr(lang,"Scanning","扫描中")}</button>
-                  : scanOk
-                  ? <button className="btn white sm" style={{ color:"var(--green-d)" }}><Ic.check/> {tr(lang,"Done!","成功！")}</button>
-                  : <button className="btn white sm" onClick={(e)=>{ e.stopPropagation(); onRedeem(); }}><Ic.target style={{ width:14, height:14 }}/> {tr(lang,"Redeem","核销")}</button>}
-              </div>
-            </div>
+            <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
+              <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码核销")}
+            </button>
           </div>}
       {/* 上手清单：未上线/首次登录也显示（这是引导，不是数据）。第 2 步按是否已有活动动态切换 */}
       {(() => {
@@ -677,7 +680,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
             {hasActs
               ? <div className={"nstep "+(liveAct?"done":"cur")}><span className="nt">{liveAct?<Ic.check/>:"2"}</span>{tr(lang,"Set up & publish the activity","配置并上线活动")}{!liveAct && <button className="btn ghost sm na" onClick={onGoActivity}>{tr(lang,"Go","去完善")}</button>}</div>
               : <div className="nstep cur"><span className="nt">2</span>{tr(lang,"Create your first activity","新建第一个活动")}<button className="btn ghost sm na" onClick={onNewAct}>{tr(lang,"Create","去新建")}</button></div>}
-            <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Share & print the QR","分享游戏 · 打印二维码")}</div>
+            <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Print QR per outlet","打印各门店二维码")}{liveAct && <button className="btn ghost sm na" onClick={onGoActivities}>{tr(lang,"Download","去下载")}</button>}</div>
             <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer redeems in store","第一位客人到店核销")}</div>
           </div>
         );
@@ -873,6 +876,8 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
   // 上线要审批：提交→审批中→(平台通过)→已上线。原型里 ~2.5s 模拟平台通过
   useEffect(() => { if (st === "review") { const t = setTimeout(() => upd("status","live"), 2500); return () => clearTimeout(t); } }, [st]);
   const actOutlets = outlets.filter(o => (activity.outletIds||[]).includes(o.id));
+  const [customQRs, setCustomQRs] = useState({});
+  const pickQR = (outletId) => { const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = e => { const f = e.target.files[0]; if (f) { const url = URL.createObjectURL(f); setCustomQRs(m => ({...m, [outletId]: url})); } }; inp.click(); };
   const dlQR = (label) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 22px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,88); ctx.font="12px sans-serif"; ctx.fillText(label,100,116); const a=document.createElement("a"); a.download="qr-"+label+".png"; a.href=c.toDataURL(); a.click(); };
   // 上线进度条：修改 → 审批 → 上线。每个状态对应到流程的哪一节点
   const ACT_STEPS = [{en:"Edit",zh:"修改"},{en:"Review",zh:"审批"},{en:"Live",zh:"上线"}];
@@ -943,19 +948,28 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Activity QR codes — one per outlet","活动二维码 —— 每家门店一个")}</h3>
         <p className="ph-sub">{tr(lang,"Each outlet gets its own QR, so walk-ins are attributed to the right shop.","每家门店各一个二维码，到店才能归因到对应门店。")}</p>
-        {live
-          ? <div className="qr-list">
+        {actOutlets.length === 0
+          ? <div className="ph-sub">{tr(lang,"Select at least one outlet above.","请先在上面选择至少一家门店。")}</div>
+          : <div className="qr-list">
               {actOutlets.map(o => (
                 <div className="qr-card" key={o.id}>
-                  <div className="qr" style={{ width:88, height:88, borderRadius:12 }}><Ic.qr style={{ width:56, height:56, color:"#0B1220" }}/></div>
-                  <div className="qr-meta"><div className="nm">{P(lang,o.name)}</div><div className="ad">{o.city}</div><button className="btn ghost sm" style={{ marginTop:8 }} onClick={()=>dlQR(P(lang,o.name))}><Ic.upload style={{ width:13, height:13, transform:"rotate(180deg)" }}/> {tr(lang,"Download","下载")}</button></div>
+                  {customQRs[o.id]
+                    ? <img src={customQRs[o.id]} style={{ width:88, height:88, borderRadius:12, objectFit:"contain", background:"#f5f5f5" }}/>
+                    : live
+                      ? <div className="qr" style={{ width:88, height:88, borderRadius:12 }}><Ic.qr style={{ width:56, height:56, color:"#0B1220" }}/></div>
+                      : <div style={{ width:88, height:88, borderRadius:12, background:"#EAF1EE", display:"grid", placeItems:"center", color:"var(--muted-2)" }}><Ic.qr style={{ width:48, height:48 }}/></div>}
+                  <div className="qr-meta">
+                    <div className="nm">{P(lang,o.name)}</div>
+                    <div className="ad">{live && !customQRs[o.id] ? o.city : tr(lang,"Auto-generates on approval","审核通过后自动生成")}</div>
+                    <div style={{ display:"flex", gap:8, marginTop:8, flexWrap:"wrap", alignItems:"center" }}>
+                      {live && !customQRs[o.id] && <button className="btn ghost sm" onClick={()=>dlQR(P(lang,o.name))}><Ic.upload style={{ width:13, height:13, transform:"rotate(180deg)" }}/> {tr(lang,"Download","下载")}</button>}
+                      {customQRs[o.id]
+                        ? <><span style={{ fontSize:12, color:"var(--green-d)", fontWeight:600 }}>✓ {tr(lang,"Custom uploaded","已上传自定义")}</span><button className="btn ghost sm" onClick={()=>pickQR(o.id)}>{tr(lang,"Replace","更换")}</button></>
+                        : <button className="btn ghost sm" onClick={()=>pickQR(o.id)}><Ic.upload style={{ width:13, height:13 }}/> {tr(lang,"Upload custom","上传自定义图")}</button>}
+                    </div>
+                  </div>
                 </div>
               ))}
-              {actOutlets.length===0 && <div className="ph-sub">{tr(lang,"Select at least one outlet above.","请先在上面选择至少一家门店。")}</div>}
-            </div>
-          : <div style={{ display:"flex", alignItems:"center", gap:20, padding:"12px 0" }}>
-              <div style={{ width:100, height:100, borderRadius:14, background:"#EAF1EE", display:"grid", placeItems:"center", color:"var(--muted-2)" }}><Ic.qr style={{ width:48, height:48 }}/></div>
-              <div style={{ fontSize:14, color:"var(--muted)" }}>{tr(lang,"QR codes generate once approved & live — one per selected outlet.","审核通过上线后，每家所选门店各生成一个二维码。")}</div>
             </div>}
       </div>
       <div className="act-actions">
@@ -1192,6 +1206,9 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
           {inEdit && <span className="edit-live"><span className="b"></span>{tr(lang,"Editing","编辑中")}</span>}
           {inActEdit && <span className={"act-badge " + ACT_STA[editingAct.status||"draft"].cls}>{(editingAct.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[editingAct.status||"draft"])}</span>}
           <div className="app-bar-r">
+            {!inBuild && !inEdit && !inActEdit && sec === "activities" && (
+              <button className="btn primary" style={{ height:36, fontSize:14, padding:"0 16px" }} onClick={newAct}>+ {tr(lang,"New activity","新建活动")}</button>
+            )}
             <div className="acct">
               <button className="acct-btn" onClick={()=>setMenuOpen(v=>!v)}>{avatar}<span className="acct-name">{shopName}</span><Ic.down style={{ width:13, height:13 }}/></button>
               {menuOpen && <><div className="acct-backdrop" onClick={()=>setMenuOpen(false)}/>
@@ -1208,7 +1225,7 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
-          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} />
+          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} outlets={outlets} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} />
           : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} hasLive={!!liveAct} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />

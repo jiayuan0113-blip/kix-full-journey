@@ -129,7 +129,7 @@ const FEED = [
 const DEMO_METRICS = {
   plays: 312, awarded: 120, walkins: 86, newCust: 61, returning: 25,
   delta: { plays:"+18%", walkins:"+24%", newCust:"+31%", returning:"+12%" },
-  today: { plays: 47, walkins: 12, redeemed: 9 },
+  today: { plays: 47, walkins: 12, redeemed: 9, byOutlet: { o1: 7, o2: 5 } },
   trend: [{d:{en:"Mon",zh:"一"},v:10},{d:{en:"Tue",zh:"二"},v:12},{d:{en:"Wed",zh:"三"},v:11},{d:{en:"Thu",zh:"四"},v:14},{d:{en:"Fri",zh:"五"},v:13},{d:{en:"Sat",zh:"六"},v:14},{d:{en:"Sun",zh:"日"},v:12}],
   byOutlet: { o1: 50, o2: 36 },
   spark: { plays:[20,28,24,32,30,40,44], walkins:[5,7,6,9,8,11,13], newCust:[3,5,4,7,6,9,11], returning:[2,3,3,4,3,5,5] },
