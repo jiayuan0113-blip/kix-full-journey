@@ -204,26 +204,23 @@ function Hero({ go }) {
   return (
     <section className="hero">
       <div>
-        <div className="hero-eye">{tr(lang,"AI builds your branded game in ~30 min","AI 帮你 ~30 分钟做好带品牌的小游戏")}</div>
         <h1 className="hero-h">{H.a}<span className="hl">{H.b}</span>{H.c}</h1>
         <p className="lede">{P(lang,SUB_LANDING)[0]}<b>{P(lang,SUB_LANDING)[1]}</b></p>
         <div className="cta-row">
           <button className="btn primary lg" onClick={go}>{tr(lang,"Create your first game — free","免费创建第一个游戏")}</button>
           <button className="btn ghost lg" onClick={go}>{tr(lang,"See how it works","看 30 秒怎么玩")}</button>
         </div>
-        <div className="cta-micro">{tr(lang,"No sign-up to try","无需注册即可试做")}</div>
         <div className="proof">
-          <div className="tagm">{tr(lang,"An ice-cream shop · first 30 days","某冰激凌店 · 头 30 天")}</div>
-          <div className="stat"><div className="n">1,500</div><div className="l">{tr(lang,"real walk-ins","次真实到店")}</div></div>
+          <div className="tagm">{tr(lang,"An ice-cream shop","某冰激凌店")}</div>
+          <div className="stat"><div className="n"><b>48%</b></div><div className="l">{tr(lang,"walk-in rate","到店率")}</div></div>
+          <div className="stat-sep"></div>
+          <div className="stat"><div className="n">1,500</div><div className="l">{tr(lang,"new customers","新客到店")}</div></div>
+          <div className="stat-sep"></div>
+          <div className="stat"><div className="n"><b>29%</b></div><div className="l">{tr(lang,"win-back rate","老客召回复购")}</div></div>
         </div>
       </div>
       <div className="visual">
-        <div className="float f1"><span className="ic" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Check/></span><div><div className="ft">{tr(lang,"Another walk-in","又一位到店")}</div><div className="fs">{tr(lang,"just now · redeemed a coffee","刚刚 · 核销一杯美式")}</div></div></div>
-        <div className="float f2"><span className="ic" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.ret/></span><div><div className="ft">{tr(lang,"A regular came back","老顾客回来了")}</div><div className="fs">{tr(lang,"gone 30 days · won back","30 天没来 · 自动召回")}</div></div></div>
-        <div className="phone"><div className="screen">
-          <div className="appbar"><span className="blogo"><Ic.cup/></span><div><div className="bt">Kopi Corner</div><div className="bs">{tr(lang,"Play to win today's coffee","来玩一把，赢今天的咖啡")}</div></div><span className="livechip"><span className="b"></span>LIVE</span></div>
-          <div className="gamearea"><div className="gametitle"><span>Kopi Corner</span> · {tr(lang,"Lucky Spin","幸运大转盘")}</div><MiniWheel/></div>
-        </div></div>
+        <div className="vid-ph"></div>
       </div>
     </section>
   );
@@ -273,14 +270,14 @@ function Pricing({ go }) {
   const lang = useLang();
   return (
     <section className="sec">
-      <div className="sec-eye">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free — pay S$3 per real walk-in","免费开始，到店才计费 · S$3 / 位")}</h2>
+      <div className="sec-eye">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free. Pay only when they walk in.","免费开始，到店才计费")}</h2>
       <div className="tiers">
         <div className="tier"><div className="tname">{tr(lang,"FREE","免费版")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"Never charged. Get your first game running.","永不扣款，先把第一个游戏跑起来。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"1 game","1 个游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"50 walk-ins / month","每月 50 位到店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + basic dashboard","到店核销 + 基础看板")}</li></ul>
           <button className="btn ghost" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
         <div className="tier pop"><div className="pbadge">{tr(lang,"Most popular","最受欢迎")}</div><div className="tname">{tr(lang,"PRO","专业版")}</div><div className="price">S$49<small>/mo</small></div><div className="pdesc">{tr(lang,"Unlimited campaigns, or pay S$3 per walk-in.","不限活动，或按 S$3 / 到店 用多少付多少。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Auto win-back for regulars","老客自动召回")}</li><li><span className="ck"><Check/></span>{tr(lang,"Multi-outlet · walk-in attribution","多门店 · 到店归因")}</li></ul>
-          <button className="btn primary" onClick={go}>{tr(lang,"Create your first game","免费创建第一个游戏")}</button></div>
+          <button className="btn primary" onClick={go}>{tr(lang,"Get started","立即开始")}</button></div>
         <div className="tier"><div className="tname">{tr(lang,"CHAINS","连锁版")}</div><div className="price">{tr(lang,"Contact us","联系我们")}</div><div className="pdesc">{tr(lang,"Multi-outlet, custom games and integrations.","多门店、定制玩法与对接，按规模报价。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"Multi-city · multi-outlet","多城市 · 多门店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Dedicated success manager","专属客户成功")}</li><li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","API / POS 对接")}</li></ul>
           <button className="btn ghost">{tr(lang,"Book a call","预约沟通")}</button></div>
