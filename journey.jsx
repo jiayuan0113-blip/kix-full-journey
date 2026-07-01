@@ -204,19 +204,17 @@ function Hero({ go }) {
   return (
     <section className="hero">
       <div>
+        <div className="hero-eye">{tr(lang,"AI builds your branded game in ~30 min","AI 帮你 ~30 分钟做好带品牌的小游戏")}</div>
         <h1 className="hero-h">{H.a}<span className="hl">{H.b}</span>{H.c}</h1>
         <p className="lede">{P(lang,SUB_LANDING)[0]}<b>{P(lang,SUB_LANDING)[1]}</b></p>
         <div className="cta-row">
           <button className="btn primary lg" onClick={go}>{tr(lang,"Create your first game — free","免费创建第一个游戏")}</button>
           <button className="btn ghost lg" onClick={go}>{tr(lang,"See how it works","看 30 秒怎么玩")}</button>
         </div>
+        <div className="cta-micro">{tr(lang,"No sign-up to try","无需注册即可试做")}</div>
         <div className="proof">
-          <div className="tagm">{tr(lang,"An ice-cream shop","某冰激凌店")}</div>
-          <div className="stat"><div className="n"><b>48%</b></div><div className="l">{tr(lang,"walk-in rate","到店率")}</div></div>
-          <div className="stat-sep"></div>
-          <div className="stat"><div className="n">1,500</div><div className="l">{tr(lang,"new walk-ins","新客到店")}</div></div>
-          <div className="stat-sep"></div>
-          <div className="stat"><div className="n">29%</div><div className="l">{tr(lang,"win-back rate","老客召回复购")}</div></div>
+          <div className="tagm">{tr(lang,"An ice-cream shop · first 30 days","某冰激凌店 · 头 30 天")}</div>
+          <div className="stat"><div className="n">1,500</div><div className="l">{tr(lang,"real walk-ins","次真实到店")}</div></div>
         </div>
       </div>
       <div className="visual">
@@ -236,13 +234,13 @@ function ThreeThings() {
     <section className="sec">
       <div className="sec-eye">{tr(lang,"ALL IN ONE","一套搞定")}</div>
       <h2 className="sec-h">{tr(lang,"Win new customers, bring back old ones, see the numbers","拉新客、召回老客、看得清账")}</h2>
-      <p className="sec-sub">{tr(lang,"No ad skills, no hardware. One game does all three.","不用懂投放，不用装设备。一个游戏，三件事一起做。")}</p>
+      <p className="sec-sub">{tr(lang,"No ad skills, no hardware.","不用懂投放，不用装设备。")}</p>
       <div className="three">
-        <div className="tcard"><div className="tnum">{tr(lang,"01 · ACQUIRE","01 · 拉新客")}</div><h3>{tr(lang,"Passers-by play their way in","路过的人，玩着玩着就进店")}</h3><p>{tr(lang,"Nearby people play your game and win a voucher to walk in. You only pay for real walk-ins, never for views.","附近的人扫码玩你的游戏、赢券到店。只算真实到店，不为曝光花一分钱。")}</p>
+        <div className="tcard"><div className="tnum">{tr(lang,"01 · ACQUIRE","01 · 拉新客")}</div><h3>{tr(lang,"Passers-by play their way in","路过的人，玩着玩着就进店")}</h3><p>{tr(lang,"Nearby people play your game and win a voucher to walk in.","附近的人扫码玩你的游戏、赢券进店。")}</p>
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.pin/></span>{tr(lang,"Within 300m · office · walked in","300m 内 · 上班族 · 已到店")}</div><div className="vrow"><span className="vp" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.pin/></span>{tr(lang,"Within 500m · student · played","500m 内 · 学生 · 玩了一把")}</div></div></div>
-        <div className="tcard"><div className="tnum">{tr(lang,"02 · RETAIN","02 · 召回老客")}</div><h3>{tr(lang,"Bring regulars back automatically","老顾客太久没来，自动请回来")}</h3><p>{tr(lang,"Members who haven't visited in 30 days get an auto voucher — turning one-time guests into regulars.","30 天没到店的会员，KiX 自动发一张券召回 —— 把一次性客人，变成回头客。")}</p>
+        <div className="tcard"><div className="tnum">{tr(lang,"02 · RETAIN","02 · 召回老客")}</div><h3>{tr(lang,"Bring regulars back automatically","老顾客太久没来，自动请回来")}</h3><p>{tr(lang,"Members who haven't visited in 30 days get an auto voucher to come back.","30 天没到店的会员，自动发一张券请回来。")}</p>
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"#EEF1FF", color:"#4F46E5" }}><Ic.bell/></span>{tr(lang,"Miss you — here's a free coffee","想你了，送你一杯免费咖啡")}</div><div className="vbignum"><b>29%</b> <span className="vmini">{tr(lang,"win-back rate","召回复购率")}</span></div></div></div>
-        <div className="tcard"><div className="tnum">{tr(lang,"03 · ZERO WASTE","03 · 零浪费")}</div><h3>{tr(lang,"Only pay when they walk in","没进店，不花一分钱")}</h3><p>{tr(lang,"No impressions, no clicks, no wasted budget. You only pay when a customer actually walks through your door.","不为曝光付费，不为点击付费。客人真正走进你的店，才算一次。")}</p>
+        <div className="tcard"><div className="tnum">{tr(lang,"03 · ZERO WASTE","03 · 零浪费")}</div><h3>{tr(lang,"Not like burning cash on ads","不像投广告那样烧钱")}</h3><p>{tr(lang,"No impressions, no clicks, no wasted budget. You only pay when a customer actually walks through your door.","不为曝光付费，不为点击付费。客人真正走进你的店，才算一次。")}</p>
           <div className="viz"><div className="vbignum"><b>S$0</b> <span className="vmini">{tr(lang,"for views & clicks","曝光和点击的花费")}</span></div><div className="vbar"><i style={{ width:"100%" }}></i></div><div className="vmini">{tr(lang,"vs traditional ads: 90% of budget wasted on non-visitors","传统广告：90% 预算花在不会来的人身上")}</div></div></div>
       </div>
     </section>
@@ -253,8 +251,8 @@ function Gallery({ go }) {
   return (
     <section className="sec">
       <div className="sec-eye">{tr(lang,"SAMPLE GAMES","游戏样片")}</div>
-      <h2 className="sec-h">{tr(lang,"1,000+ games, yours in 30 minutes","上千个游戏，30 分钟变成你的")}</h2>
-      <p className="sec-sub">{tr(lang,"Pick a template, drop in your logo and product photos — AI generates your branded game.","挑一个模板，放上你的 logo 和商品图，AI 帮你生成专属游戏。")}</p>
+      <h2 className="sec-h">{tr(lang,"1,000+ formats — every one becomes your brand","上千种玩法，每个都能变成你的品牌")}</h2>
+      <p className="sec-sub">{tr(lang,"Coffee, bubble tea, nails, snacks — there's a fit for every shop.","咖啡、奶茶、美甲、小吃…都有适配的玩法。")}</p>
       <div className="gallery">{GAMES.map((g, i) => (
         <div key={i} className="gtile" onClick={go}><div className="art"><GamePreview kind={g.kind} colors={g.g} /></div><div className="cap">{P(lang,g.n)}<div className="sm">{P(lang,g.t)}</div></div></div>))}</div>
       <div className="gallery-foot">{tr(lang,"Plus ","还有 ")}<b style={{ color:"var(--ink)" }}>1,000+</b>{tr(lang," templates — make any of them your own","个模板 · 每个都能换成你的品牌")}</div>
@@ -266,7 +264,7 @@ function Steps() {
   const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos — AI auto-colors and builds it.","传 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店核销"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动核销即可。") }];
   return (
     <section className="sec">
-      <div className="sec-eye">{tr(lang,"HOW IT WORKS","三步上线")}</div><h2 className="sec-h">{tr(lang,"Open for business in under 30 minutes","不到 30 分钟，开门营业")}</h2>
+      <div className="sec-eye">{tr(lang,"HOW IT WORKS","三步上线")}</div><h2 className="sec-h">{tr(lang,"Three steps to open for business","三步做好，开门收客")}</h2>
       <div className="steps">{S.map((s, i) => (<div key={i} className="stp"><div className="sn">0{i+1}</div><div className="si">{s.i()}</div><h3>{s.h}</h3><p>{s.p}</p></div>))}</div>
     </section>
   );
@@ -275,7 +273,7 @@ function Pricing({ go }) {
   const lang = useLang();
   return (
     <section className="sec">
-      <div className="sec-eye">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free, pay only for real walk-ins","免费开始，只为真实到店付费")}</h2>
+      <div className="sec-eye">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free — pay S$3 per real walk-in","免费开始，到店才计费 · S$3 / 位")}</h2>
       <div className="tiers">
         <div className="tier"><div className="tname">{tr(lang,"FREE","免费版")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"Never charged. Get your first game running.","永不扣款，先把第一个游戏跑起来。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"1 game","1 个游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"50 walk-ins / month","每月 50 位到店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + basic dashboard","到店核销 + 基础看板")}</li></ul>
@@ -295,7 +293,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
     <div className="wrap">
       <nav>
         <div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/></div>
-        <div className="navlinks"><a onClick={(e)=>e.preventDefault()} href="#">{tr(lang,"Games","玩法")}</a><a onClick={(e)=>e.preventDefault()} href="#">{tr(lang,"How it works","怎么用")}</a><a onClick={(e)=>e.preventDefault()} href="#">{tr(lang,"Pricing","价格")}</a></div>
+        <div className="navlinks"><a onClick={(e)=>e.preventDefault()} href="#">{tr(lang,"Showcase","样片")}</a><a onClick={(e)=>e.preventDefault()} href="#">{tr(lang,"How it works","怎么用")}</a><a onClick={(e)=>e.preventDefault()} href="#">{tr(lang,"Pricing","价格")}</a></div>
         <div className="navright"><LangToggle lang={lang} setLang={setLang} /><a className="signin" onClick={(e)=>{e.preventDefault();onSignIn();}} href="#">{tr(lang,"Sign in","登录")}</a><button className="btn dark sm" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
       </nav>
       <Hero go={go} />

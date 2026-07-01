@@ -70,14 +70,17 @@ nav{display:flex;align-items:center;gap:30px;padding:22px 0}
 .hero{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:52px;align-items:center;padding:40px 0 30px}
 .eyebrow{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px 7px 12px;font-size:13.5px;font-weight:600;color:var(--ink-2);box-shadow:var(--sh-sm)}
 .eyebrow .pin{width:7px;height:7px;border-radius:999px;background:var(--green-br);box-shadow:0 0 0 4px var(--green-50)}
-h1.hero-h{font-size:clamp(40px,5.4vw,64px);line-height:1.08;letter-spacing:-.035em;font-weight:800;margin:22px 0 0}
+.hero-eye{font-size:13.5px;font-weight:800;letter-spacing:.02em;color:var(--green-d);display:inline-flex;align-items:center;gap:7px}
+.hero-eye::before{content:"✦";font-size:13px}
+.cta-micro{font-size:13px;color:var(--muted);margin-top:12px}
+h1.hero-h{font-size:clamp(40px,5.4vw,64px);line-height:1.08;letter-spacing:-.035em;font-weight:800;margin:14px 0 0}
 h1.hero-h .hl{color:var(--green-d);position:relative;white-space:nowrap}
 h1.hero-h .hl::after{content:"";position:absolute;left:-1px;right:-1px;bottom:.07em;height:.26em;z-index:-1;background:var(--green-100);border-radius:4px}
 .lede{font-size:18.5px;color:var(--ink-2);margin-top:22px;max-width:32ch}
 .lede b{color:var(--ink);font-weight:700}
 .cta-row{display:flex;gap:14px;align-items:center;margin-top:30px;flex-wrap:wrap}
 .proof{display:flex;align-items:center;gap:24px;margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
-.proof .tagm{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;max-width:62px;line-height:1.3}
+.proof .tagm{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;max-width:130px;line-height:1.3}
 .stat .n{font-size:25px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
 .stat .n b{color:var(--green-d)}
 .stat .l{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:1px}

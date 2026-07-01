@@ -7,8 +7,8 @@ const HEADLINE = {
   zh: { a: "把路过的人，", b: "变成回头客", c: "" },
 };
 const SUB_LANDING = {
-  en: ["Customers play for a voucher and walk in to use it. ", "Regulars who stop coming get brought back automatically."],
-  zh: ["客人玩游戏赢券，凭券进店。", "老客太久没来，自动召回。"],
+  en: ["", "No walk-in, no charge."],
+  zh: ["", "没进店，就不用花钱。"],
 };
 
 /* prizes (shared by hero wheel + flow); lose flag instead of string match */
