@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KiX 建游戏工作台 · 重新设计 Demo</title>
+<style>
+  :root{
+    --accent:#16a34a;
+    --accent-soft:#dcfce7;
+    --accent-ink:#14532d;
+    --bg-app:#eef0f3;
+    --panel:#ffffff;
+    --panel-2:#f7f8fa;
+    --border:#e5e7eb;
+    --border-strong:#d1d5db;
+    --text:#1a1d21;
+    --muted:#6b7280;
+    --muted-2:#9aa1ab;
+    --edit:#2563eb;
+    --edit-soft:#dbeafe;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.08);
+    --radius:14px;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Noto Sans SC","Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;background:var(--bg-app);color:var(--text);
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  :lang(zh){line-height:1.7;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+
+  /* ---------- App shell ---------- */
+  .app{display:flex;flex-direction:column;height:100vh;min-height:640px;}
+
+  /* Top bar */
+  .topbar{
+    display:flex;align-items:center;gap:16px;
+    padding:10px 18px;background:var(--panel);border-bottom:1px solid var(--border);
+    flex:0 0 auto;z-index:20;
+  }
+  .logo{font-weight:800;font-size:18px;color:var(--accent);letter-spacing:-.5px;flex:0 0 auto;}
+  .logo b{color:#111;}
+  .title-block{display:flex;flex-direction:column;min-width:0;}
+  .title-row{display:flex;align-items:center;gap:7px;}
+  .game-title{font-weight:700;font-size:15px;color:var(--text);white-space:nowrap;}
+  .title-pencil{font-size:12px;color:var(--muted-2);}
+  .orientation{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .orientation .step{white-space:nowrap;}
+  .orientation .arrow{color:var(--muted-2);}
+  .topbar .spacer{flex:1 1 auto;}
+  .toolbar{display:flex;align-items:center;gap:12px;flex:0 0 auto;}
+  .icon-btn{
+    width:32px;height:32px;border-radius:8px;display:grid;place-items:center;
+    color:var(--muted);font-size:15px;
+  }
+  .icon-btn:hover{background:var(--panel-2);color:var(--text);}
+  .lang-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .lang-toggle button{padding:5px 10px;font-size:12px;color:var(--muted);}
+  .lang-toggle button.on{background:var(--accent);color:#fff;}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;}
+  .btn{
+    padding:8px 14px;border-radius:9px;font-weight:600;font-size:13px;
+    border:1px solid var(--border-strong);background:var(--panel);color:var(--text);
+  }
+  .btn:hover{background:var(--panel-2);}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 1px 2px rgba(22,163,74,.35);}
+  .btn.primary:hover{filter:brightness(1.05);background:var(--accent);}
+
+  /* Workspace */
+  .work{flex:1 1 auto;display:grid;grid-template-columns:288px 1fr 240px;min-height:0;}
+  .col{min-height:0;overflow:hidden;display:flex;flex-direction:column;}
+  .col.ai{border-right:1px solid var(--border);background:var(--panel);}
+  .col.stage{background:var(--bg-app);position:relative;}
+  .col.assets{border-left:1px solid var(--border);background:var(--panel);}
+
+  .col-head{
+    padding:14px 16px 10px;font-weight:700;font-size:13px;color:var(--text);
+    display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;
+  }
+  .col-head .sub{font-weight:500;color:var(--muted-2);font-size:12px;}
+
+  /* ---------- AI panel ---------- */
+  .ai-body{flex:1 1 auto;overflow-y:auto;padding:4px 14px 12px;}
+  .ai-lead{font-size:12.5px;color:var(--muted);margin:0 2px 10px;}
+  .rec-grid{display:flex;flex-direction:column;gap:8px;}
+  .rec{
+    text-align:left;border:1px solid var(--border);background:var(--panel);
+    border-radius:11px;padding:11px 12px;display:flex;gap:10px;align-items:flex-start;
+    transition:.14s;
+  }
+  .rec:hover{border-color:var(--accent);background:var(--accent-soft);}
+  .rec .emo{font-size:17px;line-height:1.2;}
+  .rec .rtext{display:flex;flex-direction:column;}
+  .rec .rt-title{font-weight:600;font-size:13px;color:var(--text);}
+  .rec .rt-desc{font-size:11.5px;color:var(--muted);}
+  .chat{display:flex;flex-direction:column;gap:9px;margin-top:14px;}
+  .bubble{max-width:86%;padding:9px 12px;border-radius:13px;font-size:13px;}
+  .bubble.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
+  .bubble.ai{align-self:flex-start;background:var(--panel-2);border:1px solid var(--border);border-bottom-left-radius:4px;}
+  .ai-input{flex:0 0 auto;padding:12px 14px;border-top:1px solid var(--border);}
+  .ai-input .box{
+    display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);
+    border-radius:11px;padding:9px 11px;background:var(--panel);
+  }
+  .ai-input input{flex:1;border:none;outline:none;font-size:13px;background:transparent;color:var(--text);}
+  .ai-input input::placeholder{color:var(--muted-2);}
+  .ai-input .send{width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:14px;flex:0 0 auto;}
+
+  /* ---------- Stage (phone) ---------- */
+  .stage-inner{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;}
+  .stage-actions{display:flex;gap:10px;align-items:center;}
+  .mode-badge{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+    padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--panel);
+    box-shadow:var(--shadow);
+  }
+  .mode-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--edit);}
+  body[data-mode="play"] .mode-badge .dot{background:var(--accent);}
+  .mode-badge .lbl-edit{color:var(--edit);}
+  .mode-badge .lbl-play{color:var(--accent);display:none;}
+  body[data-mode="play"] .mode-badge .lbl-edit{display:none;}
+  body[data-mode="play"] .mode-badge .lbl-play{display:inline;}
+
+  .phone{
+    width:300px;height:600px;border-radius:40px;background:#0f1115;
+    padding:11px;box-shadow:0 24px 60px rgba(16,24,40,.28);flex:0 0 auto;position:relative;
+    transition:box-shadow .2s;
+  }
+  body[data-mode="edit"] .phone{box-shadow:0 24px 60px rgba(37,99,235,.22),0 0 0 3px var(--edit-soft);}
+  .screen{
+    width:100%;height:100%;border-radius:30px;overflow:hidden;position:relative;
+    background:linear-gradient(180deg,#efe0c7,#e7d3b0);
+    display:flex;flex-direction:column;
+  }
+  .screen[data-bg="produce"]{background:linear-gradient(180deg,#efe0c7,#e7d3b0);}
+  .screen[data-bg="bakery"]{background:linear-gradient(180deg,#f3e2d0,#e6c9a8);}
+  .screen[data-bg="cafe"]{background:linear-gradient(180deg,#e8ded6,#cdb7a3);}
+  .screen[data-bg="gym"]{background:linear-gradient(180deg,#d7e6ef,#b9d0e0);}
+  .screen[data-bg="custom"]{background:linear-gradient(160deg,#c8b6ff,#8ec5fc 55%,#e0c3fc);}
+
+  .g-head{padding:16px 14px 8px;text-align:center;color:#5b3d1e;}
+  .g-title{font-size:20px;font-weight:800;letter-spacing:1px;text-shadow:0 1px 0 rgba(255,255,255,.5);outline:none;}
+  .g-stats{display:flex;gap:8px;justify-content:center;margin-top:8px;}
+  .stat{background:rgba(255,255,255,.82);border-radius:11px;padding:5px 12px;min-width:70px;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .stat .k{font-size:9px;letter-spacing:1px;color:#9a7b52;font-weight:700;}
+  .stat .v{font-size:16px;font-weight:800;color:#5b3d1e;}
+  .grid{
+    flex:1 1 auto;margin:8px 12px;background:rgba(255,255,255,.66);border-radius:16px;
+    padding:8px;display:grid;grid-template-columns:repeat(6,1fr);gap:3px;align-content:start;
+  }
+  .tile{
+    aspect-ratio:1;border-radius:9px;display:grid;place-items:center;font-size:19px;
+    background:rgba(255,255,255,.92);user-select:none;transition:transform .12s,box-shadow .12s;
+  }
+  .g-foot{padding:8px 12px 16px;text-align:center;}
+  .g-cta{background:rgba(255,255,255,.9);border-radius:11px;padding:9px;font-size:12px;font-weight:600;color:#7a5a2f;outline:none;}
+
+  /* Edit affordances (only in edit mode via body attr) */
+  .editable{position:relative;}
+  body[data-mode="edit"] .editable{cursor:text;border-radius:6px;box-shadow:0 0 0 1.5px rgba(37,99,235,.35);}
+  body[data-mode="edit"] .editable:hover{box-shadow:0 0 0 2px var(--edit);background:rgba(219,234,254,.5);}
+  body[data-mode="edit"] .tile{cursor:pointer;}
+  body[data-mode="edit"] .tile:hover{transform:scale(1.06);box-shadow:0 0 0 2px var(--edit);}
+  body[data-mode="edit"] .grid{box-shadow:inset 0 0 0 1.5px rgba(37,99,235,.25);}
+  .edit-hint{
+    position:absolute;bottom:9px;left:9px;right:9px;text-align:center;font-size:10.5px;color:#fff;
+    background:rgba(37,99,235,.92);padding:5px 8px;border-radius:8px;pointer-events:none;
+  }
+  body[data-mode="play"] .edit-hint{display:none;}
+
+  /* Toggle + play controls under phone */
+  .stage-toggle{display:flex;gap:10px;align-items:center;}
+  .toggle-btn{
+    padding:12px 26px;border-radius:12px;font-weight:700;font-size:15px;
+    background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(22,163,74,.35);
+    display:flex;align-items:center;gap:9px;transition:.15s;
+  }
+  .toggle-btn:hover{filter:brightness(1.05);}
+  body[data-mode="play"] .toggle-btn{background:#0f1115;box-shadow:0 4px 14px rgba(15,17,21,.3);}
+  .toggle-btn .lbl-play{display:inline;}
+  .toggle-btn .lbl-edit{display:none;}
+  body[data-mode="play"] .toggle-btn .lbl-play{display:none;}
+  body[data-mode="play"] .toggle-btn .lbl-edit{display:inline;}
+  .stage-note{font-size:12px;color:var(--muted);max-width:320px;text-align:center;}
+
+  /* Toast */
+  .toast{
+    position:absolute;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
+    background:#0f1115;color:#fff;padding:9px 16px;border-radius:10px;font-size:12.5px;
+    opacity:0;pointer-events:none;transition:.22s;z-index:30;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- Brand checklist ("换成你的") ---------- */
+  .assets-body{flex:1 1 auto;overflow-y:auto;padding:2px 12px 12px;}
+  .slot{
+    display:flex;align-items:center;gap:11px;padding:10px;border-radius:11px;
+    border:1px solid var(--border);margin-bottom:8px;text-align:left;width:100%;transition:.14s;
+  }
+  .slot:hover{border-color:var(--accent);background:var(--accent-soft);}
+  .slot .thumb{
+    width:38px;height:38px;border-radius:9px;background:var(--panel-2);border:1px solid var(--border);
+    display:grid;place-items:center;font-size:20px;flex:0 0 auto;overflow:hidden;
+  }
+  .slot .sname{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .slot .sn-title{font-weight:600;font-size:13px;color:var(--text);}
+  .slot .sn-cur{font-size:11px;color:var(--muted-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .status{font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:999px;flex:0 0 auto;}
+  .status.demo{background:#fff4e5;color:#b45309;}
+  .status.done{background:var(--accent-soft);color:var(--accent-ink);}
+  .brand-nudge{
+    margin-top:6px;padding:9px 11px;border-radius:10px;background:var(--panel-2);
+    border:1px dashed var(--border-strong);font-size:12px;color:var(--muted);
+    display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
+  }
+  .brand-nudge:hover{border-color:var(--accent);color:var(--accent-ink);}
+  .brand-nudge.done{cursor:default;border-style:solid;color:var(--accent-ink);background:var(--accent-soft);}
+  .brand-nudge b{color:var(--accent-ink);}
+
+  /* categorized asset panel (inline, no modals) */
+  .cat{margin-bottom:16px;}
+  .cat-head{font-weight:700;font-size:12.5px;margin:0 2px 8px;color:var(--text);}
+  .cat-sub{font-size:10.5px;color:var(--muted-2);margin:9px 2px 6px;}
+  .cat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  .cat-thumb{
+    position:relative;aspect-ratio:1;border-radius:10px;border:1.5px solid var(--border);
+    background:var(--panel-2);display:grid;place-items:center;font-size:20px;overflow:hidden;cursor:pointer;transition:.12s;
+  }
+  .cat-thumb:hover{border-color:var(--accent);}
+  .cat-thumb.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+  .cat-thumb .bgsw{position:absolute;inset:0;}
+  .cat-thumb .chk{position:absolute;top:1px;right:3px;font-size:10px;font-weight:800;color:var(--accent);}
+  .up-tile{border-style:dashed;border-color:var(--border-strong);color:var(--muted);font-size:10px;line-height:1;flex-direction:column;gap:3px;}
+  .up-tile:hover{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft);}
+  .cat-hint{font-size:10.5px;color:var(--muted-2);margin:7px 2px 0;line-height:1.5;}
+
+  /* my uploads library */
+  .lib-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:18px 2px 8px;font-weight:700;font-size:12.5px;color:var(--text);
+    padding-top:14px;border-top:1px solid var(--border);
+  }
+  .lib-head .up{font-size:11.5px;font-weight:600;color:var(--accent);padding:4px 9px;border-radius:7px;border:1px solid var(--border);}
+  .lib-head .up:hover{background:var(--accent-soft);border-color:var(--accent);}
+  .lib-empty{font-size:11.5px;color:var(--muted-2);line-height:1.6;padding:2px;}
+  .lib-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  .lib-item{position:relative;aspect-ratio:1;border-radius:9px;border:1px solid var(--border);background:var(--panel-2);display:grid;place-items:center;font-size:18px;overflow:hidden;}
+  .lib-item:hover{border-color:var(--accent);}
+  .lib-item .tag{position:absolute;bottom:0;left:0;right:0;font-size:8px;text-align:center;background:rgba(15,17,21,.55);color:#fff;padding:1px 0;}
+  .lib-item .bgsw{position:absolute;inset:0;}
+
+  /* flash highlight on preview element when a slot is activated */
+  .flash{animation:flashPulse 1.1s ease-out 1;border-radius:8px;}
+  @keyframes flashPulse{
+    0%{box-shadow:0 0 0 0 rgba(37,99,235,.55);}
+    100%{box-shadow:0 0 0 10px rgba(37,99,235,0);}
+  }
+
+  /* upload row inside picker */
+  .picker .upload-row{display:flex;gap:8px;margin-top:12px;}
+  .picker .upload-row button{flex:1;padding:9px;border-radius:9px;border:1px dashed var(--border-strong);font-size:12px;color:var(--muted);background:var(--panel-2);}
+  .picker .upload-row button:hover{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft);}
+
+  /* popover picker */
+  .picker-back{position:fixed;inset:0;background:rgba(15,17,21,.28);display:none;place-items:center;z-index:50;}
+  .picker-back.show{display:grid;}
+  .picker{background:var(--panel);border-radius:16px;box-shadow:var(--shadow);width:320px;max-width:90vw;padding:16px;}
+  .picker h4{margin:0 0 4px;font-size:14px;}
+  .picker p{margin:0 0 12px;font-size:12px;color:var(--muted);}
+  .picker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+  .picker-grid button{aspect-ratio:1;border-radius:10px;border:1px solid var(--border);font-size:22px;display:grid;place-items:center;background:var(--panel-2);}
+  .picker-grid button:hover{border-color:var(--accent);background:var(--accent-soft);}
+  .picker.themes .picker-grid{grid-template-columns:repeat(2,1fr);}
+  .picker.themes .picker-grid button{aspect-ratio:2.4;font-size:12px;font-weight:600;color:var(--text);flex-direction:column;}
+  .picker .cancel{margin-top:12px;width:100%;text-align:center;padding:8px;border-radius:9px;border:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+  /* Info strip */
+  .info{position:absolute;bottom:10px;left:10px;font-size:11px;color:var(--muted-2);}
+</style>
+</head>
+<body data-mode="edit">
+<div class="app">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="topbar">
+    <div class="logo">Ki<b>X</b></div>
+    <div class="title-block">
+      <div class="title-row">
+        <span class="game-title" id="topTitle">Supermarket Fruit Crush</span>
+        <span class="title-pencil">✎</span>
+      </div>
+      <div class="orientation">
+        <span class="step">改成你的品牌</span><span class="arrow">→</span>
+        <span class="step">试玩</span><span class="arrow">→</span>
+        <span class="step">发布</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon-btn" title="撤销">↶</button>
+    <button class="icon-btn" title="重做">↷</button>
+    <div class="lang-toggle">
+      <button id="langZh" class="on">中</button>
+      <button id="langEn">EN</button>
+    </div>
+    <div class="avatar" title="账户">D</div>
+  </header>
+
+  <!-- ================= WORKSPACE ================= -->
+  <div class="work">
+
+    <!-- ---- Left: AI (persistent) ---- -->
+    <section class="col ai">
+      <div class="col-head">AI 助手</div>
+      <div class="ai-body" id="aiBody">
+        <p class="ai-lead">想改什么？挑一个，或直接告诉我 ——</p>
+        <div class="rec-grid" id="recGrid">
+          <button class="rec" data-act="color"><span class="emo">🎨</span><span class="rtext"><span class="rt-title">换品牌配色和 Logo</span><span class="rt-desc">整体换成你的主色调</span></span></button>
+          <button class="rec" data-act="products"><span class="emo">🧺</span><span class="rtext"><span class="rt-title">换成我的商品图</span><span class="rt-desc">把游戏里的图换成你卖的东西</span></span></button>
+          <button class="rec" data-act="faster"><span class="emo">⚡</span><span class="rtext"><span class="rt-title">节奏调快一点，更上瘾</span><span class="rt-desc">缩短回合、加快出现速度</span></span></button>
+          <button class="rec" data-act="title"><span class="emo">✏️</span><span class="rtext"><span class="rt-title">帮我改标题文案</span><span class="rt-desc">改成你的活动名</span></span></button>
+        </div>
+        <div class="chat" id="chat"></div>
+      </div>
+      <div class="ai-input">
+        <div class="box">
+          <input id="aiInput" placeholder="不知道改什么？描述一下，或从上面挑一个" />
+          <button class="send" id="aiSend">➤</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Center: phone stage ---- -->
+    <section class="col stage">
+      <div class="stage-inner">
+        <div class="stage-actions">
+          <button class="btn" id="btnDraft">存草稿</button>
+          <button class="btn primary" id="btnPublish">发布</button>
+        </div>
+        <div class="mode-badge">
+          <span class="dot"></span>
+          <span class="lbl-edit">编辑中</span>
+          <span class="lbl-play">试玩中</span>
+        </div>
+        <div class="phone">
+          <div class="screen" id="screen" data-bg="produce">
+            <div class="g-head">
+              <div class="g-title editable" id="gameTitle" contenteditable="false">FRUIT CRUSH</div>
+              <div class="g-stats">
+                <div class="stat"><div class="k">SCORE</div><div class="v" id="score">0</div></div>
+                <div class="stat"><div class="k" id="timeK">TIME</div><div class="v" id="time">60</div></div>
+              </div>
+            </div>
+            <div class="grid" id="grid"></div>
+            <div class="g-foot">
+              <div class="g-cta editable" id="gameCta" contenteditable="false">Swap fruits to match 3+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-toggle">
+          <button class="toggle-btn" id="toggleMode">
+            <span class="lbl-play">试玩</span>
+            <span class="lbl-edit">编辑</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+      <div class="info">状态机 Demo：编辑态（冻结·可改）⇄ 试玩态（运行·不可改）</div>
+    </section>
+
+    <!-- ---- Right: brand checklist ---- -->
+    <section class="col assets">
+      <div class="col-head">素材 <span class="sub">你的图</span></div>
+      <div class="assets-body">
+        <div id="assetCats"></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var body=document.body;
+
+  // ---------- state ----------
+  var PACKS={
+    fruit:["🍎","🍌","🍇","🍉","🍓","🍊"],
+    bakery:["🍩","🥐","🧁","🍪","🥨","🍞"],
+    cafe:["☕️","🧋","🥤","🍰","🍮","🍩"],
+    gym:["🏋️","🥤","🍎","🏃","💪","⏱️"]
+  };
+  var FRUITS=PACKS.fruit.slice();            // current product set on the tiles
+  var BG="produce";
+  var DEFAULT_TITLE="FRUIT CRUSH";
+  var mode="edit";
+  var score=0, time=60, timer=null;
+  var COLS=6, ROWS=8;
+  // brand-completion flags — drive the "换成你的" checklist
+  var branded={title:false, products:false, bg:false, color:false};
+
+  var grid=document.getElementById("grid");
+  var scoreEl=document.getElementById("score");
+  var timeEl=document.getElementById("time");
+  var screen=document.getElementById("screen");
+
+  // ---------- grid ----------
+  function randFruit(){ return FRUITS[Math.floor(Math.random()*FRUITS.length)]; }
+  function buildGrid(){
+    grid.innerHTML="";
+    for(var i=0;i<COLS*ROWS;i++){
+      var t=document.createElement("div");
+      t.className="tile";
+      t.textContent=randFruit();
+      t.dataset.idx=i;
+      t.addEventListener("click",onTileClick);
+      grid.appendChild(t);
+    }
+  }
+  function onTileClick(e){
+    var t=e.currentTarget;
+    if(mode==="edit"){
+      // clicking a tile points the merchant to the 商品图 category on the right (no modal)
+      flash(grid);
+      var cp=document.getElementById("catProduct"); if(cp) flash(cp);
+      toast("在右边「商品图」里换 / 上传你的");
+    }else{
+      // play: pop + score, refill
+      t.style.transform="scale(0)";
+      score+=10; scoreEl.textContent=score;
+      setTimeout(function(){ t.textContent=randFruit(); t.style.transform="scale(1)"; },120);
+    }
+  }
+
+  // ---------- mode switch ----------
+  var toggleBtn=document.getElementById("toggleMode");
+  var gameTitle=document.getElementById("gameTitle");
+  var gameCta=document.getElementById("gameCta");
+  var timeK=document.getElementById("timeK");
+
+  function setMode(m){
+    mode=m; body.dataset.mode=m;
+    var editable=(m==="edit");
+    gameTitle.contentEditable = editable ? "true" : "false";
+    gameCta.contentEditable   = editable ? "true" : "false";
+    if(m==="play"){ startPlay(); } else { stopPlay(); }
+  }
+  toggleBtn.addEventListener("click",function(){ setMode(mode==="edit"?"play":"edit"); });
+
+  function startPlay(){
+    stopPlay();
+    score=0; scoreEl.textContent=0;
+    time=parseInt(timeEl.textContent,10)||60;
+    timer=setInterval(function(){
+      time--; timeEl.textContent=time;
+      // subtle life: refill a couple random tiles
+      var tiles=grid.children;
+      var r=tiles[Math.floor(Math.random()*tiles.length)];
+      if(r) r.textContent=randFruit();
+      if(time<=0){
+        stopPlay();
+        toast("时间到！得分 "+score+" · 点「返回编辑」继续改");
+        setTimeout(function(){ if(mode==="play") setMode("edit"); },1400);
+      }
+    },1000);
+  }
+  function stopPlay(){ if(timer){clearInterval(timer);timer=null;} }
+
+  // committing inline edits (no explicit confirm — blur commits, mirror to top title)
+  var topTitle=document.getElementById("topTitle");
+  gameTitle.addEventListener("blur",function(){
+    var v=gameTitle.textContent.trim()||DEFAULT_TITLE;
+    gameTitle.textContent=v;
+    toast("标题已更新（实时生效）");
+  });
+  gameTitle.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();gameTitle.blur();} });
+  gameCta.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();gameCta.blur();} });
+
+  // ---------- toast ----------
+  var toastEl=document.getElementById("toast"),toastT=null;
+  function toast(msg){
+    toastEl.textContent=msg; toastEl.classList.add("show");
+    clearTimeout(toastT); toastT=setTimeout(function(){toastEl.classList.remove("show");},1800);
+  }
+
+  // ---------- assets: categorized upload panel (Logo / 背景 / 商品图) — inline, no modals ----------
+  var assetCats=document.getElementById("assetCats");
+  var CUSTOM_BG="linear-gradient(160deg,#c8b6ff,#8ec5fc 55%,#e0c3fc)";
+  var CUSTOM_PRODUCTS=["🥟","🍤","🍧","🧋","🍡","🍢"];
+  var LOGO_ACCENT=["#7c3aed","#ede9fe"];   // color auto-derived from an uploaded logo
+  var BG_PRESETS=[["produce","🏬"],["bakery","🥐"],["cafe","☕️"],["gym","🏋️"]];
+  var PACK_PRESETS=[["fruit","🍎"],["bakery","🥐"],["cafe","☕️"],["gym","🏋️"]];
+
+  var ACCENTS=[["#16a34a","#dcfce7","超市绿"],["#2563eb","#dbeafe","品牌蓝"],["#ea580c","#ffedd5","暖橙"],["#db2777","#fce7f3","樱粉"]];
+  var accentIdx=0;
+  function setAccent(i){   // used by AI "换配色"
+    accentIdx=((i%ACCENTS.length)+ACCENTS.length)%ACCENTS.length; var a=ACCENTS[accentIdx];
+    document.documentElement.style.setProperty("--accent",a[0]);
+    document.documentElement.style.setProperty("--accent-soft",a[1]);
+    return a;
+  }
+  function flash(el){ if(!el) return; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+
+  var uploads={logo:[],bg:[],product:[]};              // merchant's own uploads, per category
+  var sel={logo:null, bg:"produce", product:"fruit"};  // currently-applied key per category
+
+  // solid / gradient color backgrounds (besides scene images)
+  var BG_COLORS=[
+    ["c:mint","linear-gradient(180deg,#d1fae5,#a7f3d0)"],
+    ["c:sky","linear-gradient(180deg,#dbeafe,#bfdbfe)"],
+    ["c:peach","linear-gradient(180deg,#ffe4e6,#fecdd3)"],
+    ["c:cream","linear-gradient(180deg,#fef3c7,#fde68a)"],
+    ["c:violet","linear-gradient(180deg,#ede9fe,#ddd6fe)"],
+    ["c:ink","linear-gradient(180deg,#334155,#1e293b)"]
+  ];
+  var BG_COLOR_MAP={}; BG_COLORS.forEach(function(c){ BG_COLOR_MAP[c[0]]=c[1]; });
+
+  function applyBg(key){
+    if(mode!=="edit") setMode("edit");
+    screen.style.background="";  // clear any inline color first
+    if(key.indexOf("up:")===0){ BG="custom"; screen.dataset.bg="custom"; }
+    else if(key.indexOf("c:")===0){ BG=key; screen.dataset.bg="color"; screen.style.background=BG_COLOR_MAP[key]; }
+    else { BG=key; screen.dataset.bg=key; }
+    sel.bg=key; flash(screen); renderCats();
+  }
+  function applyPack(key){
+    if(mode!=="edit") setMode("edit");
+    FRUITS=(key.indexOf("up:")===0) ? CUSTOM_PRODUCTS.slice() : PACKS[key].slice();
+    buildGrid(); sel.product=key; flash(grid); renderCats();
+  }
+  function applyLogo(key){
+    if(mode!=="edit") setMode("edit");
+    document.documentElement.style.setProperty("--accent",LOGO_ACCENT[0]);
+    document.documentElement.style.setProperty("--accent-soft",LOGO_ACCENT[1]);
+    sel.logo=key; flash(document.querySelector(".g-stats")); renderCats(); toast("已从 Logo 自动取色");
+  }
+  function uploadTo(cat){
+    if(mode!=="edit") setMode("edit");
+    var i=uploads[cat].length;
+    if(cat==="bg"){ uploads.bg.push({key:"up:"+i,sw:CUSTOM_BG}); applyBg("up:"+i); toast("已上传背景 · 自动裁切适配 9:16"); }
+    else if(cat==="product"){ uploads.product.push({key:"up:"+i,emoji:CUSTOM_PRODUCTS[0]}); applyPack("up:"+i); toast("已上传商品照 · 自动裁成图标"); }
+    else if(cat==="logo"){ uploads.logo.push({key:"up:"+i,emoji:"🔷"}); applyLogo("up:"+i); }
+  }
+
+  function thumb(key,inner,on){
+    return '<button class="cat-thumb'+(on?" on":"")+'" data-key="'+key+'">'+inner+(on?'<span class="chk">✓</span>':'')+'</button>';
+  }
+  function upTile(cat){ return '<button class="cat-thumb up-tile" data-up="'+cat+'">＋<span>上传</span></button>'; }
+
+  function renderCats(){
+    var h="";
+    h+='<div class="cat"><div class="cat-head">Logo</div><div class="cat-row">';
+    uploads.logo.forEach(function(it){ h+=thumb("logo:"+it.key, it.emoji, sel.logo===it.key); });
+    h+=upTile("logo")+'</div><div class="cat-hint">上传你的 Logo，自动取品牌主色</div></div>';
+
+    h+='<div class="cat"><div class="cat-head">背景</div>';
+    h+='<div class="cat-sub">场景图</div><div class="cat-row">';
+    BG_PRESETS.forEach(function(p){ h+=thumb("bg:"+p[0], p[1], sel.bg===p[0]); });
+    uploads.bg.forEach(function(it){ h+=thumb("bg:"+it.key, '<span class="bgsw" style="background:'+it.sw+'"></span>', sel.bg===it.key); });
+    h+=upTile("bg")+'</div>';
+    h+='<div class="cat-sub">纯色 / 渐变</div><div class="cat-row">';
+    BG_COLORS.forEach(function(c){ h+=thumb("bg:"+c[0], '<span class="bgsw" style="background:'+c[1]+'"></span>', sel.bg===c[0]); });
+    h+='</div><div class="cat-hint">选场景图、纯色，或上传整图自动适配 9:16</div></div>';
+
+    h+='<div class="cat" id="catProduct"><div class="cat-head">商品图</div><div class="cat-row">';
+    PACK_PRESETS.forEach(function(p){ h+=thumb("product:"+p[0], p[1], sel.product===p[0]); });
+    uploads.product.forEach(function(it){ h+=thumb("product:"+it.key, it.emoji, sel.product===it.key); });
+    h+=upTile("product")+'</div><div class="cat-hint">上传你卖的东西，自动裁成方块图标</div></div>';
+
+    assetCats.innerHTML=h;
+    assetCats.querySelectorAll("[data-up]").forEach(function(b){ b.addEventListener("click",function(){ uploadTo(b.dataset.up); }); });
+    assetCats.querySelectorAll("[data-key]").forEach(function(b){
+      b.addEventListener("click",function(){
+        var k=b.dataset.key, cat=k.slice(0,k.indexOf(":")), key=k.slice(k.indexOf(":")+1);
+        if(cat==="bg") applyBg(key);
+        else if(cat==="product") applyPack(key);
+        else if(cat==="logo") applyLogo(key);
+      });
+    });
+  }
+  function focusTitle(){
+    if(mode!=="edit") setMode("edit");
+    flash(gameTitle); gameTitle.focus();
+    var r=document.createRange(); r.selectNodeContents(gameTitle);
+    var s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+
+  // ---------- AI panel ----------
+  var chat=document.getElementById("chat"), aiBody=document.getElementById("aiBody");
+  function addBubble(text,who){
+    var b=document.createElement("div"); b.className="bubble "+who; b.textContent=text;
+    chat.appendChild(b); aiBody.scrollTop=aiBody.scrollHeight;
+  }
+  function ensureEdit(){ if(mode!=="edit"){ setMode("edit"); } }
+  function doAction(act,label){
+    addBubble(label,"user");
+    if(act==="color"){
+      var a=setAccent(accentIdx+1);
+      addBubble("好的，已把主色换成「"+a[2]+"」，Logo 和按钮跟着变了。不满意再点一次换下一种。","ai");
+    }else if(act==="products"){
+      ensureEdit();
+      applyPack("bakery"); applyBg("bakery");
+      addBubble("已经把商品换成烘焙品、背景换成烘焙店。想更细可以在右边「商品图 / 背景」里逐项再调，或上传你自己的图。","ai");
+    }else if(act==="faster"){
+      timeEl.textContent="30";
+      addBubble("已把回合时间从 60 秒调到 30 秒，节奏更紧张。点「试玩」感受一下。","ai");
+    }else if(act==="title"){
+      focusTitle();
+      addBubble("标题已经选中，直接在手机上打你的活动名就行 —— 改完点空白即生效。","ai");
+    }
+  }
+  document.getElementById("recGrid").addEventListener("click",function(e){
+    var r=e.target.closest(".rec"); if(!r) return;
+    doAction(r.dataset.act, r.querySelector(".rt-title").textContent);
+  });
+  var aiInput=document.getElementById("aiInput");
+  function sendMsg(){
+    var v=aiInput.value.trim(); if(!v) return;
+    addBubble(v,"user"); aiInput.value="";
+    setTimeout(function(){ addBubble("收到，我按「"+v+"」调整了预览。你可以直接在手机上再微调。","ai"); },260);
+  }
+  document.getElementById("aiSend").addEventListener("click",sendMsg);
+  aiInput.addEventListener("keydown",function(e){ if(e.key==="Enter") sendMsg(); });
+
+  // ---------- top actions ----------
+  document.getElementById("btnDraft").addEventListener("click",function(){ toast("已存为草稿"); });
+  document.getElementById("btnPublish").addEventListener("click",function(){ toast("发布前会走审批 · 未登录会先要手机号（发布闸门）"); });
+
+  // ---------- lang toggle (demo: drives in-game runtime copy too) ----------
+  var zh=document.getElementById("langZh"), en=document.getElementById("langEn");
+  function setLang(l){
+    if(l==="zh"){ zh.classList.add("on"); en.classList.remove("on"); timeK.textContent="时间"; gameCta.textContent="连出 3 个一样的就消除"; }
+    else { en.classList.add("on"); zh.classList.remove("on"); timeK.textContent="TIME"; gameCta.textContent="Swap fruits to match 3+"; }
+  }
+  zh.addEventListener("click",function(){ setLang("zh"); });
+  en.addEventListener("click",function(){ setLang("en"); });
+
+  // ---------- init ----------
+  buildGrid(); renderCats();
+  setMode(location.hash==="#play" ? "play" : "edit");
+})();
+</script>
+</body>
+</html>
