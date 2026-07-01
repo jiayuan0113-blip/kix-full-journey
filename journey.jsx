@@ -496,7 +496,7 @@ function Preview({ game, brand, setBrand, onLaunch, onBack }) {
   const hasInput = !!brand.logo || (brand.products && brand.products.length > 0) || (brand.color && brand.color[0] !== "#16A34A");
   // 品牌化前左侧用中性模板（灰、无 logo）→ 点生成才 before→after 变身
   const shown = branded ? brand : { ...brand, color: NEUTRAL_BRAND_COLOR, logo:null, logoMark:null };
-  const genTasks = [tr(lang,"Applying your colors","套用你的配色"), tr(lang,"Placing your logo","放上你的 logo"), tr(lang,"Adding product photos","放入你的商品图")];
+  const genTasks = [tr(lang,"Applying your colors","套用你的配色"), tr(lang,"Placing your logo","放上你的 logo"), tr(lang,"Building your playable game","生成可试玩的游戏")];
   const generate = () => {
     if (gen) return;
     setGen(true);
@@ -513,7 +513,7 @@ function Preview({ game, brand, setBrand, onLaunch, onBack }) {
         <div className="demo-stage" style={{ position:"relative" }}>
           <div className={"demo-skin" + (branded ? " on" : "")}><Demo game={game} brand={shown}/></div>
           {!branded && !gen && <div className="gen-hint">{tr(lang,"Add your brand on the right →","在右侧加上你的品牌 →")}</div>}
-          {gen && <div className="gen-overlay"><div className="gen-spin"></div><div className="gen-tasks">{genTasks.map((t,i)=><div key={i} className="gt" style={{ animationDelay:(i*0.5)+"s" }}>{t}</div>)}</div></div>}
+          {gen && <div className="gen-overlay"><div className="gen-spin"></div><div className="gen-title">{tr(lang,"Building your custom game","正在生成你的定制游戏")}</div><div className="gen-tasks">{genTasks.map((t,i)=><div key={i} className="gt" style={{ animationDelay:(i*0.5)+"s" }}>{t}</div>)}</div></div>}
         </div>
         <div>
           <div className="editbox"><BrandControls brand={brand} setBrand={setBrand} noProducts /></div>
