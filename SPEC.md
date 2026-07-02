@@ -130,9 +130,10 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 ### 3.9 活动与游戏的关系（2026-06-27 新增）⭐
 - **一对一**：一个活动绑定一个游戏。活动 = 经营决策（哪些门店、发什么券），游戏 = 视觉体验（玩法模板、品牌配色）。
-- **活动状态机（4 态，2026-06-30 收敛，删除 offline）**：`draft`（修改中）/ `review`（审批中）/ `live`（已上线）/ `rejected`（被驳回）。
-  - 转移：`draft` —提交审核→ `review` —平台通过→ `live`；`live` —点下线→ **`draft`**（下线即回修改中，不再有独立 offline 态）；`review` —取消提交→ `draft`；`rejected` —修改重提→ `review`；`review` —平台驳回→ `rejected`。
-  - **下线 = 要改东西**，所以回到可编辑的修改中；任何重新上线都要再走审批。无「原样秒开」快捷路径。
+- **活动状态机（5 态，2026-07-02 扩展，恢复 offline）**：`draft`（修改中）/ `review`（审批中）/ `live`（已上线）/ `rejected`（被驳回）/ `offline`（已下线）。
+  - 转移：`draft` —提交审核→ `review` —平台通过→ `live`；`live` —点下线→ **`offline`**（已下线，含跑完结束/手动暂停）；`offline` —重新上线→ `review`（重走审批）；`review` —取消提交→ `draft`；`rejected` —修改重提→ `review`；`review` —平台驳回→ `rejected`。
+  - **下线 → 已下线**（不再回 draft）：跑完/暂停的活动与"从没上线的草稿"要区分开，便于商家查看历史、复制重开。**重新上线仍须重走审批**（无「原样秒开」）。
+  - 活动列表筛选：全部 / 修改中(draft+rejected) / 审批中 / 已上线 / **已下线**（零计数 pill 自动隐藏）。
   - 活动编辑器顶部用 **3 段 stepper（修改 → 审批 → 上线）** 可视化当前所处阶段。
 - **活动编辑器**（`ActivityEditor`）：从上到下 = 顶部进度条（修改/审批/上线） → 活动名称 + 活动期限（开始/结束日期） → 奖品券（`VoucherEditor`，**单券、无有效期**） → 选游戏（展示用户已创建的所有游戏大卡片，点选即绑定；卡片下方「选择」「查看详情」按钮；末尾「+ 新建游戏」卡） → **参与门店（`OutletScope`，移到底部、紧挨二维码；已上线时置灰锁定，改门店需先下线）** → 活动二维码（**上线后每门店各一个 + 下载**） → 底部按钮（按状态：提交审核 / 取消提交 / 下线活动 / 修改并重新提交）+ 保存。
 - **游戏选择器**：活动编辑器中展示商家已创建的所有游戏（大卡片 + 玩法动画预览），已绑定的游戏标记「已选」，可点击切换。末尾有「+ 新建游戏」大卡片入口。
@@ -242,10 +243,11 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 **有活动时**：
 - **页面顶栏右侧**（`app-bar-r`）：「+ New activity / + 新建活动」绿色按钮，始终可见，一步触达建活动流程。
-- 卡片网格（3 列），每张卡片 = 绑定游戏的玩法动画预览 + 活动名称 + 信息摘要（「3 张券 · 2 家门店」）+ `LIVE` 标签（如果上线）。
-- 整卡可点 → 进入活动编辑器。
-- **已上线活动的卡片右下角**：「下载二维码」快捷按钮（点击直接下载 PNG，不用进编辑器）。
-- 新建入口**只在顶栏右上角**（见上），底部不再放虚线「新建活动」卡（避免与顶栏按钮重复）。
+- 卡片网格（3 列），每张卡片 = 绑定游戏的玩法动画预览 + 活动名称 + 信息摘要（「3 张券 · 2 家门店」）+ 状态徽章。
+- **整卡可点 → 进入活动编辑器**；游戏图上 hover 显示「打开编辑」白色胶囊浮层。
+- **卡片底部按钮**：「复制」（生成 draft 副本、打开编辑器微调）；已上线卡再加「二维码」（直接下载 PNG）。
+- 筛选 pill：全部 / 修改中 / 审批中 / 已上线 / **已下线**（零计数自动隐藏）。
+- 新建入口**只在顶栏右上角**（见上），底部不再放虚线「新建活动」卡。
 
 **无活动时**：
 - 空状态全页引导：居中图标 + 「还没有活动」标题 + 一行说明（「创建你的第一个活动 —— 选门店、设券、绑游戏」）+ 「+ 新建活动」大按钮。
@@ -391,6 +393,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
   - **游戏**：预览 + 玩法类型 + 赢奖条件；「▶ 打开试玩」= 手机框预览客人玩到的游戏。
   - **奖品券**：名称/折扣/张数/有效期/券码来源；若「商家自有券码」，显示**券码文件**（文件名 + 张数 + 查看/下载）。
   - **门店**：逐门店地址。**活动信息**：期限、提交时间。**审核清单**：4 项人工核对项。
+  - **审核备注**（待审态常驻文本框）：审核员记录需商家修改的地方；驳回时这段备注自动作为说明发给商家。
 - **动作结果**：通过 → 状态 live（真实工程回写活动 `status=live`，商家端联动上线）；驳回 → 状态 rejected + 原因（商家端显示「被驳回：原因」）。
 - **接口（真实工程）**：`GET /admin/submissions?status=`（队列）、`POST /admin/submissions/:id/approve`、`POST /admin/submissions/:id/reject {reason}`。审核台与商家端**共用后端**，approve/reject 回写活动状态机（§状态机 review→live / review→rejected）。
 - **原型局限**：静态 mock，approve/reject 只改本地状态；素材/券码文件用样式块+emoji 表意，真实为 `<img>`/文件下载。调试参数 `?open=<id>` `?play=1`。
@@ -476,7 +479,8 @@ Activity（活动，经营决策，2026-06-27 新增）
   id, account_id, name,
   game_id,                              # 绑定的游戏（一对一）
   participating_outlet_ids[],           # 作用门店，默认全部
-  status(draft/review/live/rejected),   # 2026-06-30：删除 offline；下线→draft
+  status(draft/review/live/rejected/offline),  # 2026-07-02：5 态；live—下线→offline；offline—重新上线→review
+  win_score,                            # 赢奖门槛：玩家达到即赢券（单位视游戏而定，分数/关卡/回合）
   start_date, end_date,
   created_at, published_at
 
@@ -522,7 +526,7 @@ Player（客人，端侧最小化）
 | **活动列表** | `GET /api/activities` | — | `activity[]`（含 vouchers、game_id、status） |
 | **活动详情** | `GET /api/activities/:id` | — | 完整 Activity + vouchers + 统计 |
 | **活动增删改** | `POST/PATCH/DELETE /api/activities` | Activity 字段 | activity |
-| **活动提交审核/下线** | `POST /api/activities/:id/submit`（→review）· `/unpublish`（**下线→draft**，非 offline） | — | `{ status }` |
+| **活动提交审核/下线** | `POST /api/activities/:id/submit`（→review）· `/unpublish`（**下线→offline**）· `/relaunch`（offline→review，重走审批）· `/duplicate`（复制为新 draft） | — | `{ status }` / `{ activity }` |
 | **奖品券增删改** | 含在 `PATCH /api/activities/:id` 的 `vouchers[]`（或 `/activities/:id/vouchers` CRUD） | voucher 字段 | vouchers |
 | **门店增删改**（我的/Me & 预览内联加） | `GET/POST/PATCH/DELETE /api/outlets` | Outlet 字段 | outlet[] |
 | 账户/品牌素材库（Me） | `GET/PATCH /api/account` | name/phone/brandKit | account |

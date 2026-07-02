@@ -798,16 +798,17 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
 }
 
 /* ===================== activities ===================== */
-function ActivitiesView({ activities, onNew, onOpen }) {
+function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
-  // 筛选按"商家动作态"分桶：修改中(需动手:草稿/被驳回/下线后) · 审批中(等平台) · 已上线
-  // 注：下线即回到草稿(修改中)，没有独立"已下线"态
+  // 筛选按"商家动作态"分桶：修改中(草稿/被驳回) · 审批中(等平台) · 已上线 · 已下线(曾上线、现暂停)
+  // 状态机(2026-07-02 扩为5态)：draft/review/live/rejected/offline；live —下线→ offline；offline 重新上线须重走审批
   const FILTS = [
-    { k:"all",    en:"All",       zh:"全部",   match:()=>true },
-    { k:"edit",   en:"Editing",   zh:"修改中", match:s=>s==="draft"||s==="rejected" },
-    { k:"review", en:"In review", zh:"审批中", match:s=>s==="review" },
-    { k:"live",   en:"Live",      zh:"已上线", match:s=>s==="live" },
+    { k:"all",     en:"All",       zh:"全部",   match:()=>true },
+    { k:"edit",    en:"Editing",   zh:"修改中", match:s=>s==="draft"||s==="rejected" },
+    { k:"review",  en:"In review", zh:"审批中", match:s=>s==="review" },
+    { k:"live",    en:"Live",      zh:"已上线", match:s=>s==="live" },
+    { k:"offline", en:"Offline",   zh:"已下线", match:s=>s==="offline" },
   ];
   const cnt = (f) => activities.filter(a => f.match(a.status||"draft")).length;
   // 零计数标签自动隐藏（全部除外），小商家不被空标签淹没
@@ -836,13 +837,13 @@ function ActivitiesView({ activities, onNew, onOpen }) {
               const tpl = TEMPLATES.find(t => t.id === act.gameId) || TEMPLATES[0];
               return (
                 <div key={act.id} className="mgcard clickable" onClick={() => onOpen(act)}>
-                  <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span></div>
+                  <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
                   <div className="mgmeta">
                     <div className="nm">{P(lang, act.name)}</div>
                     <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:8 }}>
-                      <div className="mgedit">{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></div>
-                      {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 24px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,90); ctx.font="13px sans-serif"; ctx.fillText(P(lang,act.name),100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); }} style={{ padding:"6px 10px", fontSize:12.5 }}><Ic.upload style={{ width:12, height:12, transform:"rotate(180deg)" }}/> {tr(lang,"QR","二维码")}</button>}
+                    <div style={{ display:"flex", gap:8, marginTop:10 }}>
+                      <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onDuplicate(act); }} style={{ padding:"7px 12px", fontSize:12.5 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> {tr(lang,"Copy","复制")}</button>
+                      {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 24px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,90); ctx.font="13px sans-serif"; ctx.fillText(P(lang,act.name),100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); }} style={{ padding:"7px 12px", fontSize:12.5 }}><Ic.upload style={{ width:12, height:12, transform:"rotate(180deg)" }}/> {tr(lang,"QR","二维码")}</button>}
                     </div>
                   </div>
                 </div>
@@ -857,6 +858,7 @@ const ACT_STA = {
   review:   { en:"In review",     zh:"审批中", cls:"st-review" },
   live:     { en:"Live",          zh:"已上线", cls:"st-live" },
   rejected: { en:"Needs changes", zh:"被驳回", cls:"st-rejected" },
+  offline:  { en:"Offline",       zh:"已下线", cls:"st-offline" },
 };
 function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, onNewGame, onViewGame, onBack }) {
   const lang = useLang();
@@ -961,8 +963,9 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
       <div className="act-actions">
         {st==="draft"    && <button className="btn primary lg" onClick={()=>upd("status","review")}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Submit for review","提交审核")}</button>}
         {st==="review"   && <button className="btn ghost lg" onClick={()=>upd("status","draft")}>{tr(lang,"Cancel submission","取消提交")}</button>}
-        {st==="live"     && <button className="ws-publish on" style={{ padding:"14px 22px", fontSize:"15.5px" }} onClick={()=>upd("status","draft")}>{tr(lang,"Take offline","下线活动")}</button>}
+        {st==="live"     && <button className="ws-publish on" style={{ padding:"14px 22px", fontSize:"15.5px" }} onClick={()=>upd("status","offline")}>{tr(lang,"Take offline","下线活动")}</button>}
         {st==="rejected" && <button className="btn primary lg" onClick={()=>upd("status","review")}>{tr(lang,"Edit & resubmit","修改并重新提交")}</button>}
+        {st==="offline"  && <button className="btn primary lg" onClick={()=>upd("status","review")}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Relaunch (needs review)","重新上线（需审批）")}</button>}
         <button className="btn ghost lg" onClick={onBack}>{tr(lang,"Save & close","保存并返回")}</button>
       </div>
     </div>
@@ -1167,6 +1170,8 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
   const actVouchers = liveAct ? liveAct.vouchers : DEFAULT_VOUCHERS;
   const openAct = (act) => { setEditingAct({...act, vouchers:act.vouchers.map(v=>({...v}))}); };
   const newAct = () => { openAct({ id:"a"+Date.now(), name:{en:"New activity",zh:"新活动"}, outletIds:outlets.map(o=>o.id), vouchers:STARTER_VOUCHERS.map(v=>({...v})), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft" }); };
+  // 复制现有活动：同游戏/券/门店/赢奖条件，名字加副本，回到 draft、清空运行数据，打开编辑器微调
+  const dupAct = (act) => { openAct({ ...act, id:"a"+Date.now(), name:{ en:(act.name.en||"Activity")+" (copy)", zh:(act.name.zh||"活动")+"（副本）" }, vouchers:act.vouchers.map(v=>({...v, awarded:0, redeemed:0})), status:"draft" }); };
   const saveAct = () => { setActivities(as => { const idx = as.findIndex(a=>a.id===editingAct.id); return idx>=0 ? as.map((a,i)=>i===idx?editingAct:a) : [...as, editingAct]; }); setEditingAct(null); };
   const barTitle = inBuild ? tr(lang,"New game","新建游戏")
     : inEdit ? <><button className="iconx sm" onClick={()=>setEditing(null)} style={{ marginRight:10, verticalAlign:"middle" }}><Ic.back/></button>{P(lang,editing.name)}</>
@@ -1212,7 +1217,7 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} />
+          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} />
           : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} hasLive={!!liveAct} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} />

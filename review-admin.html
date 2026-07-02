@@ -122,6 +122,7 @@ tbody tr.sel{background:var(--green-50)}
 .reason{display:block;width:100%;font-size:13.5px;border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:#fff;margin-bottom:8px}
 .reason:focus{outline:none;border-color:var(--green)}
 textarea.reason{resize:vertical;min-height:52px}
+.rj-note{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5}.rj-note b{color:var(--ink-2);font-weight:700}
 .pick-hint{font-size:13px;color:var(--muted);text-align:center;padding:8px}
 /* brand assets */
 .brand-row{display:flex;gap:14px;align-items:center;margin-bottom:12px}
@@ -349,6 +350,11 @@ function Drawer({ sub, onClose, onApprove, onReject, startReject }){
           {checks.map((c,i)=>(<div className="chk" key={i}><span className="cb"><Ic n="check" w={12}/></span>{c}</div>))}
         </div>}
 
+        {sub.status==="pending" && <div className="sec">
+          <div className="k">审核备注</div>
+          <textarea className="reason" style={{minHeight:64}} placeholder="记录需要商家修改的地方…驳回时这段会作为说明发给商家（选填）" value={note} onChange={e=>setNote(e.target.value)}/>
+        </div>}
+
         {sub.status==="rejected" && <div className="resolved no"><Ic n="x" w={18}/> 已驳回：{sub.rejectReason}</div>}
         {sub.status==="live" && <div className="resolved ok"><Ic n="check" w={18}/> 已通过 · 商家端已显示「上线」</div>}
       </div>
@@ -358,7 +364,7 @@ function Drawer({ sub, onClose, onApprove, onReject, startReject }){
           ? <div className="reject">
               <div className="k">驳回原因（商家会看到）</div>
               <select className="reason" value={reason} onChange={e=>setReason(e.target.value)}>{REJECT_REASONS.map(r=><option key={r}>{r}</option>)}</select>
-              <textarea className="reason" placeholder="补充说明（选填）…" value={note} onChange={e=>setNote(e.target.value)}/>
+              <div className="rj-note">{note.trim() ? <>将附上审核备注：<b>{note.trim()}</b></> : "上方「审核备注」会随驳回一起发给商家（选填）"}</div>
               <div className="act-row">
                 <button className="btn ghost" style={{flex:1}} onClick={()=>setRejecting(false)}>取消</button>
                 <button className="btn danger" style={{flex:1}} onClick={doReject}>确认驳回</button>

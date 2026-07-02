@@ -6,6 +6,26 @@
 
 ## 2026-07-02
 
+### 42. 活动卡布局调整：「打开编辑」移到游戏图 hover 浮层
+**改了什么**：活动列表卡片的「打开编辑」从底部文字区移到游戏预览图上的 hover 浮层（白色胶囊，与游戏选择卡一致）；底部文字区按钮只留「复制」（已上线卡再加「二维码」），不再拥挤。
+**影响文件**：`journey.jsx`（ActivitiesView 卡片）、`index.html`（`.mgcard .mgart .play span`）
+
+### 41. 活动列表新增「复制活动」
+**改了什么**：每张活动卡新增「复制」按钮 → 生成 draft 副本（同游戏/券/门店/赢奖条件，名字加「（副本）」，清空 awarded/redeemed 运行数据），并打开编辑器供微调。
+**为什么**：季节性/结束的活动想重开，复制比重建快。
+**影响文件**：`journey.jsx`（ActivitiesView + AppShell `dupAct`）
+**研发注意**：真实工程 `POST /activities/:id/duplicate` 返回新 draft；副本不继承运行统计与二维码（新建活动生成新码）。
+
+### 40. 活动状态机扩为 5 态：新增 `offline`（已下线）⭐ canon 变更
+**改了什么**：新增 `offline`（已下线）状态。`live —下线→ offline`（不再回 draft）；offline 活动可「重新上线（需审批）」→ review。活动列表新增「已下线」筛选 pill（零计数自动隐藏）；状态徽章 `st-offline`（灰蓝）。
+**为什么**：跑完结束/手动下线的活动，之前混进「修改中」和从没上线的草稿分不清；独立「已下线」让商家看到"跑过、现暂停"的活动，便于复制重开。
+**影响文件**：`journey.jsx`（ActivitiesView FILTS + ACT_STA + ActivityEditor 动作）、`data.jsx`（+1 个 offline demo 活动）
+**canon 变更**：**推翻 2026-06-30 的「4 态无 offline」**——现为 **5 态**：draft/review/live/rejected/**offline**。下线不再等于回草稿。重新上线仍须重走审批。
+
+### 39. 审核后台详情新增「审核备注」
+**改了什么**：`review-admin.html` 详情抽屉（待审态）新增「审核备注」文本框，审核员可记录需商家修改的地方；驳回时这段备注自动作为说明发给商家（驳回面板显示「将附上审核备注：…」）。
+**影响文件**：`review-admin.html`
+
 ### 38. 新增平台审核后台 demo（`review-admin.html`）⭐ 新页面
 **是什么**：独立单文件 demo（平台审核员视角，非商家端），复用同套设计 tokens + `vendor/`。地址 `http://localhost:4311/review-admin.html`。
 **布局**（对标 App Store Connect 审核队列 / 内容审核 modqueue / Retool 数据表）：

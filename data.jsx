@@ -170,6 +170,10 @@ const DEFAULT_ACTIVITIES = [
     outletIds:["o1"],
     vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"Free slice",zh:"蛋糕一块"}, qty:500} ],
     gameId:"fruit", status:"rejected" },
+  { id:"a6", name:{en:"Lunar New Year Special",zh:"春节特惠（已结束）"},
+    outletIds:["o1","o2"],
+    vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"CNY treat",zh:"新年好礼"}, qty:300} ],
+    gameId:"wheel", status:"offline" },
 ];
 
 Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
