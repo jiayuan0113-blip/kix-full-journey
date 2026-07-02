@@ -43,8 +43,9 @@ const COUNTRIES = [
 
 /* flow: describe chips — 只选「店型」(品牌化全放第三步，第一步不取品牌/不要店名) */
 const EXAMPLES = [
-  {en:"Coffee shop",zh:"咖啡店"}, {en:"Bubble tea",zh:"奶茶店"}, {en:"Bakery",zh:"面包烘焙"},
-  {en:"Nail salon",zh:"美甲美睫"}, {en:"Street food",zh:"小吃摊"}, {en:"Gym",zh:"健身房"},
+  {en:"Bubble Tea",zh:"奶茶"}, {en:"Dessert",zh:"甜品"}, {en:"Coffee",zh:"咖啡"},
+  {en:"Fresh Produce",zh:"生鲜"}, {en:"Convenience",zh:"便利店"}, {en:"Board Games",zh:"桌游"},
+  {en:"Sports",zh:"运动"}, {en:"Pets & Kids",zh:"宠物"}, {en:"Beauty",zh:"美妆"}, {en:"Fashion",zh:"时尚"},
 ];
 
 /* flow: describe chips (returning — campaign goal, shop already known) */

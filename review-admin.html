@@ -1,0 +1,445 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KiX · 审核后台 Review Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F7F4; --card:#FFFFFF;
+  --ink:#0B1220; --ink-2:#26324A; --muted:#5C6B7A; --muted-2:#94A3B0;
+  --line:#E4EBE8; --line-2:#EEF3F0;
+  --green:#16A34A; --green-d:#15803D; --green-br:#22C55E; --green-50:#ECFDF3; --green-100:#D5F5E0;
+  --amber:#F59E0B; --amber-50:#FEF6E7; --sky:#0EA5E9; --red:#DC2626; --red-50:#FEECEC;
+  --sans:"Plus Jakarta Sans",-apple-system,"PingFang SC","Noto Sans SC",system-ui,sans-serif;
+  --sh:0 14px 40px -16px rgba(16,24,40,.20);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;background:var(--bg)}
+:lang(zh){line-height:1.65}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit}
+
+/* top bar */
+.abar{height:60px;background:#0B1220;color:#fff;display:flex;align-items:center;gap:12px;padding:0 22px}
+.abar .lg{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.01em}
+.abar .lg .dot{width:22px;height:22px;border-radius:7px;background:var(--green-br);display:grid;place-items:center;color:#0B1220;font-weight:900;font-size:13px}
+.abar .tag{font-size:12px;font-weight:600;color:#9fb0c4;border:1px solid #2b3a52;border-radius:999px;padding:3px 10px}
+.abar .who{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:14px;color:#cdd8e4;font-weight:600}
+.abar .av{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#16A34A,#22C55E);display:grid;place-items:center;font-weight:800;color:#fff;font-size:13px}
+
+.wrap{max-width:1320px;margin:0 auto;padding:26px 22px 60px}
+.head{display:flex;align-items:flex-end;gap:14px;margin-bottom:18px}
+.head h1{font-size:24px;font-weight:800;margin:0;letter-spacing:-.02em}
+.head .sub{font-size:13.5px;color:var(--muted);margin-bottom:2px}
+
+/* filter pills */
+.pills{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.pill{font-size:13.5px;font-weight:700;color:var(--muted);border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 15px;display:inline-flex;align-items:center;gap:7px}
+.pill em{font-style:normal;font-size:12px;font-weight:800;background:var(--line-2);color:var(--muted);border-radius:999px;padding:1px 8px}
+.pill.on{color:#fff;background:var(--ink);border-color:var(--ink)}
+.pill.on em{background:rgba(255,255,255,.2);color:#fff}
+
+/* table */
+.tbl-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding:13px 16px;background:var(--line-2);border-bottom:1px solid var(--line)}
+tbody td{padding:14px 16px;border-bottom:1px solid var(--line-2);font-size:14px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover{background:var(--green-50)}
+tbody tr.sel{background:var(--green-50)}
+.shop{display:flex;align-items:center;gap:10px}
+.shop .mk{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:14px;flex:none}
+.shop .nm{font-weight:700;color:var(--ink)}
+.shop .ph{font-size:12px;color:var(--muted-2)}
+.g-chip{display:inline-flex;align-items:center;gap:7px}
+.g-chip .sw{width:22px;height:30px;border-radius:5px;flex:none}
+.cell-sub{font-size:12px;color:var(--muted-2);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px}
+.b-pending{background:var(--amber-50);color:#B45309}
+.b-live{background:var(--green-50);color:var(--green-d)}
+.b-rejected{background:var(--red-50);color:var(--red)}
+.badge .b{width:6px;height:6px;border-radius:999px;background:currentColor}
+.chev{color:var(--muted-2)}
+.tbl-empty{padding:60px 20px;text-align:center;color:var(--muted)}
+.tbl-empty .big{font-size:40px}
+.tbl-empty h3{font-size:17px;color:var(--ink);margin:12px 0 4px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(11,18,32,.34);z-index:40;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:440px;max-width:94vw;background:#fff;z-index:41;box-shadow:-24px 0 60px -30px rgba(11,18,32,.5);display:flex;flex-direction:column;animation:slide .24s cubic-bezier(.2,.7,.3,1)}
+@keyframes slide{from{transform:translateX(30px);opacity:.6}to{transform:translateX(0);opacity:1}}
+.dw-head{padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.dw-head .row1{display:flex;align-items:center;gap:10px}
+.dw-head h2{font-size:19px;font-weight:800;margin:10px 0 3px;letter-spacing:-.01em}
+.dw-head .shopline{font-size:13px;color:var(--muted)}
+.dw-x{margin-left:auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line)}
+.dw-x:hover{background:var(--line-2)}
+.dw-body{flex:1;overflow-y:auto;padding:18px 22px}
+.sec{margin-bottom:20px}
+.sec>.k{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:9px}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:5px 0}
+.kv .kk{color:var(--muted)}
+.kv .vv{font-weight:600;color:var(--ink-2);text-align:right}
+.gamebox{display:flex;gap:14px;align-items:center}
+.gamebox .pv{width:74px;height:120px;border-radius:12px;flex:none;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.gamebox .pv .gl{position:absolute;left:0;right:0;bottom:0;padding:6px 7px;font-size:10px;font-weight:700;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.4))}
+.gamebox .gm .nm{font-weight:800;font-size:15px}
+.gamebox .gm .ge{font-size:12.5px;color:var(--muted);margin-top:2px}
+.vcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.vcard .vn{font-weight:800;font-size:15px}
+.vcard .vd{font-size:13px;color:var(--muted);margin-top:2px}
+.vcard .vmeta{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.tagm{font-size:12px;font-weight:600;color:var(--ink-2);background:var(--line-2);border-radius:8px;padding:4px 9px}
+.tagm.warn{background:var(--amber-50);color:#B45309}
+.olist{display:flex;flex-direction:column;gap:8px}
+.orow{display:flex;gap:10px;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:10px}
+.orow .oi{color:var(--green-d);flex:none}
+.orow .on{font-weight:700}
+.orow .oa{color:var(--muted);font-size:12px}
+.chk{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--ink-2);padding:6px 0}
+.chk .cb{width:18px;height:18px;border-radius:6px;border:1.6px solid var(--line);flex:none;display:grid;place-items:center;color:#fff;margin-top:1px}
+.chk.on .cb{background:var(--green);border-color:var(--green)}
+/* actions */
+.dw-foot{padding:14px 22px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px;background:#fff}
+.act-row{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;border-radius:12px;font-size:15px;padding:13px 18px;transition:transform .12s,background .2s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--green);color:#fff;flex:1;box-shadow:0 10px 24px -12px rgba(22,163,74,.7)}
+.btn.primary:hover{background:var(--green-d)}
+.btn.danger{background:#fff;border:1.5px solid var(--red-50);color:var(--red);flex:none;padding:13px 18px}
+.btn.danger:hover{background:var(--red-50)}
+.btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink-2)}
+.resolved{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:700;padding:12px;border-radius:11px}
+.resolved.ok{background:var(--green-50);color:var(--green-d)}
+.resolved.no{background:var(--red-50);color:var(--red)}
+/* reject panel */
+.reject{border:1px solid var(--line);border-radius:12px;padding:13px;background:var(--line-2)}
+.reject .k{font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:8px}
+.reason{display:block;width:100%;font-size:13.5px;border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:#fff;margin-bottom:8px}
+.reason:focus{outline:none;border-color:var(--green)}
+textarea.reason{resize:vertical;min-height:52px}
+.pick-hint{font-size:13px;color:var(--muted);text-align:center;padding:8px}
+/* brand assets */
+.brand-row{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.logo-box{width:60px;height:60px;border-radius:14px;flex:none;display:grid;place-items:center;font-weight:900;font-size:24px;color:#fff;box-shadow:var(--sh)}
+.brand-meta .bl{font-size:12px;color:var(--muted)}
+.swatches{display:flex;gap:6px;margin-top:5px}
+.swatches i{width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.06)}
+.prods{display:flex;gap:9px}
+.prod{flex:1;border-radius:11px;overflow:hidden;border:1px solid var(--line)}
+.prod .img{height:64px;display:grid;place-items:center;font-size:28px}
+.prod .cap{font-size:11px;font-weight:600;color:var(--ink-2);text-align:center;padding:5px 2px;background:#fff}
+.filechip{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-top:9px;background:var(--line-2)}
+.filechip .fi{width:34px;height:34px;border-radius:8px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none}
+.filechip .fn{font-weight:700;font-size:13.5px}
+.filechip .fs{font-size:12px;color:var(--muted)}
+.filechip .fdl{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--green-d)}
+.gopen{margin-top:10px;width:100%;font-size:13.5px;font-weight:700;color:var(--ink-2);border:1.5px solid var(--line);border-radius:10px;padding:9px;display:flex;align-items:center;justify-content:center;gap:7px}
+.gopen:hover{border-color:var(--muted-2)}
+/* game play modal */
+.gm-scrim{position:fixed;inset:0;background:rgba(11,18,32,.55);z-index:50;display:grid;place-items:center;animation:fade .2s}
+.gm-phone{width:300px;height:600px;max-height:88vh;border-radius:34px;background:#0B1220;padding:10px;box-shadow:0 40px 90px -30px rgba(0,0,0,.7);position:relative}
+.gm-screen{width:100%;height:100%;border-radius:26px;overflow:hidden;position:relative;display:grid;place-items:center}
+.gm-notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:96px;height:22px;background:#0B1220;border-radius:999px;z-index:3}
+.gm-play{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:#0B1220;color:#fff;font-weight:800;padding:12px 26px;border-radius:999px;font-size:15px}
+.gm-label{position:absolute;top:40px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:15px;z-index:3}
+.gm-close{position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:999px;background:#fff;display:grid;place-items:center;box-shadow:var(--sh);color:var(--ink)}
+.gm-hint{position:absolute;bottom:-34px;left:0;right:0;text-align:center;color:rgba(255,255,255,.7);font-size:12.5px}
+/* inline table actions */
+td.ops{white-space:nowrap}
+.op{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;border-radius:9px;padding:7px 12px;border:1.5px solid transparent}
+.op.ok{background:var(--green);color:#fff}
+.op.ok:hover{background:var(--green-d)}
+.op.no{background:#fff;border-color:var(--red-50);color:var(--red);margin-left:6px}
+.op.no:hover{background:var(--red-50)}
+.op-done{font-size:12.5px;color:var(--muted-2);font-weight:600}
+</style>
+<div id="root"></div>
+
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script src="vendor/babel.min.js"></script>
+<script type="text/babel">
+const { useState } = React;
+
+const GENRE_COLORS = {
+  spin:["#16A34A","#22C55E"], merge:["#EF4444","#FB7185"], catch:["#F59E0B","#FBBF24"],
+  pop:["#EF4444","#FB7185"], match:["#8B5CF6","#A78BFA"], flip:["#EC4899","#F9A8D4"],
+  match3:["#0EA5E9","#22C55E"], tile:["#14B8A6","#5EEAD4"],
+};
+
+// mock 提交队列 —— 不同商家、不同内容、不同状态
+const SUBMISSIONS = [
+  { id:"s1", shop:"Kopi Corner", mkc:"#16A34A", phone:"+65 8123 4567", colors:["#16A34A","#22C55E"],
+    products:[["☕","拿铁","#3F2A1E"],["🧋","冰咖","#6B4423"],["🍰","蛋糕","#E8B4B8"]],
+    act:"周末咖啡促销", genre:"咖啡店-配方游戏", kind:"spin",
+    voucher:{ name:"免费卡布奇诺", discount:"免费", price:"S$6.00", qty:200, validity:14, code:"系统自动生成" },
+    winScore:1000, outlets:[{n:"Kopi Corner · 淡滨尼",a:"10 Tampines Central 1, #01-12"},{n:"Kopi Corner · 裕廊",a:"63 Jurong West Central 3, #B1-05"}],
+    dates:"2026-07-05 → 2026-07-31", submitted:"12 分钟前", status:"pending" },
+  { id:"s2", shop:"BoBa Wave", mkc:"#0EA5E9", phone:"+65 9088 2231", colors:["#0EA5E9","#38BDF8"],
+    products:[["🧋","珍珠奶茶","#C9A27E"],["🥤","果茶","#F4A6C0"],["🧊","冰沙","#A7D8F0"]],
+    act:"中秋买一送一", genre:"奶茶店-接珍珠游戏", kind:"catch",
+    voucher:{ name:"珍珠奶茶买一送一", discount:"买一送一", price:"S$5.50", qty:150, validity:10, code:"系统自动生成" },
+    winScore:800, outlets:[{n:"BoBa Wave · 乌节路",a:"391 Orchard Rd, #B2-14"}],
+    dates:"2026-09-10 → 2026-09-25", submitted:"38 分钟前", status:"pending" },
+  { id:"s3", shop:"Sweet Ate", mkc:"#EC4899", phone:"+65 8677 1900", colors:["#EC4899","#F9A8D4"],
+    products:[["🍰","慕斯蛋糕","#F5C6D0"],["🧁","纸杯蛋糕","#F0A8B8"],["🍮","布丁","#E8C39E"]],
+    act:"新品甜品试吃", genre:"甜品店-合成游戏", kind:"merge",
+    voucher:{ name:"蛋糕一块", discount:"8 折", price:"S$8.00", qty:300, validity:7, code:"商家自有券码", codeFile:"sweet-codes.csv", codeCount:300 },
+    winScore:1200, outlets:[{n:"Sweet Ate · 义顺",a:"930 Yishun Ave 2, #01-33"},{n:"Sweet Ate · 白沙",a:"1 Pasir Ris Central, #02-09"},{n:"Sweet Ate · 淡滨尼",a:"10 Tampines Central, #03-21"}],
+    dates:"2026-07-08 → 2026-08-08", submitted:"1 小时前", status:"pending" },
+  { id:"s4", shop:"Glow Nails", mkc:"#8B5CF6", phone:"+65 9345 7788", colors:["#8B5CF6","#A78BFA"],
+    products:[["💅","美甲","#E5B8D0"],["💄","口红","#D6455E"],["🧴","护理","#F0D8E8"]],
+    act:"开业美甲大促", genre:"美妆店-连连看", kind:"match",
+    voucher:{ name:"美甲 5 折券", discount:"5 折", price:"S$45.00", qty:100, validity:30, code:"系统自动生成" },
+    winScore:600, outlets:[{n:"Glow Nails · 荷兰村",a:"21 Holland Dr, #01-05"}],
+    dates:"2026-07-06 → 2026-07-20", submitted:"2 小时前", status:"pending" },
+  { id:"s5", shop:"FreshMart", mkc:"#14B8A6", phone:"+65 8422 6610", colors:["#14B8A6","#5EEAD4"],
+    products:[["🥤","饮料","#7FC7C0"],["🍫","零食","#8B5E3C"],["🧻","日用","#D8E8E4"]],
+    act:"清仓满减", genre:"便利店-叠叠消除", kind:"tile",
+    voucher:{ name:"满 10 减 3", discount:"满减", price:"—", qty:2000, validity:5, code:"商家自有券码", codeFile:"freshmart-codes.zip", codeCount:2000 },
+    winScore:1500, outlets:[{n:"FreshMart · 芽笼",a:"87 Geylang Rd, #01-02"},{n:"FreshMart · 加东",a:"112 East Coast Rd, #01-18"}],
+    dates:"2026-07-05 → 2026-07-12", submitted:"3 小时前", status:"pending", flag:"券量 2000 张偏高，注意预算" },
+  { id:"s6", shop:"Urban Threads", mkc:"#F59E0B", phone:"+65 9120 4455", colors:["#F59E0B","#FBBF24"],
+    products:[["👕","上衣","#5B7C99"],["👖","裤装","#3A4A5C"],["👟","鞋","#D4A857"]],
+    act:"换季 9 折", genre:"服装店-翻牌游戏", kind:"flip",
+    voucher:{ name:"全场 9 折", discount:"9 折", price:"—", qty:80, validity:21, code:"系统自动生成" },
+    winScore:900, outlets:[{n:"Urban Threads · 百丽宫",a:"2 Bayfront Ave, #B1-40"}],
+    dates:"2026-06-28 → 2026-07-28", submitted:"昨天", status:"live" },
+  { id:"s7", shop:"Green Grocer", mkc:"#22C55E", phone:"+65 8890 3312", colors:["#22C55E","#86EFAC"],
+    products:[["🍎","苹果","#D64545"],["🍌","香蕉","#E8C84E"],["🥬","蔬菜","#5FA85F"]],
+    act:"周末免费水果", genre:"水果店-三消游戏", kind:"match3",
+    voucher:{ name:"免费一份水果", discount:"免费", price:"S$4.00", qty:5000, validity:3, code:"系统自动生成" },
+    winScore:500, outlets:[{n:"Green Grocer · 后港",a:"681 Hougang Ave 8, #01-07"}],
+    dates:"2026-06-30 → 2026-07-07", submitted:"昨天", status:"rejected", rejectReason:"券量 5000 张超出单活动上限，请调整至 2000 张以内后重新提交。" },
+];
+
+const STATUS = {
+  pending:  { zh:"待审批", cls:"b-pending", dot:false },
+  live:     { zh:"已上线", cls:"b-live", dot:true },
+  rejected: { zh:"已驳回", cls:"b-rejected", dot:false },
+};
+const REJECT_REASONS = [
+  "券量超出单活动上限",
+  "品牌素材涉嫌侵权 / 使用了他人商标",
+  "内容不当（含违规 / 误导信息）",
+  "门店信息不完整或无法核实",
+  "折扣设置异常（疑似录入错误）",
+  "其他（见备注）",
+];
+
+function Ic(p){ // minimal inline icons
+  const s = { width:p.w||16, height:p.w||16, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2.2, strokeLinecap:"round", strokeLinejoin:"round" };
+  const paths = {
+    check:<polyline points="20 6 9 17 4 12"/>,
+    x:<g><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></g>,
+    chev:<polyline points="9 18 15 12 9 6"/>,
+    pin:<g><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></g>,
+    store:<g><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/></g>,
+  };
+  return <svg {...s}>{paths[p.n]}</svg>;
+}
+
+function GamePv({ kind, big }){
+  const c = GENRE_COLORS[kind] || ["#16A34A","#22C55E"];
+  return <div className="pv" style={{ background:`linear-gradient(150deg,${c[0]},${c[1]})` }}>
+    <div style={{ position:"absolute", inset:0, display:"grid", placeItems:"center", color:"rgba(255,255,255,.9)" }}>
+      <div style={{ width:34, height:34, borderRadius:"50%", border:"3px solid rgba(255,255,255,.85)" }}/>
+    </div>
+  </div>;
+}
+
+function GameModal({ sub, onClose }){
+  const c = GENRE_COLORS[sub.kind] || ["#16A34A","#22C55E"];
+  return <div className="gm-scrim" onClick={onClose}>
+    <div className="gm-phone" onClick={e=>e.stopPropagation()}>
+      <button className="gm-close" onClick={onClose}><Ic n="x" w={16}/></button>
+      <div className="gm-screen" style={{ background:`linear-gradient(160deg,${c[0]},${c[1]})` }}>
+        <div className="gm-notch"></div>
+        <div className="gm-label">{sub.genre}</div>
+        <div style={{ width:120, height:120, borderRadius:"50%", border:"6px solid rgba(255,255,255,.9)", display:"grid", placeItems:"center", color:"#fff", fontWeight:800 }}>{sub.shop}</div>
+        <div className="gm-play">开始游戏</div>
+      </div>
+      <div className="gm-hint">这是客人扫码后玩到的游戏（真实环境可试玩）</div>
+    </div>
+  </div>;
+}
+
+function Drawer({ sub, onClose, onApprove, onReject, startReject }){
+  const [rejecting, setRejecting] = useState(!!startReject);
+  const [playing, setPlaying] = useState(new URLSearchParams(location.search).get("play")==="1");
+  const [reason, setReason] = useState(REJECT_REASONS[0]);
+  const [note, setNote] = useState("");
+  const st = STATUS[sub.status];
+  const v = sub.voucher;
+  const checks = ["品牌素材合规（logo / 配色 / 商品图无侵权、无不当内容）","奖品券折扣与张数合理、在预算内","绑定游戏可正常试玩","参与门店地址真实、可核销"];
+  const doReject = () => { onReject(sub.id, note.trim() ? `${reason}：${note.trim()}` : reason); };
+  return <>
+    <div className="scrim" onClick={onClose}/>
+    <div className="drawer">
+      <div className="dw-head">
+        <div className="row1">
+          <span className={"badge "+st.cls}>{st.dot&&<span className="b"></span>}{st.zh}</span>
+          <button className="dw-x" onClick={onClose}><Ic n="x" w={16}/></button>
+        </div>
+        <h2>{sub.act}</h2>
+        <div className="shopline">{sub.shop} · {sub.phone}</div>
+      </div>
+      <div className="dw-body">
+        {sub.flag && <div className="reject" style={{ background:"var(--amber-50)", borderColor:"#F6D89A", marginBottom:18 }}>
+          <div className="k" style={{ color:"#B45309", margin:0 }}>⚠ {sub.flag}</div>
+        </div>}
+
+        <div className="sec">
+          <div className="k">商家上传素材</div>
+          <div className="brand-row">
+            <div className="logo-box" style={{ background:`linear-gradient(135deg,${sub.colors[0]},${sub.colors[1]})` }}>{sub.shop[0]}</div>
+            <div className="brand-meta">
+              <div className="bl">品牌 LOGO + 配色</div>
+              <div className="swatches">{sub.colors.map((c,i)=><i key={i} style={{background:c}}/>)}<span style={{fontSize:12,color:"var(--muted)",marginLeft:4,alignSelf:"center"}}>{sub.colors.join(" / ")}</span></div>
+            </div>
+          </div>
+          <div className="prods">
+            {sub.products.map((p,i)=>(<div className="prod" key={i}><div className="img" style={{background:p[2]}}>{p[0]}</div><div className="cap">{p[1]}</div></div>))}
+          </div>
+        </div>
+
+        <div className="sec">
+          <div className="k">游戏</div>
+          <div className="gamebox">
+            <GamePv kind={sub.kind}/>
+            <div className="gm"><div className="nm">{sub.genre}</div><div className="ge">达标即赢券 · 赢奖条件：达到 <b>{sub.winScore}</b></div></div>
+          </div>
+          <button className="gopen" onClick={()=>setPlaying(true)}>▶ 打开试玩，看客人玩到的游戏</button>
+        </div>
+
+        <div className="sec">
+          <div className="k">奖品券</div>
+          <div className="vcard">
+            <div className="vn">{v.name}</div>
+            <div className="vd">{v.discount} · 原价 {v.price}</div>
+            <div className="vmeta">
+              <span className="tagm">{v.qty} 张</span>
+              <span className="tagm">有效期 {v.validity} 天</span>
+              <span className={"tagm"+(v.code==="商家自有券码"?" warn":"")}>{v.code}</span>
+            </div>
+            {v.codeFile && <div className="filechip"><span className="fi">📄</span><div><div className="fn">{v.codeFile}</div><div className="fs">商家自有券码 · {v.codeCount} 个</div></div><span className="fdl">查看</span></div>}
+          </div>
+        </div>
+
+        <div className="sec">
+          <div className="k">参与门店 · {sub.outlets.length} 家</div>
+          <div className="olist">
+            {sub.outlets.map((o,i)=>(<div className="orow" key={i}><span className="oi"><Ic n="pin" w={15}/></span><div><div className="on">{o.n}</div><div className="oa">{o.a}</div></div></div>))}
+          </div>
+        </div>
+
+        <div className="sec">
+          <div className="k">活动信息</div>
+          <div className="kv"><span className="kk">活动期限</span><span className="vv">{sub.dates}</span></div>
+          <div className="kv"><span className="kk">提交时间</span><span className="vv">{sub.submitted}</span></div>
+        </div>
+
+        {sub.status==="pending" && <div className="sec">
+          <div className="k">审核清单</div>
+          {checks.map((c,i)=>(<div className="chk" key={i}><span className="cb"><Ic n="check" w={12}/></span>{c}</div>))}
+        </div>}
+
+        {sub.status==="rejected" && <div className="resolved no"><Ic n="x" w={18}/> 已驳回：{sub.rejectReason}</div>}
+        {sub.status==="live" && <div className="resolved ok"><Ic n="check" w={18}/> 已通过 · 商家端已显示「上线」</div>}
+      </div>
+
+      {sub.status==="pending" && <div className="dw-foot">
+        {rejecting
+          ? <div className="reject">
+              <div className="k">驳回原因（商家会看到）</div>
+              <select className="reason" value={reason} onChange={e=>setReason(e.target.value)}>{REJECT_REASONS.map(r=><option key={r}>{r}</option>)}</select>
+              <textarea className="reason" placeholder="补充说明（选填）…" value={note} onChange={e=>setNote(e.target.value)}/>
+              <div className="act-row">
+                <button className="btn ghost" style={{flex:1}} onClick={()=>setRejecting(false)}>取消</button>
+                <button className="btn danger" style={{flex:1}} onClick={doReject}>确认驳回</button>
+              </div>
+            </div>
+          : <div className="act-row">
+              <button className="btn danger" onClick={()=>setRejecting(true)}><Ic n="x" w={16}/> 驳回</button>
+              <button className="btn primary" onClick={()=>onApprove(sub.id)}><Ic n="check" w={17}/> 通过并上线</button>
+            </div>}
+      </div>}
+    </div>
+    {playing && <GameModal sub={sub} onClose={()=>setPlaying(false)}/>}
+  </>;
+}
+
+function App(){
+  const [rows, setRows] = useState(SUBMISSIONS);
+  const [filt, setFilt] = useState("pending");
+  const [openId, setOpenId] = useState(new URLSearchParams(location.search).get("open"));
+  const [startReject, setStartReject] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const FILTS = [["pending","待审批"],["live","已通过"],["rejected","已驳回"],["all","全部"]];
+  const cnt = (k) => k==="all" ? rows.length : rows.filter(r=>r.status===k).length;
+  const shown = rows.filter(r => filt==="all" ? true : r.status===filt);
+  const open = rows.find(r=>r.id===openId);
+
+  const flash = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2600); };
+  const approve = (id) => { setRows(rs=>rs.map(r=>r.id===id?{...r,status:"live"}:r)); flash("已通过 · 商家端已显示上线"); setOpenId(null); };
+  const reject  = (id,reason) => { setRows(rs=>rs.map(r=>r.id===id?{...r,status:"rejected",rejectReason:reason}:r)); flash("已驳回 · 已通知商家"); setOpenId(null); };
+
+  return <div>
+    <div className="abar">
+      <div className="lg"><span className="dot">K</span>KiX</div>
+      <span className="tag">审核后台 · Review Console</span>
+      <div className="who"><span className="av">审</span>平台审核员</div>
+    </div>
+    <div className="wrap">
+      <div className="head">
+        <h1>活动审核</h1>
+        <div className="sub">商家提交的活动在此审核 · 通过即在商家端上线</div>
+      </div>
+      <div className="pills">
+        {FILTS.map(([k,label])=>(
+          <button key={k} className={"pill"+(filt===k?" on":"")} onClick={()=>setFilt(k)}>{label} <em>{cnt(k)}</em></button>
+        ))}
+      </div>
+
+      <div className="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>商家</th><th>活动</th><th>游戏</th><th>奖品券</th><th>门店</th><th>提交</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>
+            {shown.map(r=>{
+              const st = STATUS[r.status]; const v=r.voucher;
+              return <tr key={r.id} className={openId===r.id?"sel":""} onClick={()=>setOpenId(r.id)}>
+                <td><div className="shop"><span className="mk" style={{background:r.mkc}}>{r.shop[0]}</span><div><div className="nm">{r.shop}</div><div className="ph">{r.phone}</div></div></div></td>
+                <td><div style={{fontWeight:700}}>{r.act}{r.flag&&<span title={r.flag} style={{marginLeft:6}}>⚠</span>}</div><div className="cell-sub">{r.dates}</div></td>
+                <td><span className="g-chip"><span className="sw" style={{background:`linear-gradient(150deg,${(GENRE_COLORS[r.kind]||[]).join(",")})`}}></span>{r.genre}</span></td>
+                <td>{v.discount} · {v.name}<div className="cell-sub">{v.qty} 张 · {v.code}</div></td>
+                <td>{r.outlets.length} 家</td>
+                <td style={{color:"var(--muted)",fontSize:13}}>{r.submitted}</td>
+                <td><span className={"badge "+st.cls}>{st.dot&&<span className="b"></span>}{st.zh}</span></td>
+                <td className="ops" onClick={e=>e.stopPropagation()}>
+                  {r.status==="pending"
+                    ? <><button className="op ok" onClick={()=>approve(r.id)}><Ic n="check" w={14}/> 通过</button><button className="op no" onClick={()=>{ setStartReject(true); setOpenId(r.id); }}><Ic n="x" w={14}/> 驳回</button></>
+                    : <span className="op-done">{r.status==="live"?"已上线":"已驳回"} ›</span>}
+                </td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+        {shown.length===0 && <div className="tbl-empty"><div className="big">🎉</div><h3>队列已清空</h3><div>没有待审批的活动了。</div></div>}
+      </div>
+    </div>
+
+    {open && <Drawer key={open.id+(startReject?"-r":"")} sub={open} startReject={startReject} onClose={()=>{ setOpenId(null); setStartReject(false); }} onApprove={approve} onReject={reject}/>}
+    {toast && <div style={{position:"fixed",bottom:26,left:"50%",transform:"translateX(-50%)",background:"#0B1220",color:"#fff",padding:"13px 22px",borderRadius:12,fontWeight:700,fontSize:14,zIndex:60,boxShadow:"var(--sh)"}}>{toast}</div>}
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
