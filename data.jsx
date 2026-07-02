@@ -23,14 +23,14 @@ const PRIZES = [
 
 /* landing gallery */
 const GAMES = [
-  { kind:"spin",    g:["#16A34A","#22C55E"], n:{en:"Lucky Spin",zh:"幸运大转盘"}, t:{en:"Scan & spin",zh:"扫码就转"} },
-  { kind:"scratch", g:["#0EA5E9","#38BDF8"], n:{en:"Scratch Card",zh:"刮刮乐"}, t:{en:"Scratch to win",zh:"刮出今天的奖"} },
-  { kind:"stack",   g:["#F59E0B","#FBBF24"], n:{en:"Stack It",zh:"叠叠乐"}, t:{en:"Higher = bigger",zh:"越叠越高"} },
-  { kind:"merge",   g:["#EF4444","#FB7185"], n:{en:"Fruit Merge",zh:"合成水果"}, t:{en:"Merge up",zh:"合成升级"} },
-  { kind:"drop",    g:["#8B5CF6","#A78BFA"], n:{en:"Gift Drop",zh:"天降好礼"}, t:{en:"Catch to win",zh:"接住就中"} },
-  { kind:"flip",    g:["#EC4899","#F9A8D4"], n:{en:"Match Pairs",zh:"翻翻配对"}, t:{en:"Memory flip",zh:"记忆翻牌"} },
-  { kind:"hoop",    g:["#0EA5E9","#22C55E"], n:{en:"Hoop Shot",zh:"投篮赢奖"}, t:{en:"Beat the clock",zh:"手速挑战"} },
-  { kind:"draw",    g:["#14B8A6","#5EEAD4"], n:{en:"Lucky Draw",zh:"幸运抽签"}, t:{en:"One draw decides",zh:"一抽定输赢"} },
+  { kind:"spin",    g:["#16A34A","#22C55E"], n:{en:"Coffee Shop · Recipe Game",zh:"咖啡店-配方游戏"},    t:{en:"Pick the right ingredients — brew the winning cup",zh:"选对配料，做出今天的爆款咖啡"} },
+  { kind:"scratch", g:["#0EA5E9","#38BDF8"], n:{en:"Dessert Shop · Merge Game",zh:"甜品店-合成游戏"},    t:{en:"Merge pairs — bigger dessert, bigger prize",zh:"两两合并，越合越大，赢的越甜"} },
+  { kind:"stack",   g:["#F59E0B","#FBBF24"], n:{en:"Bubble Tea · Catch Game",zh:"奶茶店-接珍珠游戏"},   t:{en:"Catch the falling pearls, brew your cup",zh:"接住落下的珍珠，调出你的那杯"} },
+  { kind:"merge",   g:["#EF4444","#FB7185"], n:{en:"Fruit Tea · Pop Game",zh:"果茶店-消除游戏"},         t:{en:"Tap the fruit clusters, pop your voucher",zh:"点击消除果粒，爆出专属优惠券"} },
+  { kind:"drop",    g:["#8B5CF6","#A78BFA"], n:{en:"Beauty Store · Match Game",zh:"美妆店-连连看"},       t:{en:"Spot the pair, connect to win the kit",zh:"找出同款单品，连通就赢正装礼"} },
+  { kind:"flip",    g:["#EC4899","#F9A8D4"], n:{en:"Fashion Store · Flip Game",zh:"服装店-翻牌游戏"},     t:{en:"Flip cards to nail the look, win in-store",zh:"翻牌拼出今天的搭配，到店赢好礼"} },
+  { kind:"hoop",    g:["#0EA5E9","#22C55E"], n:{en:"Fruit Shop · Match-3",zh:"水果店-三消游戏"},          t:{en:"Match 3 fresh picks, claim your deal",zh:"三个连消，换一张到店优惠"} },
+  { kind:"draw",    g:["#14B8A6","#5EEAD4"], n:{en:"Convenience Store · Tile Match",zh:"便利店-叠叠消除"}, t:{en:"Match 3 identical products — empty the shelf to win",zh:"把同款商品凑成三个消掉，清空货架才算赢"} },
 ];
 
 const COUNTRIES = [
@@ -129,7 +129,7 @@ const FEED = [
 const DEMO_METRICS = {
   plays: 312, awarded: 120, walkins: 86, newCust: 61, returning: 25,
   delta: { plays:"+18%", walkins:"+24%", newCust:"+31%", returning:"+12%" },
-  today: { plays: 47, walkins: 12, redeemed: 9, byOutlet: { o1: 7, o2: 5 } },
+  today: { plays: 47, walkins: 12, redeemed: 9 },
   trend: [{d:{en:"Mon",zh:"一"},v:10},{d:{en:"Tue",zh:"二"},v:12},{d:{en:"Wed",zh:"三"},v:11},{d:{en:"Thu",zh:"四"},v:14},{d:{en:"Fri",zh:"五"},v:13},{d:{en:"Sat",zh:"六"},v:14},{d:{en:"Sun",zh:"日"},v:12}],
   byOutlet: { o1: 50, o2: 36 },
   spark: { plays:[20,28,24,32,30,40,44], walkins:[5,7,6,9,8,11,13], newCust:[3,5,4,7,6,9,11], returning:[2,3,3,4,3,5,5] },
