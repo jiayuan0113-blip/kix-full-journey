@@ -6,6 +6,14 @@
 
 ## 2026-07-03
 
+### 53. 数据页新增「游戏」数据（活动/游戏切换）⭐
+**改了什么**：数据页顶部加 **「活动 / 游戏」分段切换**。
+- **活动 tab**（原内容）：真实到店核销漏斗、新客/回头、各门店、每日到店。空态同前（无 live 活动 / 未核销）。
+- **游戏 tab**（新）：独立上线游戏的**纯玩数据**——游玩次数(hero) + 玩家数 + 完成率 + 各游戏游玩次数 + 每日游玩。**无到店/核销**（游戏无奖品）。无 live 游戏时给空态（去我的游戏）。
+**为什么**：游戏可脱离活动独立上线（#51），但它没有奖品/到店，数据维度是"玩"而非"到店"，需与活动数据分开呈现。
+**影响文件**：`data.jsx`（新增 `GAME_METRICS`）、`journey.jsx`（ReportsView 分 tab + AppShell 传 `hasLiveGame`/`onGoGames`）、`index.html`（`.rep-top`/`.rep-seg`）
+**研发注意**：游戏数据源=游玩埋点（plays/unique players/completion/per-game/daily），与活动的到店核销数据是**两套口径**，别混。
+
 ### 52. 「赢奖条件」标为选填
 **改了什么**：活动编辑器「赢奖条件」(winScore) 标签加「选填」标记（`.wc-lbl .opt`）——不设门槛则玩即有资格赢券。
 **影响文件**：`journey.jsx`（ActivityEditor win-cond）、`index.html`（`.opt`）、SPEC §3.7 标注选填。

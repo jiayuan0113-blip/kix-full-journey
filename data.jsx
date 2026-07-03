@@ -136,6 +136,15 @@ const DEMO_METRICS = {
   spark: { plays:[20,28,24,32,30,40,44], walkins:[5,7,6,9,8,11,13], newCust:[3,5,4,7,6,9,11], returning:[2,3,3,4,3,5,5] },
 };
 
+/* 游戏（独立上线）纯玩数据 —— 无奖品/无到店；只统计游玩、玩家、完成率。
+   自洽：byGame 720+340+180 = 1240 = plays；trend 7 天求和 = 1240；players 890 < plays；完成率 68%。 */
+const GAME_METRICS = {
+  plays: 1240, players: 890, completion: 68,
+  delta: { plays:"+22%", players:"+15%" },
+  trend: [{d:{en:"Mon",zh:"一"},v:150},{d:{en:"Tue",zh:"二"},v:160},{d:{en:"Wed",zh:"三"},v:170},{d:{en:"Thu",zh:"四"},v:180},{d:{en:"Fri",zh:"五"},v:190},{d:{en:"Sat",zh:"六"},v:190},{d:{en:"Sun",zh:"日"},v:200}],
+  byGame: [ {n:{en:"Lucky Spin",zh:"幸运大转盘"}, v:720, c:"#16A34A"}, {n:{en:"Scratch Card",zh:"刮刮乐"}, v:340, c:"#0EA5E9"}, {n:{en:"Fruit Merge",zh:"合成水果"}, v:180, c:"#EF4444"} ],
+};
+
 /* vouchers — merchant只填「折扣 + 张数」，无中奖率概念。发券概率按剩余张数自然分布、发完即停。 */
 /* 建游戏起步只给一张券（商家再自己加） */
 const STARTER_VOUCHERS = [
@@ -176,4 +185,4 @@ const DEFAULT_ACTIVITIES = [
     gameId:"wheel", status:"offline" },
 ];
 
-Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
+Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });

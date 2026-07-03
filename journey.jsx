@@ -1024,11 +1024,13 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
   );
 }
 
-function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, multiAct, onNewAct, onGoActivities, liveName }) {
+function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, hasLiveGame, multiAct, onNewAct, onGoActivities, onGoGames, liveName }) {
   const lang = useLang();
   const M = DEMO_METRICS;
+  const GM = GAME_METRICS;
   const ranges = [{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
   const [ri, setRi] = useState(1);
+  const [tab, setTab] = useState(new URLSearchParams(location.search).get("tab") || (hasLive ? "activity" : (hasLiveGame ? "game" : "activity")));
   const note = tr(lang,"vs last week","比上周");
   const totRed = vouchers.reduce((s,v)=>s+(v.redeemed||0),0);
   // 漏斗转化率 + 新客占比
@@ -1041,20 +1043,19 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   const omax = Math.max(1, ...outRed.map(x=>x.v));
   const gmax = Math.max(...GAME_PERF.map(g => g.v));
   const dlQR = () => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(liveName||"activity",100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
-  // 空状态分级：没 live 活动 = 无数据来源；有 live 但还没核销 = 等首笔到店
-  if (!hasLive) return (
-    <div className="app-body"><EmptyState
+  // 活动数据（真实到店）— 空状态分级
+  const activityBody = !hasLive ? (
+    <EmptyState
       icon={<Ic.chart/>}
       title={hasActs ? tr(lang,"No data until you go live","上线后才有数据") : tr(lang,"No data yet","还没有数据")}
       sub={hasActs
-        ? tr(lang,"Your activity is still being edited or reviewed. Once it's live and customers redeem in store, walk-ins, new vs returning, and per-outlet stats appear here.","活动还在修改/审批中。上线、客人到店核销后，这里会显示真实到店、新客/回头客、各门店表现。")
+        ? tr(lang,"Once your activity is live and customers redeem in store, walk-ins, new vs returning, and per-outlet stats appear here.","活动上线、客人到店核销后，这里会显示真实到店、新客/回头客、各门店表现。")
         : tr(lang,"This page only counts people who actually walked in. Create an activity, go live, and your real walk-in data will build up here.","这页只统计真正走进门的人。建活动、上线后，真实到店数据会在这里累积。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
-    /></div>
-  );
-  if (totRed === 0) return (
-    <div className="app-body"><EmptyState
+    />
+  ) : totRed === 0 ? (
+    <EmptyState
       icon={<Ic.chart/>}
       title={tr(lang,"Live — waiting for the first walk-in","已上线，等第一位到店")}
       sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your walk-in numbers and trends will appear here.","只要有客人扫码玩、赢券、到店核销，到店数据和趋势就会出现在这里。")}
@@ -1062,13 +1063,9 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       onAct={dlQR}
       ghostLabel={tr(lang,"Manage activities","管理活动")}
       onGhost={onGoActivities}
-    /></div>
-  );
-  return (
-    <div className="app-body">
-      <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:14 }}>
-        <div className="datepills">{ranges.map((r,i) => <button key={i} className={ri===i?"on":""} onClick={()=>setRi(i)}>{P(lang,r)}</button>)}</div>
-      </div>
+    />
+  ) : (
+    <>
       {/* Hero：真实到店核销 = 唯一付费指标、唯一独家证明，做绝对主角 */}
       <div className="rep-hero">
         <div className="rh-l">
@@ -1126,6 +1123,65 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         </div>
       : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
       : null}
+    </>
+  );
+
+  // 游戏数据（独立上线的纯玩数据：无奖品/无到店）
+  const gmax2 = Math.max(...GM.byGame.map(g=>g.v));
+  const gtmax = Math.max(...GM.trend.map(t=>t.v));
+  const gameBody = !hasLiveGame ? (
+    <EmptyState
+      icon={<Ic.gamepad/>}
+      title={tr(lang,"No game is live yet","还没有已上线的游戏")}
+      sub={tr(lang,"Publish a game (no prizes needed) and its plays, players and completion rate will show up here.","上线一个游戏（无需奖品），它的游玩次数、玩家数、完成率会显示在这里。")}
+      actLabel={tr(lang,"Go to My games","去我的游戏")}
+      onAct={onGoGames}
+    />
+  ) : (
+    <>
+      <div className="rep-hero">
+        <div className="rh-l">
+          <span className="rh-eye"><span className="b"></span>{tr(lang,`Game plays · ${P(lang,ranges[ri])}`,`游玩次数 · ${P(lang,ranges[ri])}`)}</span>
+          <div className="rh-num">{GM.plays}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{GM.delta.plays} {note}</span></div>
+          <p className="rh-sub">{tr(lang,"How many times customers played your games — games can go live on their own, no prizes needed.","客人玩你游戏的总次数 —— 游戏可独立上线，无需奖品。")}</p>
+        </div>
+        <div className="rh-r">{GM.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/gtmax*100)+"%" }}></span>))}</div>
+      </div>
+      <div className="panels">
+        <div className="panel">
+          <h3>{tr(lang,"Players","玩家数")}</h3>
+          <p className="ph-sub">{tr(lang,"Distinct people who played","玩过的独立用户数")}</p>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.players}<span className="rh-delta up" style={{ position:"static", marginLeft:10 }}>{GM.delta.players} {note}</span></div>
+        </div>
+        <div className="panel">
+          <h3>{tr(lang,"Completion rate","完成率")}</h3>
+          <p className="ph-sub">{tr(lang,"Played through to the end","玩到结束的比例")}</p>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.completion}%</div>
+        </div>
+      </div>
+      <div className="panel">
+        <h3>{tr(lang,"Plays by game","各游戏游玩次数")}</h3>
+        <p className="ph-sub">{tr(lang,"Which game gets played the most","哪个游戏最多人玩")}</p>
+        {GM.byGame.map((g,i)=>(<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"plays","次")}</span></div><div className="ht"><i style={{ width:(g.v/gmax2*100)+"%", background:g.c }}></i></div></div>))}
+      </div>
+      <div className="panel">
+        <h3>{tr(lang,"Plays per day","每天游玩次数")}</h3>
+        <p className="ph-sub">{tr(lang,"Daily game plays","每日游戏游玩量")}</p>
+        <div className="bars7">{GM.trend.map((t,i)=>(<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height:(t.v/gtmax*100)+"%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="app-body">
+      <div className="rep-top">
+        <div className="rep-seg">
+          <button className={tab==="activity"?"on":""} onClick={()=>setTab("activity")}>{tr(lang,"Activities","活动")}</button>
+          <button className={tab==="game"?"on":""} onClick={()=>setTab("game")}>{tr(lang,"Games","游戏")}</button>
+        </div>
+        <div className="datepills">{ranges.map((r,i) => <button key={i} className={ri===i?"on":""} onClick={()=>setRi(i)}>{P(lang,r)}</button>)}</div>
+      </div>
+      {tab==="activity" ? activityBody : gameBody}
     </div>
   );
 }
@@ -1273,7 +1329,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} />
-          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
+          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
     </div>
   );
