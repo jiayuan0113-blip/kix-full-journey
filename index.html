@@ -430,6 +430,7 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .vc-grid input:focus{outline:none;border-color:var(--green)}
 .vc-grid input.num{-moz-appearance:textfield;text-align:center}
 .vc-grid input.num::-webkit-outer-spin-button,.vc-grid input.num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pub-confirm-name{font-size:17px;font-weight:800;color:var(--ink);background:var(--line-2);border-radius:11px;padding:14px 16px;text-align:center;margin-bottom:20px}
 .win-cond{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 .wc-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin-right:2px}
 .wc-txt{font-size:14px;font-weight:600;color:var(--ink-2)}
@@ -721,6 +722,28 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .mgcard .mgart .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.30);opacity:0;transition:opacity .2s;z-index:6}
 .mgcard .mgart:hover .play{opacity:1}
 .mgcard .mgart .play span{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--ink);font-weight:700;font-size:13.5px;padding:9px 16px;border-radius:999px;box-shadow:var(--sh)}
+/* publish game modal */
+.pub-scrim{position:fixed;inset:0;background:rgba(11,18,32,.5);z-index:60;display:grid;place-items:center;padding:24px;animation:fadein .2s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.pub-modal{width:520px;max-width:100%;max-height:90vh;overflow-y:auto;background:#fff;border-radius:20px;padding:26px;box-shadow:var(--sh-lg);position:relative}
+.pub-modal h3{font-size:20px;font-weight:800;margin:0;letter-spacing:-.01em}
+.pub-sub{font-size:13.5px;color:var(--muted);margin:6px 0 18px}
+.pub-x{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line)}
+.pub-x:hover{background:var(--line-2)}
+.pub-covers{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.pub-cover:first-child{width:130px;flex:none}
+.pub-cover:last-child{flex:1}
+.pc-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+.pc-box{position:relative;border-radius:12px;overflow:hidden;display:grid;place-items:center;box-shadow:var(--sh)}
+.pc-ai{position:absolute;top:8px;left:8px;font-size:10px;font-weight:700;color:#fff;background:rgba(11,18,32,.45);padding:3px 8px;border-radius:999px}
+.pc-name{color:#fff;font-weight:800;font-size:15px;text-align:center;padding:0 10px;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.pc-replace{position:absolute;bottom:8px;right:8px;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink);background:#fff;padding:6px 11px;border-radius:999px;box-shadow:var(--sh)}
+.pub-namef{display:flex;flex-direction:column;gap:5px;margin-bottom:20px}
+.pub-namef>span{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.pub-namef input{border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:15px;font-weight:700;color:var(--ink)}
+.pub-namef input:focus{outline:none;border-color:var(--green)}
+.pub-actions{display:flex;gap:10px}
+.pub-actions .btn{flex:1}
 .mgcard .mgart .m{font-size:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.22))}
 .mgcard .mglive{position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;color:#fff;background:rgba(11,18,32,.55);padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
 .mgcard .mglive .b{width:6px;height:6px;border-radius:999px;background:var(--green-br)}

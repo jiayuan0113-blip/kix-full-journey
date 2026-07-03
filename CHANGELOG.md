@@ -4,7 +4,28 @@
 
 ---
 
-## 2026-07-02
+## 2026-07-03
+
+### 51. 游戏独立上线 + 上线确认弹窗 + 状态标签（草稿/已上线）⭐ canon
+**改了什么**：
+- **游戏可脱离活动独立上线**（客人扫码就玩，**无奖品、无时限**）；活动 = 在游戏之上加**奖品券 + 起止时间**。
+- **我的游戏**改为渲染 `myGames` 数组 + **状态筛选标签**（全部 / 已上线 / 草稿；零计数隐藏）+ 每卡状态徽章 + 上线/下线动作。
+- **游戏 = 2 态**：`draft`(草稿) / `live`(已上线)。**下线→回草稿**（游戏无时限无奖品，"已下线"与"草稿"同义，不设 offline）。
+- **点「上线」弹确认弹窗**（`PublishGameModal`）：方形 + 长方形两个封面（AI 默认已生成、可替换上传）+ 游戏名可改 + 确认上线。
+**影响文件**：`journey.jsx`（MyGamesView + PublishGameModal + AppShell 传 myGames/setGame/setMyGames）、`index.html`（`.pub-*` 弹窗样式）、`data.jsx`（seed 3 个游戏含状态）
+**研发注意**：`game.status`(draft/live) + `coverSquare`/`coverRect`(封面，AI 默认可替换)。修复：AppShell 之前缺 `setGame/setMyGames` 传参（游戏改名会报错），已补。
+
+### 50. 活动去审批：直接上线（3 态）⭐ canon 变更（推翻 #40 审批设计）
+**改了什么**：**移除活动审批流程**——编辑器去掉「修改→审批→上线」进度条与 review/rejected 态；底部按钮就是「上线」，点击弹**二次确认弹窗**（活动名 + 确认上线，`ActivityPublishModal`）。状态机缩为 **draft / live / offline**：draft/offline —上线→ live；live —下线→ offline。列表筛选去掉「审批中」。
+**影响文件**：`journey.jsx`（ActivityEditor + ActivitiesView FILTS）、`data.jsx`（demo 活动去掉 review/rejected 态）
+**canon 变更**：活动**不再走平台审批**，商家直接上线。⚠️ 审核后台 `review-admin.html` 因此逻辑不一致（仍显示"待审批"队列），Joyce 决定暂留、待统一。
+
+### 49. 券码上传直连文件框 + 活动二维码固定说明 + 弹窗 portal 修复
+**改了什么**：
+- 奖品券「上传自有券码」**点一下直接弹系统文件选择器**（不再两步）。
+- 活动二维码区加说明「**首次保存时生成、之后固定不变**，可放心打印，后续编辑活动也不会变」。
+- **修复弹窗定位 bug**：`.app-body` 的 `rise` 动画在过渡态产生 containing block，导致 `position:fixed` 弹窗被锚定到超高的 app-body（居中点落到视口外）。改用 `ReactDOM.createPortal` 把弹窗挂到 `document.body`。
+**影响文件**：`journey.jsx`（VoucherEditor / ActivityEditor / PublishGameModal / ActivityPublishModal）
 
 ### 42. 活动卡布局调整：「打开编辑」移到游戏图 hover 浮层
 **改了什么**：活动列表卡片的「打开编辑」从底部文字区移到游戏预览图上的 hover 浮层（白色胶囊，与游戏选择卡一致）；底部文字区按钮只留「复制」（已上线卡再加「二维码」），不再拥挤。

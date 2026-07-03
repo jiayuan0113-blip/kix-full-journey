@@ -423,7 +423,8 @@ function VoucherEditor({ vouchers, setVouchers, showStock }) {
   const v = vouchers[0] || { name:{en:"",zh:""}, price:"", discount:{en:"",zh:""}, qty:100, awarded:0, image:null, codeSource:"auto", codeFile:null };
   const upd = (k, val) => setVouchers(vs => { const a = vs.length ? vs.slice() : [v]; a[0] = { ...a[0], [k]:val }; return a; });
   const onImg = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => upd("image", rd.result); rd.readAsDataURL(f); };
-  const onCodes = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; upd("codeFile", f.name); };
+  // 点「上传自有券码」直接弹文件选择器；选完切到 custom 并记录文件名
+  const pickCodes = () => { const i=document.createElement("input"); i.type="file"; i.accept="image/*,.csv,.zip,.xlsx"; i.onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; setVouchers(vs=>{ const a=vs.length?vs.slice():[v]; a[0]={...a[0], codeSource:"custom", codeFile:f.name}; return a; }); }; i.click(); };
   const csrc = v.codeSource || "auto";
   return (
     <div className="editrow">
@@ -446,12 +447,12 @@ function VoucherEditor({ vouchers, setVouchers, showStock }) {
         <div className="vc-src">
           <span className="vc-src-lbl">{tr(lang,"Prize codes","券码")}</span>
           <button type="button" className={"vc-src-pill"+(csrc==="auto"?" on":"")} onClick={()=>upd("codeSource","auto")}>{tr(lang,"Auto-generated","系统自动生成")}</button>
-          <button type="button" className={"vc-src-pill"+(csrc==="custom"?" on":"")} onClick={()=>upd("codeSource","custom")}>{tr(lang,"Upload my own","上传自有券码")}</button>
+          <button type="button" className={"vc-src-pill"+(csrc==="custom"?" on":"")} onClick={pickCodes}>{tr(lang,"Upload my own","上传自有券码")}</button>
         </div>
         {csrc==="custom" && <div className="vc-upl">
           {v.codeFile
-            ? <span className="vc-upl-ok"><Ic.check/> {tr(lang,"Uploaded","已上传")} <b>{v.codeFile}</b> · {v.qty} {tr(lang,"codes","个券码")}<label className="vc-upl-re">{tr(lang,"Re-upload","重新上传")}<input type="file" accept="image/*,.csv,.zip" hidden onChange={onCodes}/></label></span>
-            : <label className="btn ghost sm"><Ic.upload style={{ width:14, height:14 }}/> {tr(lang,"Upload QR images / code list","上传二维码图 / 验证码表格")}<input type="file" accept="image/*,.csv,.zip" hidden onChange={onCodes}/></label>}
+            ? <span className="vc-upl-ok"><Ic.check/> {tr(lang,"Uploaded","已上传")} <b>{v.codeFile}</b> · {v.qty} {tr(lang,"codes","个券码")}<button type="button" className="vc-upl-re" onClick={pickCodes}>{tr(lang,"Re-upload","重新上传")}</button></span>
+            : <button type="button" className="btn ghost sm" onClick={pickCodes}><Ic.upload style={{ width:14, height:14 }}/> {tr(lang,"Upload QR images / code list","上传二维码图 / 验证码表格")}</button>}
         </div>}
       </div>
       <p className="vnote">{csrc==="custom"
@@ -700,18 +701,80 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
   );
 }
 
-function MyGamesView({ game, onNew, onOpen, hasLive }) {
+function Cover({ url, onPick, ratio, label, colors, name, lang }) {
+  const g = colors || ["#16A34A","#22C55E"];
+  return (
+    <div className="pub-cover">
+      <div className="pc-label">{label}</div>
+      <div className="pc-box" style={{ aspectRatio:ratio, background: url ? `center/cover no-repeat url(${url})` : `linear-gradient(150deg,${g[0]},${g[1]})` }}>
+        {!url && <><span className="pc-ai">{tr(lang,"AI default","AI 默认")}</span><span className="pc-name">{name}</span></>}
+        <button className="pc-replace" onClick={onPick}><Ic.upload style={{ width:12, height:12 }}/> {tr(lang,"Replace","替换")}</button>
+      </div>
+    </div>
+  );
+}
+function PublishGameModal({ game, onClose, onConfirm }) {
   const lang = useLang();
+  const [name, setName] = useState(P(lang, game.name));
+  const [sq, setSq] = useState(null), [rc, setRc] = useState(null);
+  const pick = (setter) => { const i=document.createElement("input"); i.type="file"; i.accept="image/*"; i.onchange=e=>{ const f=e.target.files[0]; if(f) setter(URL.createObjectURL(f)); }; i.click(); };
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"Publish game","上线游戏")}</h3>
+        <p className="pub-sub">{tr(lang,"Check the cover & name, then confirm. Covers are AI-generated — replace anytime.","确认封面和名字即可上线。封面 AI 已自动生成，可随时替换。")}</p>
+        <div className="pub-covers">
+          <Cover url={sq} onPick={()=>pick(setSq)} ratio="1/1" label={tr(lang,"Square","方形")} colors={game.g} name={name} lang={lang}/>
+          <Cover url={rc} onPick={()=>pick(setRc)} ratio="16/9" label={tr(lang,"Landscape","长方形")} colors={game.g} name={name} lang={lang}/>
+        </div>
+        <label className="pub-namef"><span>{tr(lang,"Game name","游戏名称")}</span><input value={name} onChange={e=>setName(e.target.value)}/></label>
+        <div className="pub-actions">
+          <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
+          <button className="btn primary lg" onClick={()=>onConfirm({ name:{en:name,zh:name}, coverSquare:sq, coverRect:rc })}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+const GAME_STA = {
+  draft:   { en:"Draft",   zh:"草稿",   cls:"st-draft" },
+  live:    { en:"Live",    zh:"已上线", cls:"st-live" },
+};
+function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
+  const lang = useLang();
+  const [filt, setFilt] = useState("all");
+  const [pubGame, setPubGame] = useState(()=> new URLSearchParams(location.search).get("pub")==="1" ? (myGames[0]||null) : null);
+  // 游戏只有 草稿/已上线 两态（无"已下线"——游戏无时限无奖品，下线即回草稿，与草稿同义）
+  const FILTS = [["all","All","全部"],["live","Live","已上线"],["draft","Draft","草稿"]];
+  const cnt = (k) => k==="all" ? myGames.length : myGames.filter(g=>(g.status||"draft")===k).length;
+  const tabs = FILTS.filter(([k]) => k==="all" || cnt(k) > 0);
+  const shown = myGames.filter(g => filt==="all" ? true : (g.status||"draft")===filt);
   return (
     <div className="app-body">
+      {myGames.length > 0 && tabs.length > 1 && <div className="act-filters">
+        {tabs.map(([k,en,zh]) => (<button key={k} className={"afilt"+(filt===k?" on":"")} onClick={()=>setFilt(k)}>{tr(lang,en,zh)} <em>{cnt(k)}</em></button>))}
+      </div>}
       <div className="mygames">
-        <div className="mgcard clickable" onClick={()=>onOpen(game)}>
-          {/* 游戏只在被 live 活动使用时才有真实战绩；否则显示中性状态，不编数字 */}
-          <div className="mgart"><GamePreview kind={game.kind} colors={game.g} />{hasLive && <span className="mglive" style={{ zIndex:6 }}><span className="b"></span>LIVE</span>}</div>
-          <div className="mgmeta"><div className="nm">{P(lang,game.name)}</div><div className="st">{hasLive ? `${DEMO_METRICS.plays} ${tr(lang,"plays","次游玩")} · ${DEMO_METRICS.walkins} ${tr(lang,"walk-ins","到店")}` : tr(lang,"Not in a live activity yet","还没用在已上线的活动里")}</div><div className="mgedit">{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></div></div>
-        </div>
+        {shown.map(g => {
+          const status = g.status || "draft"; const stt = GAME_STA[status];
+          return (
+            <div key={g.id} className="mgcard clickable" onClick={()=>onOpen(g)}>
+              <div className="mgart"><GamePreview kind={g.kind} colors={g.g} /><span className={"mgstatus act-badge " + stt.cls}>{status==="live" && <span className="b"></span>}{tr(lang, stt.en, stt.zh)}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
+              <div className="mgmeta">
+                <div className="nm">{P(lang,g.name)}</div>
+                <div className="st">{status==="live" ? tr(lang,"Live · scan to play","已上线 · 可扫码玩") : tr(lang,"Not live yet","未上线")}</div>
+                {status==="live"
+                  ? <button className="btn ghost sm" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); onOffline(g); }}>{tr(lang,"Take offline","下线")}</button>
+                  : <button className="btn primary sm" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setPubGame(g); }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Publish","上线")}</button>}
+              </div>
+            </div>
+          );
+        })}
         <button className="mgnew" onClick={onNew}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
       </div>
+      {pubGame && <PublishGameModal game={pubGame} onClose={()=>setPubGame(null)} onConfirm={(patch)=>{ onPublish(pubGame, patch); setPubGame(null); }}/>}
     </div>
   );
 }
@@ -801,12 +864,10 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
 function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
-  // 筛选按"商家动作态"分桶：修改中(草稿/被驳回) · 审批中(等平台) · 已上线 · 已下线(曾上线、现暂停)
-  // 状态机(2026-07-02 扩为5态)：draft/review/live/rejected/offline；live —下线→ offline；offline 重新上线须重走审批
+  // 状态机(2026-07-03 去审批)：draft(修改中)/live(已上线)/offline(已下线)。直接上线，无 review/rejected。
   const FILTS = [
     { k:"all",     en:"All",       zh:"全部",   match:()=>true },
     { k:"edit",    en:"Editing",   zh:"修改中", match:s=>s==="draft"||s==="rejected" },
-    { k:"review",  en:"In review", zh:"审批中", match:s=>s==="review" },
     { k:"live",    en:"Live",      zh:"已上线", match:s=>s==="live" },
     { k:"offline", en:"Offline",   zh:"已下线", match:s=>s==="offline" },
   ];
@@ -860,44 +921,36 @@ const ACT_STA = {
   rejected: { en:"Needs changes", zh:"被驳回", cls:"st-rejected" },
   offline:  { en:"Offline",       zh:"已下线", cls:"st-offline" },
 };
+function ActivityPublishModal({ activity, onClose, onConfirm }) {
+  const lang = useLang();
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:420 }} onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"Publish activity","上线活动")}</h3>
+        <p className="pub-sub">{tr(lang,"Once live, customers can play and win vouchers right away.","上线后客人即可扫码玩、赢券进店。")}</p>
+        <div className="pub-confirm-name">{P(lang, activity.name)}</div>
+        <div className="pub-actions">
+          <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
+          <button className="btn primary lg" onClick={onConfirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, onNewGame, onViewGame, onBack }) {
   const lang = useLang();
   const upd = (k, v) => setActivity(a => ({...a, [k]: v}));
   const st = activity.status || "draft";
   const live = st === "live";
-  // 上线要审批：提交→审批中→(平台通过)→已上线。原型里 ~2.5s 模拟平台通过
-  useEffect(() => { if (st === "review") { const t = setTimeout(() => upd("status","live"), 2500); return () => clearTimeout(t); } }, [st]);
+  const [pubOpen, setPubOpen] = useState(new URLSearchParams(location.search).get("pub")==="1");
+  // 活动直接上线（无审批）：draft/offline —上线→ live；live —下线→ offline
   const actOutlets = outlets.filter(o => (activity.outletIds||[]).includes(o.id));
   const dlQR = (label) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 22px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,88); ctx.font="12px sans-serif"; ctx.fillText(label,100,116); const a=document.createElement("a"); a.download="qr-"+label+".png"; a.href=c.toDataURL(); a.click(); };
-  // 上线进度条：修改 → 审批 → 上线。每个状态对应到流程的哪一节点
-  const ACT_STEPS = [{en:"Edit",zh:"修改"},{en:"Review",zh:"审批"},{en:"Live",zh:"上线"}];
-  const stepState = (i) => {
-    if (st==="rejected") return i===0 ? "done" : i===1 ? "fail" : "todo";
-    const idx = st==="review" ? 1 : st==="live" ? 2 : 0;
-    if (i < idx) return "done";
-    if (i === idx) return st==="live" ? "done" : "now";
-    return "todo";
-  };
   return (
     <div className="app-body" style={{ maxWidth:820 }}>
-      <div className="act-steps">
-        {ACT_STEPS.map((s,i) => {
-          const stt = stepState(i);
-          return (
-            <React.Fragment key={s.en}>
-              <div className={"act-step "+stt}>
-                <span className="dot">{stt==="done" ? <Ic.check style={{ width:14, height:14 }}/> : stt==="fail" ? "!" : i+1}</span>
-                <span className="lbl">{tr(lang, s.en, s.zh)}</span>
-              </div>
-              {i<2 && <span className={"step-line"+(stepState(i)==="done"?" done":"")}></span>}
-            </React.Fragment>
-          );
-        })}
-      </div>
-      {(st==="review"||st==="rejected") && <div className={"act-statusbar" + (st==="rejected"?" danger":"")}>
-        {st==="review" && <span className="act-note"><span className="dotwait"></span>{tr(lang,"We're reviewing it — usually within 1–2 days. Not live yet.","审核中，通常 1–2 天内完成，暂未上线。")}</span>}
-        {st==="rejected" && <span className="act-note danger">{tr(lang,"Rejected: voucher quantity exceeds the limit — reduce it and resubmit.","被驳回：奖品张数超出上限，请调小后重新提交。")}</span>}
-      </div>}
+      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live — customers can play now.","已上线 —— 客人现在就能扫码玩。")}</span></div>}
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
         <div className="field" style={{ margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
@@ -945,6 +998,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Activity QR codes — one per outlet","活动二维码 —— 每家门店一个")}</h3>
         <p className="ph-sub">{tr(lang,"Each outlet gets its own QR, so walk-ins are attributed to the right shop.","每家门店各一个二维码，到店才能归因到对应门店。")}</p>
+        <p className="ph-sub" style={{ marginTop:2, color:"var(--muted-2)" }}>{tr(lang,"Generated once on first save and stays fixed — safe to print. Later edits won't change it.","首次保存时生成、之后固定不变 —— 可放心打印，后续编辑活动也不会变。")}</p>
         {actOutlets.length === 0
           ? <div className="ph-sub">{tr(lang,"Select at least one outlet above.","请先在上面选择至少一家门店。")}</div>
           : <div className="qr-list">
@@ -961,13 +1015,11 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
             </div>}
       </div>
       <div className="act-actions">
-        {st==="draft"    && <button className="btn primary lg" onClick={()=>upd("status","review")}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Submit for review","提交审核")}</button>}
-        {st==="review"   && <button className="btn ghost lg" onClick={()=>upd("status","draft")}>{tr(lang,"Cancel submission","取消提交")}</button>}
+        {(st==="draft"||st==="offline") && <button className="btn primary lg" onClick={()=>setPubOpen(true)}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Publish","上线")}</button>}
         {st==="live"     && <button className="ws-publish on" style={{ padding:"14px 22px", fontSize:"15.5px" }} onClick={()=>upd("status","offline")}>{tr(lang,"Take offline","下线活动")}</button>}
-        {st==="rejected" && <button className="btn primary lg" onClick={()=>upd("status","review")}>{tr(lang,"Edit & resubmit","修改并重新提交")}</button>}
-        {st==="offline"  && <button className="btn primary lg" onClick={()=>upd("status","review")}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Relaunch (needs review)","重新上线（需审批）")}</button>}
         <button className="btn ghost lg" onClick={onBack}>{tr(lang,"Save & close","保存并返回")}</button>
       </div>
+      {pubOpen && <ActivityPublishModal activity={activity} onClose={()=>setPubOpen(false)} onConfirm={()=>{ upd("status","live"); setPubOpen(false); }}/>}
     </div>
   );
 }
@@ -1151,7 +1203,7 @@ function MeView({ brand, setBrand, outlets, setOutlets }) {
   );
 }
 
-function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame, onExit, builder, builderIdx, builderSteps, onLeaveBuild, outlets, setOutlets, activities, setActivities, myGames, initEdit }) {
+function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, onNewGame, onExit, builder, builderIdx, builderSteps, onLeaveBuild, outlets, setOutlets, activities, setActivities, myGames, setMyGames, initEdit }) {
   const [editing, setEditing] = useState(initEdit || null);
   const [editingAct, setEditingAct] = useState((()=>{ const e=new URLSearchParams(location.search).get("editact"); return e ? (activities[parseInt(e,10)-1]||activities[0]||null) : null; })()); // 调试直达活动编辑器（editact=1/2/3 指定第几个）
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1218,7 +1270,7 @@ function AppShell({ game, brand, setBrand, lang, setLang, sec, setSec, onNewGame
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} outlets={outlets} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} />
-          : sec === "games" ? <MyGamesView game={game} onNew={onNewGame} onOpen={(g)=>setEditing(g)} hasLive={!!liveAct} />
+          : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
@@ -1244,7 +1296,7 @@ function App() {
   const [game, setGame] = useState(TEMPLATES[0]);
   const [brand, setBrand] = useState({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] });
   const [outlets, setOutlets] = useState(OUTLETS.map(o => ({ ...o })));
-  const [myGames, setMyGames] = useState([TEMPLATES[0]]);
+  const [myGames, setMyGames] = useState([{...TEMPLATES[0], status:"live"}, {...TEMPLATES[1], status:"draft"}, {...TEMPLATES[3], status:"draft"}]);
   // fresh=1：模拟全新商家首次登录（还没有任何活动）；否则用 demo 活动（老商家演示）
   const _fresh = _p.get("fresh") === "1";
   const [activities, setActivities] = useState(_fresh ? [] : DEFAULT_ACTIVITIES.map(a => ({...a, vouchers:a.vouchers.map(v=>({...v}))})));
@@ -1276,7 +1328,7 @@ function App() {
   else if (screen === "preview" && authed) flowStep = <div><Workspace game={game} brand={brand} setBrand={setBrand} /><div style={{ display:"flex", gap:12, justifyContent:"flex-end", padding:"16px 28px" }}><button className="btn ghost lg" onClick={()=>{ setScreen("results"); top(); }}><Ic.back style={{ width:16, height:16 }}/> {tr(lang,"Back","上一步")}</button><button className="btn primary lg" onClick={publishDone}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Save game","保存游戏")}</button></div></div>;
   else if (screen === "preview") flowStep = <Preview game={game} brand={brand} setBrand={setBrand} onLaunch={toPublishGate} onBack={()=>{ setScreen("results"); top(); }} />;
 
-  const shellProps = { game, brand, setBrand, lang, setLang, sec:appSec, setSec:setAppSec, onExit:toLanding, outlets, setOutlets, activities, setActivities, myGames };
+  const shellProps = { game, setGame, brand, setBrand, lang, setLang, sec:appSec, setSec:setAppSec, onExit:toLanding, outlets, setOutlets, activities, setActivities, myGames, setMyGames };
 
   let body;
   if (screen === "landing") body = <Landing go={startBuild} onSignIn={signIn} lang={lang} setLang={setLang} />;
