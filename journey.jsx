@@ -984,7 +984,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
           <button className="mgnew" onClick={onNewGame}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
         </div>
         <div className="win-cond">
-          <span className="wc-lbl">{tr(lang,"Win condition","赢奖条件")}</span>
+          <span className="wc-lbl">{tr(lang,"Win condition","赢奖条件")} <em className="opt">{tr(lang,"optional","选填")}</em></span>
           <span className="wc-txt">{tr(lang,"Reach","达到")}</span>
           <input className="wc-in" type="number" min="1" value={activity.winScore||1000} onChange={e=>upd("winScore",+e.target.value||0)}/>
           <span className="wc-txt">{tr(lang,"to win the voucher","即可赢得奖品券")}</span>
