@@ -807,7 +807,7 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
       icon={<Ic.target/>}
       title={hasActs ? tr(lang,"Your activity isn't live yet","活动还没上线") : tr(lang,"Nothing to redeem yet","还没有可核销的奖品")}
       sub={hasActs
-        ? tr(lang,"It's still being edited or reviewed. Once it's live, customers play, win vouchers — then you scan to redeem here.","活动还在修改/审批中。上线后客人才能玩、赢券，你才能在这里扫码核销。")
+        ? tr(lang,"It's still being edited. Once it's live, customers play, win vouchers — then you scan to redeem here.","活动还在修改中。上线后客人才能玩、赢券，你才能在这里扫码核销。")
         : tr(lang,"Create an activity and publish it. Customers play, win a voucher, walk in — you scan it here, and that counts as a real walk-in.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次真实到店。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
@@ -878,7 +878,7 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
   // 状态机(2026-07-03 去审批)：draft(修改中)/live(已上线)/offline(已下线)。直接上线，无 review/rejected。
   const FILTS = [
     { k:"all",     en:"All",       zh:"全部",   match:()=>true },
-    { k:"edit",    en:"Editing",   zh:"修改中", match:s=>s==="draft"||s==="rejected" },
+    { k:"edit",    en:"Editing",   zh:"修改中", match:s=>s==="draft" },
     { k:"live",    en:"Live",      zh:"已上线", match:s=>s==="live" },
     { k:"offline", en:"Offline",   zh:"已下线", match:s=>s==="offline" },
   ];
@@ -925,11 +925,10 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
     </div>
   );
 }
+// 去审批(2026-07-03)：只有 draft/live/offline，无 review/rejected
 const ACT_STA = {
   draft:    { en:"Draft",         zh:"草稿",   cls:"st-draft" },
-  review:   { en:"In review",     zh:"审批中", cls:"st-review" },
   live:     { en:"Live",          zh:"已上线", cls:"st-live" },
-  rejected: { en:"Needs changes", zh:"被驳回", cls:"st-rejected" },
   offline:  { en:"Offline",       zh:"已下线", cls:"st-offline" },
 };
 function ActivityPublishModal({ activity, onClose, onConfirm }) {
