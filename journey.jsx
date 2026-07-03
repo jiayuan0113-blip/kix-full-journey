@@ -626,7 +626,7 @@ function EmptyState({ icon, title, sub, actLabel, onAct, ghostLabel, onGhost }) 
   );
 }
 
-function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRedeem, onGoActivity, onGoActivities, outlets = OUTLETS }) {
+function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewAct, onRedeem, onGoActivity, onGoActivities, onGoGames, outlets = OUTLETS }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
   const [scanOk, setScanOk] = useState(false);
@@ -636,18 +636,8 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
   const hasActs = activities && activities.length > 0;
   return (
     <div className="app-body">
-      {!liveAct
-        ? <div className="home-hero empty">
-            <div>
-              <span className="hl-live" style={{ background:"rgba(255,255,255,.12)", color:"#cdd8e4" }}>{tr(lang,"No activity yet","暂时还没有活动")}</span>
-              <h3>{tr(lang,"Create an activity to open for business","建个活动，就能开门营业")}</h3>
-              <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"38ch" }}>{tr(lang,"Pick outlets, set a voucher, link your game — customers scan to play.","选门店、设一张券、绑上你的游戏 —— 客人扫码就能玩。")}</p>
-            </div>
-            <div style={{ marginLeft:"auto", alignSelf:"center" }}>
-              <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","新建活动")}</button>
-            </div>
-          </div>
-        : <div className="home-hero">
+      {liveAct
+        ? <div className="home-hero">
             <div style={{ flex:1 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
                 <span className="hl-live"><span className="b"></span>LIVE</span>
@@ -662,7 +652,28 @@ function HomeView({ game, brand, onShare, onRecall, activities, onNewAct, onRede
             <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
               <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码核销")}
             </button>
-          </div>}
+          </div>
+        : liveGame
+          ? <div className="home-hero empty">
+              <div>
+                <span className="hl-live"><span className="b"></span>LIVE</span>
+                <h3 style={{ marginTop:12, cursor:"pointer" }} onClick={onGoGames}>{P(lang, liveGame.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
+                <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"40ch" }}>{tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。")}</p>
+              </div>
+              <div style={{ marginLeft:"auto", alignSelf:"center" }}>
+                <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","新建活动")}</button>
+              </div>
+            </div>
+          : <div className="home-hero empty">
+              <div>
+                <span className="hl-live" style={{ background:"rgba(255,255,255,.12)", color:"#cdd8e4" }}>{tr(lang,"No activity yet","暂时还没有活动")}</span>
+                <h3>{tr(lang,"Create an activity to open for business","建个活动，就能开门营业")}</h3>
+                <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"38ch" }}>{tr(lang,"Pick outlets, set a voucher, link your game — customers scan to play.","选门店、设一张券、绑上你的游戏 —— 客人扫码就能玩。")}</p>
+              </div>
+              <div style={{ marginLeft:"auto", alignSelf:"center" }}>
+                <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","新建活动")}</button>
+              </div>
+            </div>}
       {/* 上手清单：未上线/首次登录也显示（这是引导，不是数据）。第 2 步按是否已有活动动态切换 */}
       {(() => {
         const nudge = (
@@ -1324,7 +1335,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
-          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} outlets={outlets} />
+          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} outlets={outlets} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
