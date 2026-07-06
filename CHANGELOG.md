@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-07-06
+
+### 56. 信用卡预存储（上线活动收，游戏不收）+ 下载 KiX App 三处入口 ⭐
+**改了什么**：
+- **付款方式 gate 放「上线活动」，不放注册**：`ActivityPublishModal` 加 card-on-file 段（卡号/有效期/CVC，SetupIntent 语义**不扣款**；已存卡显示 `•••• 4242 · 更换`；未填卡「确认上线」置灰）。计费文案：**「第一个月免费。之后按客人真实到店笔数收费，随时可下线、无最低消费。」** **上线游戏不收卡**（`PublishGameModal` 无付款段）。`cardOnFile` 状态在 AppShell。
+- **上线成功态**：两个 publish 弹窗确认后切成功态（绿勾「已上线🎉」+ `QRDownload` + 完成），不再确认即关。
+- **下载 KiX App 三处**：①上线成功弹窗 ②每张 LIVE 卡「在 App 查看」（我的游戏 + 活动，弹 `AppQRModal`）③「我的」页 KiX App 面板。Home/侧栏不加下载横幅。
+**为什么**：产物上架在 KiX App，商家需下载看真实效果；卡放上线活动=承诺峰值+计费首次成立，比注册收卡更不伤转化（三体决策，文档见 `Desktop/Mozat/kix/[分析] 2026-07-06 …`）。
+**影响文件**：`journey.jsx`（QRGlyph/QRDownload/AppQRModal/fmtCard 新增；PublishGameModal/ActivityPublishModal 加成功态 + 卡段；MyGamesView/ActivitiesView 加「在 App 查看」；MeView 加面板；AppShell 加 cardOnFile）、`index.html`（`.qrdl*`/`.storebadge`/`.cardf*`/`.pub-done-badge`/`.btn:disabled`）、`icons.jsx`（card/shield/phone）。
+**研发注意**：真实用 Stripe SetupIntent(off_session) 存卡→首笔 walk-in 计费；首月免费后按 redemption 计费（见 SPEC §6.6/6.7）。调试参数：`?pub=1` 开弹窗、`&done=1` 成功态、`&card=1` 预置已绑卡。
+
 ## 2026-07-03
 
 ### 55. 清理去审批后遗留的"审批"痕迹

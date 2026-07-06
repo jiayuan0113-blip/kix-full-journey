@@ -724,11 +724,64 @@ function Cover({ url, onPick, ratio, label, colors, name, lang }) {
     </div>
   );
 }
+/* ===== KiX app download (desktop→mobile handoff) ===== */
+function QRGlyph({ size = 132 }) {
+  const N = 25, cells = [];
+  const inBox = (x,y,bx,by) => x>=bx && x<bx+7 && y>=by && y<by+7;
+  const isFinder = (x,y) => inBox(x,y,0,0) || inBox(x,y,N-7,0) || inBox(x,y,0,N-7);
+  const finderOn = (x,y) => { for (const [bx,by] of [[0,0],[N-7,0],[0,N-7]]) { const dx=x-bx, dy=y-by; if (dx>=0&&dy>=0&&dx<=6&&dy<=6) { const edge=dx===0||dy===0||dx===6||dy===6, core=dx>=2&&dx<=4&&dy>=2&&dy<=4; return edge||core; } } return false; };
+  for (let y=0;y<N;y++) for (let x=0;x<N;x++) {
+    const on = isFinder(x,y) ? finderOn(x,y) : (((x*7+y*13+x*y*3)%5)===0 || ((x+y)%3===0 && (x*y)%2===0));
+    if (on) cells.push(<rect key={x+"-"+y} x={x} y={y} width="1" height="1"/>);
+  }
+  return (<svg className="qr-glyph" width={size} height={size} viewBox={`0 0 ${N} ${N}`} shapeRendering="crispEdges"><rect width={N} height={N} fill="#fff"/><g fill="#0B1220">{cells}</g></svg>);
+}
+function QRDownload({ lang }) {
+  return (
+    <div className="qrdl">
+      <div className="qrdl-code"><QRGlyph size={128}/></div>
+      <div className="qrdl-r">
+        <div className="qrdl-t">{tr(lang,"Scan to get the KiX app","扫码下载 KiX App")}</div>
+        <p className="qrdl-p">{tr(lang,"Your published games & activities live in the KiX app — see them just like your customers do.","你上线的游戏和活动都在 KiX App 里 —— 像客人一样看到真实效果。")}</p>
+        <div className="qrdl-badges"><span className="storebadge">App Store</span><span className="storebadge">Google Play</span></div>
+      </div>
+    </div>
+  );
+}
+function AppQRModal({ onClose }) {
+  const lang = useLang();
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"View in the KiX app","在 KiX App 查看")}</h3>
+        <p className="pub-sub">{tr(lang,"Scan with your phone to download and see it live.","用手机扫码下载，看它真实上架的样子。")}</p>
+        <QRDownload lang={lang}/>
+      </div>
+    </div>,
+    document.body
+  );
+}
+const fmtCard = (v) => v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
 function PublishGameModal({ game, onClose, onConfirm }) {
   const lang = useLang();
   const [name, setName] = useState(P(lang, game.name));
   const [sq, setSq] = useState(null), [rc, setRc] = useState(null);
+  const [step, setStep] = useState(new URLSearchParams(location.search).get("done")==="1" ? "done" : "confirm");
   const pick = (setter) => { const i=document.createElement("input"); i.type="file"; i.accept="image/*"; i.onchange=e=>{ const f=e.target.files[0]; if(f) setter(URL.createObjectURL(f)); }; i.click(); };
+  const doConfirm = () => { onConfirm({ name:{en:name,zh:name}, coverSquare:sq, coverRect:rc }); setStep("done"); };
+  if (step === "done") return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" onClick={e=>e.stopPropagation()}>
+        <div className="pub-done-badge"><Ic.check style={{ width:26, height:26 }}/></div>
+        <h3 style={{ textAlign:"center" }}>{tr(lang,"Your game is live 🎉","游戏已上线 🎉")}</h3>
+        <p className="pub-sub" style={{ textAlign:"center" }}>{tr(lang,"See it in the KiX app, just like your customers.","在 KiX App 里看看，就像客人看到的一样。")}</p>
+        <QRDownload lang={lang}/>
+        <div className="pub-actions" style={{ justifyContent:"center" }}><button className="btn primary lg" onClick={onClose}>{tr(lang,"Done","完成")}</button></div>
+      </div>
+    </div>,
+    document.body
+  );
   return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
       <div className="pub-modal" onClick={e=>e.stopPropagation()}>
@@ -742,7 +795,7 @@ function PublishGameModal({ game, onClose, onConfirm }) {
         <label className="pub-namef"><span>{tr(lang,"Game name","游戏名称")}</span><input value={name} onChange={e=>setName(e.target.value)}/></label>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
-          <button className="btn primary lg" onClick={()=>onConfirm({ name:{en:name,zh:name}, coverSquare:sq, coverRect:rc })}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+          <button className="btn primary lg" onClick={doConfirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
         </div>
       </div>
     </div>,
@@ -757,6 +810,7 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
   const [pubGame, setPubGame] = useState(()=> new URLSearchParams(location.search).get("pub")==="1" ? (myGames[0]||null) : null);
+  const [appQr, setAppQr] = useState(false);
   // 游戏只有 草稿/已上线 两态（无"已下线"——游戏无时限无奖品，下线即回草稿，与草稿同义）
   const FILTS = [["all","All","全部"],["live","Live","已上线"],["draft","Draft","草稿"]];
   const cnt = (k) => k==="all" ? myGames.length : myGames.filter(g=>(g.status||"draft")===k).length;
@@ -777,7 +831,8 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
                 <div className="nm">{P(lang,g.name)}</div>
                 <div className="st">{status==="live" ? tr(lang,"Live · scan to play","已上线 · 可扫码玩") : tr(lang,"Not live yet","未上线")}</div>
                 {status==="live"
-                  ? <button className="btn ghost sm" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); onOffline(g); }}>{tr(lang,"Take offline","下线")}</button>
+                  ? <><button className="btn ghost sm inapp" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setAppQr(true); }}><Ic.phone style={{ width:14, height:14 }}/> {tr(lang,"View in app","在 App 查看")}</button>
+                      <button className="btn ghost sm" style={{ width:"100%", marginTop:8 }} onClick={(e)=>{ e.stopPropagation(); onOffline(g); }}>{tr(lang,"Take offline","下线")}</button></>
                   : <button className="btn primary sm" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setPubGame(g); }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Publish","上线")}</button>}
               </div>
             </div>
@@ -785,7 +840,8 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
         })}
         <button className="mgnew" onClick={onNew}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
       </div>
-      {pubGame && <PublishGameModal game={pubGame} onClose={()=>setPubGame(null)} onConfirm={(patch)=>{ onPublish(pubGame, patch); setPubGame(null); }}/>}
+      {pubGame && <PublishGameModal game={pubGame} onClose={()=>setPubGame(null)} onConfirm={(patch)=>{ onPublish(pubGame, patch); }}/>}
+      {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
     </div>
   );
 }
@@ -875,6 +931,7 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
 function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
+  const [appQr, setAppQr] = useState(false);
   // 状态机(2026-07-03 去审批)：draft(修改中)/live(已上线)/offline(已下线)。直接上线，无 review/rejected。
   const FILTS = [
     { k:"all",     en:"All",       zh:"全部",   match:()=>true },
@@ -917,11 +974,13 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
                       <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onDuplicate(act); }} style={{ padding:"7px 12px", fontSize:12.5 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> {tr(lang,"Copy","复制")}</button>
                       {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 24px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,90); ctx.font="13px sans-serif"; ctx.fillText(P(lang,act.name),100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); }} style={{ padding:"7px 12px", fontSize:12.5 }}><Ic.upload style={{ width:12, height:12, transform:"rotate(180deg)" }}/> {tr(lang,"QR","二维码")}</button>}
                     </div>
+                    {act.status === "live" && <button className="btn ghost sm inapp" style={{ width:"100%", marginTop:8, fontSize:12.5 }} onClick={(e)=>{ e.stopPropagation(); setAppQr(true); }}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button>}
                   </div>
                 </div>
               );
             })}
           </div>}
+      {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
     </div>
   );
 }
@@ -931,25 +990,61 @@ const ACT_STA = {
   live:     { en:"Live",          zh:"已上线", cls:"st-live" },
   offline:  { en:"Offline",       zh:"已下线", cls:"st-offline" },
 };
-function ActivityPublishModal({ activity, onClose, onConfirm }) {
+function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onConfirm }) {
   const lang = useLang();
+  const [step, setStep] = useState(new URLSearchParams(location.search).get("done")==="1" ? "done" : "confirm");
+  const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
+  const [replacing, setReplacing] = useState(false);
+  const savedCard = cardOnFile && !replacing;
+  const cardOk = savedCard || num.replace(/\s/g,"").length >= 12;
+  const confirm = () => {
+    if (!savedCard) onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" });
+    onConfirm();
+    setStep("done");
+  };
+  if (step === "done") return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
+        <div className="pub-done-badge"><Ic.check style={{ width:26, height:26 }}/></div>
+        <h3 style={{ textAlign:"center" }}>{tr(lang,"You're live 🎉","活动已上线 🎉")}</h3>
+        <p className="pub-sub" style={{ textAlign:"center" }}>{tr(lang,"See it in the KiX app, just like your customers.","在 KiX App 里看看，就像客人看到的一样。")}</p>
+        <QRDownload lang={lang}/>
+        <div className="pub-actions" style={{ justifyContent:"center" }}><button className="btn primary lg" onClick={onClose}>{tr(lang,"Done","完成")}</button></div>
+      </div>
+    </div>,
+    document.body
+  );
   return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
-      <div className="pub-modal" style={{ width:420 }} onClick={e=>e.stopPropagation()}>
+      <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Publish activity","上线活动")}</h3>
         <p className="pub-sub">{tr(lang,"Once live, customers can play and win vouchers right away.","上线后客人即可扫码玩、赢券进店。")}</p>
         <div className="pub-confirm-name">{P(lang, activity.name)}</div>
+        <div className="cardf">
+          <div className="cardf-h"><Ic.card style={{ width:15, height:15 }}/> {tr(lang,"Payment method","付款方式")}</div>
+          {savedCard
+            ? <div className="cardf-saved"><span><b>{tr(lang,"Card","Visa")} •••• {cardOnFile.last4}</b></span><button className="linkbtn" onClick={()=>setReplacing(true)}>{tr(lang,"Change","更换")}</button></div>
+            : <div className="cardf-input">
+                <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
+                <div className="cardf-row">
+                  <input placeholder={tr(lang,"MM / YY","有效期 MM/YY")} value={exp} onChange={e=>setExp(e.target.value.replace(/[^\d/]/g,"").slice(0,5))} inputMode="numeric"/>
+                  <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
+                </div>
+                {cardOnFile && <button className="linkbtn" style={{ marginTop:6 }} onClick={()=>{ setReplacing(false); setNum(""); }}>{tr(lang,"Use saved card","用已绑的卡")}</button>}
+              </div>}
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for the first month. After that, you only pay per verified walk-in — take it offline anytime, no minimum.","第一个月免费。之后按客人真实到店笔数收费，随时可下线、无最低消费。")}</span></p>
+        </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
-          <button className="btn primary lg" onClick={onConfirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+          <button className="btn primary lg" disabled={!cardOk} onClick={confirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
         </div>
       </div>
     </div>,
     document.body
   );
 }
-function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, onNewGame, onViewGame, onBack }) {
+function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, cardOnFile, setCardOnFile, onNewGame, onViewGame, onBack }) {
   const lang = useLang();
   const upd = (k, v) => setActivity(a => ({...a, [k]: v}));
   const st = activity.status || "draft";
@@ -1029,7 +1124,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, o
         {st==="live"     && <button className="ws-publish on" style={{ padding:"14px 22px", fontSize:"15.5px" }} onClick={()=>upd("status","offline")}>{tr(lang,"Take offline","下线活动")}</button>}
         <button className="btn ghost lg" onClick={onBack}>{tr(lang,"Save & close","保存并返回")}</button>
       </div>
-      {pubOpen && <ActivityPublishModal activity={activity} onClose={()=>setPubOpen(false)} onConfirm={()=>{ upd("status","live"); setPubOpen(false); }}/>}
+      {pubOpen && <ActivityPublishModal activity={activity} cardOnFile={cardOnFile} onSaveCard={setCardOnFile} onClose={()=>setPubOpen(false)} onConfirm={()=>{ upd("status","live"); }}/>}
     </div>
   );
 }
@@ -1224,6 +1319,11 @@ function MeView({ brand, setBrand, outlets, setOutlets }) {
         </div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
+        <h3>{tr(lang,"KiX app","KiX App")}</h3>
+        <p className="ph-sub">{tr(lang,"Your games & activities go live in the KiX app. Get the app to see them the way your customers do.","你的游戏和活动上线在 KiX App 里。装上 App，用客人的视角看它们。")}</p>
+        <QRDownload lang={lang}/>
+      </div>
+      <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Outlets","店铺")}</h3>
         <p className="ph-sub">{tr(lang,"Your physical shops — name & address required, phone optional. A game can run at one, some, or all of them.","你的实体门店 —— 店名与地址必填、电话选填。一个游戏可对一家 / 多家 / 全部门店生效。")}</p>
         {outlets.map((o,i)=>(
@@ -1272,6 +1372,7 @@ function MeView({ brand, setBrand, outlets, setOutlets }) {
 function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, onNewGame, onExit, builder, builderIdx, builderSteps, onLeaveBuild, outlets, setOutlets, activities, setActivities, myGames, setMyGames, initEdit }) {
   const [editing, setEditing] = useState(initEdit || null);
   const [editingAct, setEditingAct] = useState((()=>{ const e=new URLSearchParams(location.search).get("editact"); return e ? (activities[parseInt(e,10)-1]||activities[0]||null) : null; })()); // 调试直达活动编辑器（editact=1/2/3 指定第几个）
+  const [cardOnFile, setCardOnFile] = useState(new URLSearchParams(location.search).get("card")==="1" ? { last4:"4242" } : null); // 卡预存储(SetupIntent 语义,不扣款)——仅上线活动时收集
   const [menuOpen, setMenuOpen] = useState(false);
   const inBuild = !!builder;
   const cur = SB_ITEMS.find(i => i.id === sec) || SB_ITEMS[0];
@@ -1333,7 +1434,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
         </div>
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
-          : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
+          : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} outlets={outlets} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />

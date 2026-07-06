@@ -748,6 +748,30 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .pub-namef input:focus{outline:none;border-color:var(--green)}
 .pub-actions{display:flex;gap:10px}
 .pub-actions .btn{flex:1}
+.pub-actions .btn:disabled{opacity:.45;pointer-events:none}
+/* publish success */
+.pub-done-badge{width:56px;height:56px;border-radius:999px;background:var(--green-50);color:var(--green-d);display:grid;place-items:center;margin:4px auto 14px}
+/* card on file (SetupIntent — no charge) */
+.cardf{border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:18px;background:var(--bg)}
+.cardf-h{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:11px}
+.cardf-input{display:flex;flex-direction:column;gap:9px}
+.cardf-input input,.cardf-row input{border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14.5px;font-weight:600;color:var(--ink);background:#fff;width:100%}
+.cardf-input input:focus,.cardf-row input:focus{outline:none;border-color:var(--green)}
+.cardf-row{display:flex;gap:9px}
+.cardf-saved{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14.5px}
+.cardf-saved .linkbtn{margin:0}
+.cardf-note{display:flex;gap:7px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--muted);margin:11px 0 0}
+.cardf-note svg{margin-top:1px;color:var(--green-d)}
+/* KiX app download (desktop→mobile handoff) */
+.qrdl{display:flex;gap:16px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px}
+.qrdl-code{flex:none;background:#fff;border-radius:10px;padding:8px;box-shadow:var(--sh-sm);line-height:0}
+.qr-glyph{display:block;border-radius:2px}
+.qrdl-r{min-width:0}
+.qrdl-t{font-size:15px;font-weight:800;color:var(--ink)}
+.qrdl-p{font-size:12.5px;line-height:1.5;color:var(--muted);margin:4px 0 10px}
+.qrdl-badges{display:flex;gap:8px;flex-wrap:wrap}
+.storebadge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 11px}
+.btn.ghost.inapp{color:var(--green-d)}
 .mgcard .mgart .m{font-size:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.22))}
 .mgcard .mglive{position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;color:#fff;background:rgba(11,18,32,.55);padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
 .mgcard .mglive .b{width:6px;height:6px;border-radius:999px;background:var(--green-br)}

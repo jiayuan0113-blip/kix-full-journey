@@ -300,7 +300,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
    - 设计逻辑：二维码是活动级别的（不是游戏级别）。QR URL 由 activity+outlet 决定性生成、创建时固定，编辑活动不重新生成，保证打印出去的码永久有效。
 
 6. **底部操作栏**（去审批后）：
-   - 左=**上线/下线按钮**：draft/offline 显示「上线」（点击弹**二次确认弹窗** `ActivityPublishModal`：活动名 + 确认上线/取消 → 直接置 live，无审批）；live 显示「下线活动」（→ offline）。
+   - 左=**上线/下线按钮**：draft/offline 显示「上线」（点击弹**二次确认弹窗** `ActivityPublishModal`：活动名 + **付款方式**（card on file，首次未存卡才出卡输入；SetupIntent 不扣款；文案「首月免费，之后按到店笔数收费，随时可下线、无最低消费」；未填卡则「确认上线」置灰）+ 确认上线/取消 → 直接置 live，无审批 → **切成功态**：绿勾「已上线🎉」+ `QRDownload`（在 App 查看）+ 「完成」。见 §6.7 / §4.9a）；live 显示「下线活动」（→ offline）。
    - 右=**「保存并返回」**。保存所有编辑（名称/门店/券/游戏绑定/winScore），返回活动列表。
 
 ---
@@ -315,7 +315,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - 卡片底部动作：草稿 →「上线」（弹确认弹窗）；已上线 →「下线」（回草稿）。
 - ➕「新建游戏」卡 → 进入建游戏流程（选模板 → 预览品牌）。
 
-**上线确认弹窗（`PublishGameModal`）**：点「上线」弹出——**方形 + 长方形两个封面**（AI 自动生成默认，各带「替换」上传）+ **游戏名称**（可改）+ 确认上线 / 取消。封面字段 `coverSquare`/`coverRect`。
+**上线确认弹窗（`PublishGameModal`）**：点「上线」弹出——**方形 + 长方形两个封面**（AI 自动生成默认，各带「替换」上传）+ **游戏名称**（可改）+ 确认上线 / 取消。封面字段 `coverSquare`/`coverRect`。**无付款方式**（游戏不计费，见 §6.7）。确认后**切成功态**：绿勾「游戏已上线🎉」+ `QRDownload`（在 App 查看）+「完成」。
 
 **与活动的关系**：游戏可独立上线（无奖品/无时限），也可被活动引用（活动加券+时限）。一个游戏可被多个活动引用。删除游戏前应检查是否被活动引用。
 
@@ -394,8 +394,18 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 **设计逻辑**：账号级设置，管理身份、门店、品牌素材。不是高频页面，但每项变更影响全局（店名出现在游戏页面，品牌色自动套用到新建游戏）。
 
 - **账户**：商家名称（必填，出现在游戏和凭证上）/ 手机号 WhatsApp（选填，用于联系）。
+- **KiX App 面板（2026-07-06 新增）**：常驻 `QRDownload`（二维码 + 扫码下载文案 + App Store/Google Play 徽章）。见下「下载 App 入口」。
 - **店铺 Outlets**：多家门店卡片列表。每家 = 店名\* + 街道地址\* + 城市 + 邮编 + 国家 + 门店电话（选填）。主店带「主店」标。可增删改 + 「+ 添加店铺」。
 - **品牌素材库**：Logo（上传后自动取色为品牌色）+ 品牌色色板 + 商品图（上传多张，建游戏时自动套用）。
+
+#### 4.9a 下载 KiX App 入口（2026-07-06 新增）⭐
+**前提**：商家生成的游戏/活动**上架在 KiX App**，商家需下载 App 才能看到自己产物的真实上架效果（区别于 Portal 里的编辑器预览）。商家在桌面 Web 操作、产物在手机 App → 用 **QR 码**做桌面→手机交接（配 App Store/Google Play 徽章兜底）。
+**放三处（情境主推 + 持久兜底，不散落横幅）**：
+1. **上线成功那一刻**（`PublishGameModal` / `ActivityPublishModal` 的成功态 `step==="done"`）：绿勾 + "已上线🎉" + `QRDownload`。相关度最高。
+2. **每张 LIVE 卡「在 App 查看」**：我的游戏（live 卡）+ 活动（live 卡）→ 点开 `AppQRModal`（QR 弹窗）。
+3. **「我的」页 KiX App 面板**：常驻兜底。
+**不做**：Home hero / 侧栏 / 每页横幅塞下载 banner（守单一焦点、加法伤留存；判据见"真空 vs 加法"）。
+**组件**：`QRGlyph`（伪 QR 视觉）/ `QRDownload`（QR+文案+徽章块）/ `AppQRModal`（弹窗）。真实工程：QR 指向 device-routed 下载链接（iOS→App Store、Android→Play），保留链接兜底。
 
 ### 4.10 平台审核后台 Review Console（`review-admin.html`，独立页面）⭐
 **受众**：KiX 平台审核员（内部运营），**非商家端**。独立单文件 demo，复用同套设计 tokens。对标 App Store Connect 审核队列 / 内容审核 modqueue / Retool 数据表。
@@ -564,7 +574,8 @@ Player（客人，端侧最小化）
 3. **库存池**：券库存是 **activity 级共享**，跨 `participating_outlet_ids` 的所有门店共用（v1 不做按店子配额）。
 4. **每人限领**：`per_customer_limit` 在抽券时按 `player_id` 校验。
 5. **召回**：`winback/send` 发的是**召回通知**（push/WhatsApp 提醒回店），不是直接发券。
-6. **计费**：仅 redemption 计费（真实到店）；未核销不计费。
+6. **计费（2026-07-06 更新）**：**第一个月免费**；首月后按 **redemption（真实到店核销）笔数**计费，未核销不计费。无最低消费、随时可下线。
+7. **付款方式（card on file，2026-07-06 新增）**：**gate 放「上线活动」，不放注册**（注册保持手机验证码一步，维持激活铁律；卡是漏斗里掉转化最狠的字段之一）。首次上线活动且未存卡 → 在上线确认弹窗内收集卡（**Stripe SetupIntent，usage=off_session，不扣款**、仅 tokenize 存 `customer`）；已存卡则显示 `•••• last4 · 更换`。**上线游戏不收卡**（游戏无奖品/无到店/无计费）。首笔 walk-in 计费时用该 PaymentMethod 建 PaymentIntent。文案须点明"首月免费、之后按到店笔数收费、随时可下线、无最低消费"以降恐惧。理由见决策文档 `Desktop/Mozat/kix/[分析] 2026-07-06 商家端-信用卡预存储+下载App入口.md`。
 
 ### 10.4 原型变量 → 后端字段映射（给研发对照）
 
