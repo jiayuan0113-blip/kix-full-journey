@@ -210,13 +210,9 @@ function Hero({ go }) {
           <button className="btn primary lg" onClick={go}>{tr(lang,"Create your first game — free","免费创建第一个游戏")}</button>
           <button className="btn ghost lg" onClick={()=>document.getElementById("gallery-sec")?.scrollIntoView({behavior:"smooth"})}>{tr(lang,"See sample games","看游戏样片")}</button>
         </div>
-        <div className="proof">
-          <div className="tagm">{tr(lang,"An ice-cream shop","某冰激凌店")}</div>
-          <div className="stat"><div className="n"><b>48%</b></div><div className="l">{tr(lang,"walk-in rate","到店率")}</div></div>
-          <div className="stat-sep"></div>
-          <div className="stat"><div className="n">1,500</div><div className="l">{tr(lang,"new customers","新客到店")}</div></div>
-          <div className="stat-sep"></div>
-          <div className="stat"><div className="n"><b>29%</b></div><div className="l">{tr(lang,"win-back rate","老客召回复购")}</div></div>
+        <div className="trustbar">
+          <span className="tb-dots"><i></i><i></i><i></i></span>
+          <span className="tb-txt">{tr(lang,"Already live at YiFang Fruit Tea, a gelato shop & a coffee shop","一芳水果茶、街角冰激凌店、咖啡店 都在用")}</span>
         </div>
       </div>
       <div className="visual">
@@ -247,9 +243,9 @@ function Gallery({ go }) {
   const lang = useLang();
   return (
     <section className="sec" id="gallery-sec">
-      <div className="sec-eye">{tr(lang,"SAMPLE GAMES","游戏样片")}</div>
-      <h2 className="sec-h">{tr(lang,"1,000+ formats — every one becomes your brand","上千种玩法，每个都能变成你的品牌")}</h2>
-      <p className="sec-sub">{tr(lang,"Coffee, bubble tea, nails, snacks — there's a fit for every shop.","咖啡、奶茶、美甲、小吃…都有适配的玩法。")}</p>
+      <div className="sec-eye">{tr(lang,"THE GAMEPLAY ENGINE","玩法引擎")}</div>
+      <h2 className="sec-h">{tr(lang,"One gameplay engine — AI picks the mechanic that fits your shop","一套玩法引擎，AI 挑一个适合你店的玩法")}</h2>
+      <p className="sec-sub">{tr(lang,"Spin, scratch, stack, catch — 1,000+ play mechanics, each wrapped in your brand.","转盘、刮刮乐、叠叠乐、接一接…上千种玩法，每个都能套上你的品牌。")}</p>
       <div className="gallery">{GAMES.map((g, i) => (
         <div key={i} className="gtile" onClick={go}><div className="art"><GamePreview kind={g.kind} colors={g.g} /></div><div className="cap">{P(lang,g.n)}<div className="sm">{P(lang,g.t)}</div></div></div>))}</div>
       <div className="gallery-foot">{tr(lang,"Plus ","还有 ")}<b style={{ color:"var(--ink)" }}>1,000+</b>{tr(lang," templates — make any of them your own","个模板 · 每个都能换成你的品牌")}</div>
@@ -266,17 +262,47 @@ function Steps() {
     </section>
   );
 }
+const STORIES = [
+  { init:"一", img:"stories/yifang.png", tone:["#16A34A","#22C55E"], name:{en:"YiFang Fruit Tea",zh:"一芳水果茶"}, type:{en:"Fruit tea · new store",zh:"水果茶 · 新店"},
+    metric:"48%", metricL:{en:"walk-in rate in 4 weeks",zh:"4 周到店率"},
+    quote:{en:"People who scanned to play actually walked through the door in our first month.",zh:"开业第一个月，扫码玩的人真的走进了店里。"} },
+  { init:"冰", img:"stories/gelato.png", tone:["#0EA5E9","#38BDF8"], name:{en:"A gelato shop",zh:"街角冰激凌店"}, type:{en:"Ice cream · summer",zh:"冰激凌 · 夏季拉新"},
+    metric:"1,500", metricL:{en:"new customers walked in",zh:"新客到店"},
+    quote:{en:"Through the busy summer weeks, new faces kept coming in wave after wave.",zh:"夏天最忙那几周，新客一波接一波地进来。"} },
+  { init:"咖", img:"stories/coffee.png", tone:["#B45309","#D97706"], name:{en:"A coffee shop",zh:"街角咖啡店"}, type:{en:"Coffee · win-back",zh:"咖啡 · 老客召回"},
+    metric:"29%", metricL:{en:"regulars won back",zh:"老客召回复购"},
+    quote:{en:"Regulars who hadn't visited in 30 days came back with a single voucher.",zh:"30 天没来的老客，一张券就请回来了。"} },
+];
+function Stories() {
+  const lang = useLang();
+  return (
+    <section className="sec">
+      <div className="sec-eye">{tr(lang,"MERCHANT STORIES","商家的故事")}</div>
+      <h2 className="sec-h">{tr(lang,"Real shops, real walk-ins","真实的店，真实的到店")}</h2>
+      <p className="sec-sub">{tr(lang,"How neighbourhood shops turn a game into customers through the door.","看街边小店怎么把一个游戏变成走进门的客人。")}</p>
+      <div className="stories">
+        {STORIES.map((s,i)=>(
+          <div key={i} className="story">
+            <div className="story-hd"><span className="story-av" style={{ background:`linear-gradient(145deg,${s.tone[0]},${s.tone[1]})` }}>{s.init}{s.img && <img className="story-logo" src={s.img} alt="" onError={e=>e.currentTarget.remove()}/>}</span><div><div className="story-nm">{P(lang,s.name)}</div><div className="story-ty">{P(lang,s.type)}</div></div></div>
+            <div className="story-metric"><b>{s.metric}</b><span>{P(lang,s.metricL)}</span></div>
+            <p className="story-q">“{P(lang,s.quote)}”</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 function Pricing({ go }) {
   const lang = useLang();
   return (
     <section className="sec">
       <div className="sec-eye">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free. Pay only when they walk in.","免费开始，到店才计费")}</h2>
       <div className="tiers">
-        <div className="tier"><div className="tname">{tr(lang,"FREE","免费版")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"Never charged. Get your first game running.","永不扣款，先把第一个游戏跑起来。")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"1 game","1 个游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"50 walk-ins / month","每月 50 位到店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + basic dashboard","到店核销 + 基础看板")}</li></ul>
+        <div className="tier"><div className="tname">{tr(lang,"FREE","免费版")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"First 50 walk-ins a month free, then S$3 each.","每月前 50 位到店免费，超出 S$3 / 位。")}</div>
+          <ul><li><span className="ck"><Check/></span>{tr(lang,"1 game","1 个游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"50 walk-ins / month free","每月 50 位到店免费")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + basic dashboard","到店核销 + 基础看板")}</li></ul>
           <button className="btn ghost" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
-        <div className="tier pop"><div className="pbadge">{tr(lang,"Most popular","最受欢迎")}</div><div className="tname">{tr(lang,"PRO","专业版")}</div><div className="price">S$49<small>/mo</small></div><div className="pdesc">{tr(lang,"Unlimited campaigns, or pay S$3 per walk-in.","不限活动，或按 S$3 / 到店 用多少付多少。")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Auto win-back for regulars","老客自动召回")}</li><li><span className="ck"><Check/></span>{tr(lang,"Multi-outlet · walk-in attribution","多门店 · 到店归因")}</li></ul>
+        <div className="tier pop"><div className="pbadge">{tr(lang,"Most popular","最受欢迎")}</div><div className="tname">{tr(lang,"PRO","专业版")}</div><div className="price">S$49<small>/mo</small></div><div className="pdesc">{tr(lang,"Unlimited walk-ins. First month free.","不限到店，首月免费。")}</div>
+          <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games, activities & walk-ins","不限游戏与活动、不限到店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Auto win-back for regulars","老客自动召回")}</li><li><span className="ck"><Check/></span>{tr(lang,"Multi-outlet · walk-in attribution","多门店 · 到店归因")}</li></ul>
           <button className="btn primary" onClick={go}>{tr(lang,"Get started","立即开始")}</button></div>
         <div className="tier"><div className="tname">{tr(lang,"CHAINS","连锁版")}</div><div className="price">{tr(lang,"Contact us","联系我们")}</div><div className="pdesc">{tr(lang,"Multi-outlet, custom games and integrations.","多门店、定制玩法与对接，按规模报价。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"Multi-city · multi-outlet","多城市 · 多门店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Dedicated success manager","专属客户成功")}</li><li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","API / POS 对接")}</li></ul>
@@ -298,7 +324,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
         <span>{tr(lang,"Customer ","客人 ")}<b>{tr(lang,"plays","扫码玩")}</b></span><span className="arr">→</span><span><b>{tr(lang,"wins a voucher","赢券")}</b></span><span className="arr">→</span>
         <span>{tr(lang,"walks in & ","到店 ")}<b>{tr(lang,"redeems","核销")}</b>{tr(lang," (QR / swipe)","（二维码 / 滑动）")}</span><span className="arr">→</span><span>{tr(lang,"regulars ","老客 ")}<b>{tr(lang,"won back","自动召回")}</b></span>
       </div>
-      <ThreeThings/><Gallery go={go} /><Steps/><Pricing go={go} />
+      <Steps/><Gallery go={go} /><ThreeThings/><Stories/><Pricing go={go} />
       <section className="sec" style={{ display:"flex", justifyContent:"center" }}>
         <button className="btn primary final-cta" onClick={go}>{tr(lang,"Create your first game — free","免费创建第一个游戏")}</button>
       </section>
@@ -1300,9 +1326,9 @@ function OutletPanel({ lang, outRed, omax }) {
 
 /* ===== billing: plans + payment method ===== */
 const PLANS = [
-  { id:"free",  name:{en:"Free",zh:"免费版"},  price:{en:"S$0/mo",zh:"S$0/月"},   note:{en:"No monthly fee · S$3 per verified walk-in",zh:"无月费 · 真实到店 S$3/位"} },
-  { id:"pro",   name:{en:"Pro",zh:"专业版"},   price:{en:"S$49/mo",zh:"S$49/月"}, note:{en:"Full analytics, brand customization, lower walk-in rate",zh:"完整数据 · 品牌定制 · 更低到店单价"} },
-  { id:"chain", name:{en:"Chain",zh:"连锁版"}, price:{en:"Custom",zh:"定制"},     note:{en:"Multi-outlet management, priority support",zh:"多店统一管理 · 专属支持"} },
+  { id:"free",  name:{en:"Free",zh:"免费版"},  price:{en:"S$0",zh:"S$0"},          note:{en:"First 50 walk-ins/mo free, then S$3 each · 1 game",zh:"每月前 50 位到店免费，超出 S$3/位 · 1 个游戏"} },
+  { id:"pro",   name:{en:"Pro",zh:"专业版"},   price:{en:"S$49/mo",zh:"S$49/月"},   note:{en:"Unlimited games, activities & walk-ins",zh:"不限游戏与活动 · 不限到店"} },
+  { id:"chain", name:{en:"Chain",zh:"连锁版"}, price:{en:"Contact us",zh:"联系我们"}, note:{en:"Multi-outlet · custom games & integration",zh:"多门店 · 定制玩法与对接"} },
 ];
 function CardModal({ cardOnFile, onSave, onClose }) {
   const lang = useLang();
