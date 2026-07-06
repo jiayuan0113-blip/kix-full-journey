@@ -359,7 +359,7 @@ function Describe({ need, setNeed, onNext }) {
     <div className="canvas narrow describe-wrap">
       <div className="center">
         <div className="f-eye">{tr(lang,"Step 1 · 30 seconds to build your game","第 1 步 · 30 秒搭好你的游戏")}</div>
-        <h1 className="big">{tr(lang,"First — what kind of shop?","先说说，你开的是什么店？")}</h1>
+        <h1 className="big">{tr(lang,"What game do you want to make today?","今天想做什么游戏？")}</h1>
         <p className="sub">{tr(lang,"Pick your shop type — AI matches the best game.","选你的店型，AI 帮你挑最合适的玩法。")}</p>
       </div>
       <div className="bigfield"><input autoFocus value={need} placeholder={tr(lang,"e.g. a corner coffee shop","例如：街角的一家咖啡店")} onChange={e=>setNeed(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"&&need.trim())onNext(); }}/></div>
