@@ -6,6 +6,11 @@
 
 ## 2026-07-06
 
+### 58. 「我的」新增账单与套餐（换卡 + 切套餐）
+**改了什么**：MeView 在「账户」下加**账单与套餐**面板：①套餐行（当前套餐+价格，「切换套餐」→ `PlanModal` 三档：免费 S$0/专业 S$49 当前/连锁 定制，首月免费）②付款方式行（`Visa •••• last4`「更换」/ 无卡「添加银行卡」→ `CardModal`，SetupIntent 不扣款）。account 下拉「账单与套餐」现在跳 Me 页。
+**为什么**：卡在上线活动时存了（#56），但之前无处查看/更换——补上管理入口（真空回填）；套餐切换也归入此处。
+**影响文件**：`journey.jsx`（`PLANS`/`CardModal`/`PlanModal` 新增；MeView 加面板+状态；MeView 收 `cardOnFile`/`setCardOnFile`；account 菜单 Billing→goMe）、`index.html`（`.billrow`/`.bill-*`/`.plans`/`.plan-opt`）。调试参数 `?bill=plan` `?bill=card`。
+
 ### 57. 建游戏第 1 步标题改口吻
 **改了什么**：Describe（第 1 步）主标题「先说说，你开的是什么店？」→ **「今天想做什么游戏？」**（EN: What game do you want to make today?）。副文案「选你的店型，AI 帮你挑最合适的玩法」保留作桥接——问"做什么游戏"、答"选店型"、AI 配玩法，逻辑自洽（店型仍是匹配玩法的输入）。
 **影响文件**：`journey.jsx`（Describe h1）。

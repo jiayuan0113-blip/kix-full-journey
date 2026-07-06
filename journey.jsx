@@ -1298,13 +1298,73 @@ function OutletPanel({ lang, outRed, omax }) {
   </>);
 }
 
-function MeView({ brand, setBrand, outlets, setOutlets }) {
+/* ===== billing: plans + payment method ===== */
+const PLANS = [
+  { id:"free",  name:{en:"Free",zh:"免费版"},  price:{en:"S$0/mo",zh:"S$0/月"},   note:{en:"No monthly fee · S$3 per verified walk-in",zh:"无月费 · 真实到店 S$3/位"} },
+  { id:"pro",   name:{en:"Pro",zh:"专业版"},   price:{en:"S$49/mo",zh:"S$49/月"}, note:{en:"Full analytics, brand customization, lower walk-in rate",zh:"完整数据 · 品牌定制 · 更低到店单价"} },
+  { id:"chain", name:{en:"Chain",zh:"连锁版"}, price:{en:"Custom",zh:"定制"},     note:{en:"Multi-outlet management, priority support",zh:"多店统一管理 · 专属支持"} },
+];
+function CardModal({ cardOnFile, onSave, onClose }) {
+  const lang = useLang();
+  const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
+  const ok = num.replace(/\s/g,"").length >= 12;
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:420 }} onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{cardOnFile ? tr(lang,"Change card","更换银行卡") : tr(lang,"Add a card","添加银行卡")}</h3>
+        <p className="pub-sub">{tr(lang,"Authorization only — we don't charge your card now.","仅预授权绑定 —— 现在不会扣款。")}</p>
+        <div className="cardf" style={{ marginBottom:16 }}>
+          <div className="cardf-input">
+            <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
+            <div className="cardf-row">
+              <input placeholder={tr(lang,"MM / YY","有效期 MM/YY")} value={exp} onChange={e=>setExp(e.target.value.replace(/[^\d/]/g,"").slice(0,5))} inputMode="numeric"/>
+              <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
+            </div>
+          </div>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First month free. After that, billed per verified walk-in.","第一个月免费。之后按客人真实到店笔数收费。")}</span></p>
+        </div>
+        <div className="pub-actions">
+          <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
+          <button className="btn primary lg" disabled={!ok} onClick={()=>{ onSave({ last4: num.replace(/\s/g,"").slice(-4) }); onClose(); }}>{tr(lang,"Save card","保存")}</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+function PlanModal({ plan, onPick, onClose }) {
+  const lang = useLang();
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"Switch plan","切换套餐")}</h3>
+        <p className="pub-sub">{tr(lang,"First month is free on any plan. Change anytime.","任意套餐首月免费，随时可改。")}</p>
+        <div className="plans">
+          {PLANS.map(pl => (
+            <button key={pl.id} className={"plan-opt"+(plan===pl.id?" on":"")} onClick={()=>{ onPick(pl.id); onClose(); }}>
+              <div className="plan-l"><div className="plan-nm">{P(lang,pl.name)}{plan===pl.id && <span className="plan-cur">{tr(lang,"Current","当前")}</span>}</div><div className="plan-note">{P(lang,pl.note)}</div></div>
+              <div className="plan-price">{P(lang,pl.price)}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFile }) {
   const lang = useLang();
   const fileRef = useRef(null), [busy, setBusy] = useState(false);
   const [name, setName] = useState("Kopi Corner"), [phone, setPhone] = useState("9123 4567");
   const onLogo = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; setBusy(true); const rd = new FileReader(); rd.onload = async () => { const url = rd.result; const rgb = await extractColor(url); setBrand(b => ({ ...b, logo:url, logoMark:null, color: rgb ? paletteFromRgb(rgb) : b.color })); setBusy(false); }; rd.readAsDataURL(f); };
   const onProducts = (e) => { const fs = Array.from(e.target.files || []).slice(0,8); Promise.all(fs.map(f => new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }))).then(urls => setBrand(b => ({ ...b, products:[...(b.products||[]), ...urls].slice(0,8) }))); };
   const hasBrand = brand.logo || brand.logoMark;
+  const [plan, setPlan] = useState("pro");
+  const _bill = new URLSearchParams(location.search).get("bill");
+  const [cardModal, setCardModal] = useState(_bill==="card"), [planModal, setPlanModal] = useState(_bill==="plan");
+  const curPlan = PLANS.find(p=>p.id===plan) || PLANS[1];
   const updO = (i, k, v) => setOutlets(os => os.map((o,j)=> j===i ? {...o,[k]:v} : o));
   const addO = () => setOutlets(os => [...os, { id:"o"+(os.length+1)+Date.now(), name:{en:"New outlet",zh:"新店铺"}, line1:"", city:"Singapore", region:"", postal:"", country:0, primary:false }]);
   const delO = (i) => setOutlets(os => os.filter((_,j)=>j!==i));
@@ -1317,6 +1377,19 @@ function MeView({ brand, setBrand, outlets, setOutlets }) {
           <div className="field"><label>{tr(lang,"Business name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)}/></div>
           <div className="field"><label>{tr(lang,"Mobile (WhatsApp)","手机号（WhatsApp）")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input value={phone} onChange={e=>setPhone(e.target.value)}/></div>
         </div>
+      </div>
+      <div className="panel" style={{ marginTop:16 }}>
+        <h3>{tr(lang,"Billing & plan","账单与套餐")}</h3>
+        <p className="ph-sub">{tr(lang,"First month free — after that you only pay per verified walk-in. Manage your plan and card here.","首月免费 —— 之后只按真实到店笔数收费。在这里管理套餐和银行卡。")}</p>
+        <div className="billrow">
+          <div className="bill-l"><span className="bill-ic"><Ic.spark style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Plan","套餐")}</div><div className="bill-v">{P(lang,curPlan.name)} · {P(lang,curPlan.price)}</div></div></div>
+          <button className="btn ghost sm" onClick={()=>setPlanModal(true)}>{tr(lang,"Switch plan","切换套餐")}</button>
+        </div>
+        <div className="billrow">
+          <div className="bill-l"><span className="bill-ic"><Ic.card style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Payment method","付款方式")}</div><div className="bill-v">{cardOnFile ? <>Visa •••• {cardOnFile.last4}</> : <span style={{ color:"var(--muted)" }}>{tr(lang,"No card yet","尚未绑定银行卡")}</span>}</div></div></div>
+          <button className="btn ghost sm" onClick={()=>setCardModal(true)}>{cardOnFile ? tr(lang,"Change","更换") : tr(lang,"Add card","添加银行卡")}</button>
+        </div>
+        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged during the first month. No minimum, take activities offline anytime.","首月不扣款。无最低消费，活动随时可下线。")}</span></p>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"KiX app","KiX App")}</h3>
@@ -1365,6 +1438,8 @@ function MeView({ brand, setBrand, outlets, setOutlets }) {
           </div>
         </div>
       </div>
+      {cardModal && <CardModal cardOnFile={cardOnFile} onSave={setCardOnFile} onClose={()=>setCardModal(false)}/>}
+      {planModal && <PlanModal plan={plan} onPick={setPlan} onClose={()=>setPlanModal(false)}/>}
     </div>
   );
 }
@@ -1426,7 +1501,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
                   <div className="am-head">{avatar}<div><div className="sb-name">{shopName}</div><div className="sb-outlet">{P(lang, primary.name||{en:"",zh:""})}</div></div></div>
                   <button className="am-item" onClick={goMe}><Ic.user style={{ width:17, height:17 }}/>{tr(lang,"Account settings","账户设置")}</button>
                   <button className="am-item" onClick={goMe}><Ic.store style={{ width:17, height:17 }}/>{tr(lang,"Outlets","店铺管理")}</button>
-                  <button className="am-item" onClick={()=>setMenuOpen(false)}><Ic.spark style={{ width:17, height:17 }}/>{tr(lang,"Billing & plan","账单与套餐")}</button>
+                  <button className="am-item" onClick={goMe}><Ic.card style={{ width:17, height:17 }}/>{tr(lang,"Billing & plan","账单与套餐")}</button>
                   <button className="am-item danger" onClick={onExit}><Ic.logout style={{ width:17, height:17 }}/>{tr(lang,"Log out","退出登录")}</button>
                 </div></>}
             </div>
@@ -1439,7 +1514,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
-          : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} />
+          : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
     </div>

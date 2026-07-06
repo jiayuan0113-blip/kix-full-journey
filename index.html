@@ -772,6 +772,20 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .qrdl-badges{display:flex;gap:8px;flex-wrap:wrap}
 .storebadge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 11px}
 .btn.ghost.inapp{color:var(--green-d)}
+/* billing rows + plan picker */
+.billrow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-top:12px}
+.bill-l{display:flex;align-items:center;gap:12px;min-width:0}
+.bill-ic{width:34px;height:34px;border-radius:9px;background:var(--green-50);color:var(--green-d);display:grid;place-items:center;flex:none}
+.bill-t{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.bill-v{font-size:15px;font-weight:800;color:var(--ink);margin-top:1px}
+.plans{display:flex;flex-direction:column;gap:10px}
+.plan-opt{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;text-align:left;transition:border-color .12s}
+.plan-opt:hover{border-color:var(--green)}
+.plan-opt.on{border-color:var(--green);background:var(--green-50)}
+.plan-nm{font-size:15.5px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px}
+.plan-cur{font-size:10.5px;font-weight:700;color:var(--green-d);background:#fff;border:1px solid var(--green);border-radius:999px;padding:2px 8px}
+.plan-note{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.plan-price{font-size:15px;font-weight:800;color:var(--ink);flex:none}
 .mgcard .mgart .m{font-size:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.22))}
 .mgcard .mglive{position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;color:#fff;background:rgba(11,18,32,.55);padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
 .mgcard .mglive .b{width:6px;height:6px;border-radius:999px;background:var(--green-br)}
