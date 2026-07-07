@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-07-07
+
+### 60. 落地页并入老板设计稿（boss LEAN）· 整段重做 ⭐
+**改了什么**（Joyce 按老板 LEAN 稿逐屏截图标注驱动；本条替换 #59 的落地页）：
+- **Hero**：H1 →「They play. / They pay. / They stay.」(stay 绿)；眉标 `TURN YOUR BUSINESS INTO A PLAYGROUND`；chips = 3 min to launch · S$0 to start · No credit card · No hardware；CTA 由双按钮改为**输入框「Your business name」+「See my game →」**(与 WOW 一致)；右侧视觉换成**空店场景**「Another slow day… same empty seats」(纯 CSS `.hscene`) + 其下**闭环 flow-cap**；**删**信任条(Already live…)、旧 lede、冗余 note。
+- **新增 Walkthrough**「See the game your customer plays」(`id=the-game`)：5 屏真机截图(`walkthrough/poster|play|win|redeem.png` 一芳素材；②扫码为 CSS 占位) + 箭头 + PLAY/PAY/STAY 三卡(无 emoji)。
+- **新增 SeeYourGame(WOW)**：两行标题「Type your business name / See your game in 3 min」(第二行绿) + 输入框按钮 + note(Free · no credit card) + 右侧游戏图。
+- **新增 WhyGame**「Why a game beats a discount」(`id=why`)：3 卡(Rewards never cash / Every visit verified / Every game feeds the network)，**真实 icon**(gift/shield/新增 globe)，无 emoji，复用 `.steps/.stp/.si`。
+- **落地页移除渲染**：`Steps/Gallery/ThreeThings/Stories`(#59 的段) 及一度加入的 `FairDeal`；组件函数仍留在 `journey.jsx`(未渲染、便于回退)。**去重**：原「只为新客付费」三处(WhyGame/FairDeal/ThreeThings)降到一处。
+- **价格改为按结果付费**：FREE FOREVER S$0 ·「PAY PER RESULT」from **S$3 / new customer**(前3月免费·价格锁定·**永不收软件费**) · CHAINS 联系我们 + 底注。**取代** #59 的「专业 S$49/月」落地页写法。
+- **FAQ**「Everything a business owner asks」(`id=questions`)：6 条，**静态全展开**(去掉 + 折叠)。
+- **结尾 CTA**：「Every business deserves its own playground」+ Build my game — free + 细则。
+- **Nav**：Showcase/How it works/Pricing → **The game · Why it works · Pricing · Questions**，点击平滑滚动到 section id。
+**影响文件**：`journey.jsx`(Hero/Walkthrough/SeeYourGame/WhyGame/Pricing/Faq/Final/Landing/nav)、`index.html`(`.hero-tag`/`.hscene`/`.wt-*`/`.ppp*`/`.wow-*`/`.pnote` 等 CSS)、`data.jsx`(**删** `HEADLINE`/`SUB_LANDING`)、`icons.jsx`(**加** `globe`)、新增 `walkthrough/*.png`。
+**研发注意 / 待办**：
+- ⚠️ **价格模型冲突**：落地页(按结果付费·无月费) 与 #58「我的」页 `PLANS`(专业 S$49/月订阅) 不一致，后台计费侧待对齐(DRI 待定)。
+- 全站**中文为占位草稿**，待 Joyce 定稿。
+- 走查②「扫码」屏、hero 视觉素材待真图(现为 CSS/占位)。
+- `Steps/Gallery/ThreeThings/Stories/FairDeal` 为**未渲染死组件**，确认不回退后可清理。
+
 ## 2026-07-06
 
 ### 59. 落地页重构（叙事：是什么→怎么用→解决方案→收益/证据）⭐

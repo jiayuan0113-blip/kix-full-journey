@@ -78,6 +78,20 @@ h1.hero-h .hl{color:var(--green-d);position:relative;white-space:nowrap}
 h1.hero-h .hl::after{content:"";position:absolute;left:-1px;right:-1px;bottom:.07em;height:.26em;z-index:-1;background:var(--green-100);border-radius:4px}
 .lede{font-size:17px;color:var(--ink-2);margin-top:22px}
 .lede b{color:var(--ink);font-weight:700}
+.hero-tag{display:inline-block;background:var(--green-50);color:var(--green-d);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:8px;padding:6px 11px}
+/* hero scene (empty-shop problem visual) */
+.hscene{position:relative;width:100%;aspect-ratio:16/11;border-radius:20px;overflow:hidden;background:linear-gradient(150deg,#2a2f3a,#141821);box-shadow:var(--sh-lg)}
+.hscene .cap{position:absolute;top:18px;left:20px;right:20px;color:#fff;font-size:clamp(15px,1.5vw,19px);font-weight:800;font-style:italic;text-shadow:0 2px 10px rgba(0,0,0,.6);z-index:2}
+.hscene .floor{position:absolute;bottom:0;left:0;right:0;height:52%;background:linear-gradient(180deg,#3a4152,#20242e)}
+.hscene .counter{position:absolute;bottom:16%;left:8%;right:8%;height:64px;background:#cbb48f;border-radius:10px 10px 4px 4px;box-shadow:0 8px 20px rgba(0,0,0,.45)}
+.hscene .lamp{position:absolute;top:0;width:16px;height:52px;background:linear-gradient(#f4d9a0,#c98a3a);border-radius:0 0 50% 50%;box-shadow:0 0 30px #f6c56b}
+.hscene .person{position:absolute;bottom:22%;right:18%;width:64px;height:84px;background:linear-gradient(#2b2b2b,#151515);border-radius:40px 40px 8px 8px}
+.hscene .person::after{content:"";position:absolute;top:-28px;left:14px;width:38px;height:38px;border-radius:50%;background:#c98d6a}
+.pnote{text-align:center;font-size:14px;color:var(--muted);margin-top:22px}
+.pnote b{color:var(--green-d)}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.hchip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-size:14px;font-weight:600;color:var(--ink-2);box-shadow:var(--sh-sm)}
+.hchip b{color:var(--green-d);font-weight:800}
 .cta-row{display:flex;gap:14px;align-items:center;margin-top:30px;flex-wrap:wrap}
 .proof{display:flex;align-items:center;gap:24px;margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
 .proof .tagm{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;max-width:130px;line-height:1.3}
@@ -107,7 +121,10 @@ h1.hero-h .hl::after{content:"";position:absolute;left:-1px;right:-1px;bottom:.0
 .story-q{font-size:14.5px;line-height:1.55;color:var(--ink);margin:0;font-weight:500}
 
 .visual{position:relative;display:flex;justify-content:center;align-items:center}
-.vid-ph{width:100%;aspect-ratio:16/9;max-width:520px;background:var(--line);border-radius:20px}
+.visual-col{display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px}
+.vid-ph{width:100%;aspect-ratio:16/9;background:var(--line);border-radius:20px}
+.flow-cap{font-size:15px;font-weight:600;color:var(--ink-2);line-height:1.6;text-align:left;margin:0}
+.flow-cap b{color:var(--green-d);font-weight:700}
 .phone{position:relative;width:308px;background:#0B1220;border-radius:42px;padding:11px;box-shadow:var(--sh-lg)}
 .phone::before{content:"";position:absolute;top:15px;left:50%;transform:translateX(-50%);width:92px;height:23px;background:#0B1220;border-radius:0 0 16px 16px;z-index:3}
 .screen{background:linear-gradient(180deg,#fff,#F4FAF6);border-radius:32px;overflow:hidden;height:572px;position:relative;display:flex;flex-direction:column}
@@ -856,6 +873,66 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .redeem-input input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px var(--green-50)}
 .redeem-ok{background:var(--green-50);color:var(--green-d);border-radius:12px;padding:14px;font-weight:700;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;animation:rise .3s ease both}
 
+/* ===== walkthrough (customer play journey) ===== */
+.wt-row{display:flex;align-items:flex-start;justify-content:center;gap:6px;margin-top:46px}
+.wt-step{display:flex;flex-direction:column;align-items:center;flex:1;max-width:176px}
+.wt-phone{position:relative;width:100%;max-width:158px;aspect-ratio:9/19;background:#0B1220;border-radius:26px;padding:6px;box-shadow:var(--sh-lg)}
+.wt-phone::before{content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);width:42px;height:11px;background:#0B1220;border-radius:0 0 9px 9px;z-index:3}
+.wt-scr{width:100%;height:100%;border-radius:21px;overflow:hidden;background:var(--line-2)}
+.wt-scr img{width:100%;height:100%;object-fit:cover;display:block}
+.wt-scan{width:100%;height:100%;background:#0E1319;display:grid;place-items:center}
+.wt-scan i{width:54%;aspect-ratio:1;border:2.5px solid var(--green-br);border-radius:12px;position:relative}
+.wt-scan i::after{content:"";position:absolute;left:7px;right:7px;top:50%;height:2px;background:var(--green-br);box-shadow:0 0 10px var(--green-br)}
+.wt-arrow{flex:none;align-self:center;margin-top:64px;color:var(--green);font-weight:800;font-size:20px}
+.wt-label{font-size:13.5px;font-weight:800;color:var(--ink);margin-top:14px;text-align:center;line-height:1.25}
+.wt-sub{font-size:12px;color:var(--muted);text-align:center;margin-top:3px;line-height:1.4;max-width:152px}
+.ppp{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:42px}
+.pppc{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--sh-sm)}
+.pppc .k{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--green-d)}
+.pppc h4{font-size:16px;font-weight:800;color:var(--ink);margin:5px 0}
+.pppc p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0}
+
+/* ===== see your own game (WOW) — portal light palette ===== */
+.wow2{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:52px;align-items:center}
+.wow-eye{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--green-d)}
+.wow-h{font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-.03em;font-weight:800;color:var(--ink);margin:12px 0 0}
+.wow-h .hl{color:var(--green-d)}
+.wow-sub{font-size:16px;color:var(--ink-2);line-height:1.55;margin-top:18px;max-width:460px}
+.wow-form{display:flex;gap:8px;align-items:center;margin-top:24px;max-width:460px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:var(--sh-sm)}
+.wow-form input{flex:1;min-width:0;border:none;background:transparent;font-size:15px;font-weight:600;color:var(--ink);padding:0 14px;outline:none}
+.wow-form input::placeholder{color:var(--muted-2)}
+.wow-form .btn{white-space:nowrap;flex:none}
+.wow-note{font-size:13px;color:var(--muted);margin-top:12px}
+.wow-visual{display:flex;justify-content:center}
+.wow-phone{position:relative;width:100%;max-width:268px;aspect-ratio:9/19;background:#0B1220;border-radius:40px;padding:9px;box-shadow:var(--sh-lg)}
+.wow-phone::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:70px;height:18px;background:#0B1220;border-radius:0 0 14px 14px;z-index:3}
+.wow-scr{width:100%;height:100%;border-radius:32px;overflow:hidden;background:var(--line-2)}
+.wow-scr img{width:100%;height:100%;object-fit:cover;display:block}
+.wow-badge{position:absolute;top:18px;right:-8px;z-index:5;background:var(--green);color:#fff;font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;box-shadow:0 8px 18px -6px rgba(22,163,74,.75)}
+
+/* ===== fair deal (simplified compare) ===== */
+.fair-vs{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:820px;margin:32px auto 0}
+.fvs{border-radius:16px;padding:22px 24px;border:1px solid var(--line);background:#fff}
+.fvs.bad{background:#FEF3F2;border-color:#FADBD6}
+.fvs.good{background:var(--green-50);border-color:var(--green-100)}
+.fvs .lab{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;letter-spacing:.04em}
+.fvs .lab .x{color:#C0392B;font-weight:900}
+.fvs.bad .lab{color:#C0392B}
+.fvs.good .lab{color:var(--green-d)}
+.fvs p{font-size:14px;color:var(--ink-2);line-height:1.55;margin:8px 0 0}
+/* ===== FAQ (static — no expander) ===== */
+.faq{max-width:860px;margin:36px auto 0;display:flex;flex-direction:column;gap:12px}
+.faq-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 24px;box-shadow:var(--sh-sm)}
+.faq-q{font-size:16px;font-weight:800;color:var(--ink)}
+.faq-a{font-size:14.5px;color:var(--muted);line-height:1.55;margin-top:8px}
+/* ===== final CTA ===== */
+.final-sec{text-align:center}
+.final-h{font-size:clamp(30px,4.6vw,48px);line-height:1.08;letter-spacing:-.03em;font-weight:800;color:var(--ink);margin-top:12px}
+.final-h .hl{color:var(--green-d)}
+.final-sub{font-size:16px;color:var(--ink-2);max-width:560px;margin:16px auto 0;line-height:1.55}
+.final-sec .final-cta{margin-top:26px}
+.final-fine{font-size:13px;color:var(--muted);margin-top:14px}
+
 @media(max-width:920px){
   .hero{grid-template-columns:1fr;gap:36px;text-align:center}
   .kpis{grid-template-columns:1fr 1fr}.panels{grid-template-columns:1fr}
@@ -864,11 +941,17 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
   .lede{margin-left:auto;margin-right:auto}.cta-row,.proof{justify-content:center}
   .navlinks{display:none}
   .three,.gallery,.steps,.tiers{grid-template-columns:1fr 1fr}
+  .hero-chips{justify-content:center}
+  .wt-row{overflow-x:auto;justify-content:flex-start;padding-bottom:10px;-webkit-overflow-scrolling:touch}
+  .wt-step{flex:0 0 auto;width:148px}
+  .wow2{grid-template-columns:1fr;gap:34px;text-align:center}
+  .wow-sub,.wow-form{margin-left:auto;margin-right:auto}
+  .wow-visual{order:-1}
   .float.f1{left:0}.float.f2{right:0}
   .detail,.preview,.preview.lite{grid-template-columns:1fr;gap:24px}
   .step .lbl{display:none}.upload-grid{grid-template-columns:1fr}
 }
-@media(max-width:600px){.three,.gallery,.steps,.tiers,.grid{grid-template-columns:1fr 1fr}.mygames{grid-template-columns:1fr}}
+@media(max-width:600px){.three,.gallery,.steps,.tiers,.grid{grid-template-columns:1fr 1fr}.mygames{grid-template-columns:1fr}.ppp{grid-template-columns:1fr}.fair-vs{grid-template-columns:1fr}}
 </style>
 <div id="root"></div>
 

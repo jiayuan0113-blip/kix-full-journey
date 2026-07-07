@@ -1,15 +1,7 @@
 /* bilingual data — default EN, optional ZH. pick with P(lang, obj) */
 const P = (lang, o) => (o && (o[lang] !== undefined ? o[lang] : o.en));
 
-/* landing headline (locked to B) */
-const HEADLINE = {
-  en: { a: "Make a game, ", b: "bring customers back", c: "" },
-  zh: { a: "做个小游戏，", b: "把顾客带回店里", c: "" },
-};
-const SUB_LANDING = {
-  en: ["AI builds your branded game — customers play, win a voucher and walk in, ", "and lapsed regulars come back on their own."],
-  zh: ["AI 帮你做品牌小游戏，客人扫码玩、赢券进店，", "老客自动召回。"],
-};
+/* landing headline & sub-line are now rendered inline in Hero() via tr() */
 
 /* prizes (shared by hero wheel + flow); lose flag instead of string match */
 const PRIZES = [
@@ -185,4 +177,4 @@ const DEFAULT_ACTIVITIES = [
     gameId:"wheel", status:"offline" },
 ];
 
-Object.assign(window, { P, HEADLINE, SUB_LANDING, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
+Object.assign(window, { P, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });

@@ -13,7 +13,7 @@
 
 让街边小店用 AI 在 30 分钟内做一个带自己品牌的营销小游戏；客人扫码玩、赢券、**到店扫码/滑动核销**才计一次；商家在后台看「真实到店」数据，并能一键召回老客。
 
-定位主线（落地页标题，已锁定）：**把路过的人，变成回头客**（Turn passers-by into regulars）。
+定位主线：**把路过的人，变成回头客**（Turn passers-by into regulars）。落地页大标题（2026-07-07 并入老板稿）：**They play. They pay. They stay.**（玩 → 付 → 留）。
 
 ---
 
@@ -162,17 +162,19 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 ## 4. 各页面规格
 
-### 4.1 落地页 Landing（重构 2026-07-06：叙事顺序 = 是什么→怎么用→解决方案→收益/证据）
-**IA 顺序**（依据 Clarity→Comprehension→Credibility→Conversion；Harry Dry 5 秒清晰律；行业专属故事转化高 5×、店照证言 +69%。三体文档见 `Desktop/Mozat/kix/[方案] 2026-07-06 落地页重构 三体决策.md`）：
-1. **Hero｜是什么**：标题 **「做个小游戏，把顾客带回店里」**（"带回店里"高亮；机制"小游戏"+结果同框，改掉旧"把路过的人变成回头客"的品类模糊）+ 副标「AI 帮你做品牌小游戏，客人扫码玩、赢券进店，老客自动召回。」+ 双 CTA + **信任条**（●●● 一芳水果茶、街角冰激凌店、咖啡店 都在用）+ 右侧视频占位。
-2. 闭环带（机制唯一出处）：扫码玩→赢券→到店核销→老客召回。
-3. **How it works｜三步做好，开门收客**（上移到收益之前）。
-4. **玩法引擎（解决方案层）｜「一套玩法引擎，AI 挑一个适合你店的玩法」**：展示**玩法机制**而非店型游戏。8 张**方形**小卡（`aspect-ratio:1/1`，非 9:16），名字=纯玩法名且**与动画一致**：幸运大转盘(spin)/刮刮乐(scratch)/叠叠乐(stack)/合成(merge)/接一接(drop)/翻牌(flip)/投投乐(hoop)/抽一抽(draw) + 1000+ 模板脚注。
-5. **收益｜拉新客·召回老客·看得清账**（三卡，移到理解之后）。
-6. **商家的故事（新增·证据层）｜「真实的店，真实的到店」**：3 张 `.story` 卡 = 店 logo/店照(`stories/*.png`，缺图回退文字占位) + 店名/店型 + 大数字指标 + 老板引述。当前：一芳水果茶 48% 到店 / 冰激凌店 1,500 新客 / 咖啡店 29% 召回。⚠️ 真实商家名/数据需授权公开。
-7. 价格 → 8. 结尾 CTA / 页脚。
-- **价格（对齐已确认模型）**：免费 S$0「每月前 50 位到店免费，超出 S$3/位」· 专业 S$49/月「不限到店，首月免费」（**删除旧"或按 S$3/到店"**——S$3 是免费版超额价、非专业版选项）· 连锁 联系我们。见 §6 计费。
-- 原型组件：`Hero/Steps/Gallery/ThreeThings/Stories/Pricing`；`STORIES` 数据 + `.story*`/`.trustbar*` CSS。
+### 4.1 落地页 Landing（重做 2026-07-07：并入老板设计稿 boss LEAN；叙事 = 是什么→怎么用→看你的游戏→为什么有效→价格→FAQ→CTA）
+**IA 顺序**：
+1. **Hero｜是什么**：眉标 `TURN YOUR BUSINESS INTO A PLAYGROUND` + 三行大标题「They play. / They pay. / They stay.」（stay 绿高亮）+ 价值 chips（3 min to launch · S$0 to start · No credit card · No hardware）+ CTA = **输入框「Your business name」+「See my game →」按钮**（点击 → 建游戏流 `go`）+ 右侧「空店场景」插画（"Another slow day… same empty seats"，纯 CSS `.hscene`）+ 其下**闭环 flow-cap**（A customer plays → wins a voucher → walks in & redeems → becomes a regular）。
+2. **走查 Walkthrough｜See the game your customer plays**（`id=the-game`）：5 屏真机截图（`walkthrough/poster|play|win|redeem.png`，一芳素材；②「扫码」为 CSS 占位、无真图）+ 箭头 + PLAY/PAY/STAY 三卡（无 emoji）。
+3. **See your game（WOW）**：两行标题「Type your business name / See your game in 3 min」（第二行绿）+ 副标（AI matches 1,000+ formats… your logo & colors）+ 输入框按钮 + note（Free · no credit card）+ 右侧游戏图（`walkthrough/play.png`）。
+4. **为什么有效 WhyGame｜Why a game beats a discount**（`id=why`）：3 卡（Rewards never cash / Every visit is verified / Every game feeds the network），**真实 icon**（gift/shield/globe），复用 `.steps/.stp/.si`。
+5. **价格 Pricing**（`id=pricing`）：见下。
+6. **FAQ｜Everything a business owner asks**（`id=questions`）：6 条，**静态全展开**（去掉 + 折叠——已讲完无需展开）。
+7. **结尾 CTA**：「Every business deserves its own playground」（playground 绿）+「Build my game — free」+ 细则（No credit card · first 3 months free · cancel anytime）+ 页脚。
+- **Nav**：The game · Why it works · Pricing · Questions（点击平滑滚动到对应 `id`；EN/中文 + 登录 + 免费开始 保留）。
+- **价格模型（2026-07-07 定：按结果付费）**：FREE FOREVER S$0 ·「PAY PER RESULT」from **S$3 / new customer**（前 3 个月免费 · 价格锁定 · **永不收软件费**）· CHAINS 联系我们 + 底注（只为结果付费、老客永远免费）。⚠️ **与 #58「我的」页 `PLANS`「专业 S$49/月」订阅模型冲突**，后台计费侧待对齐（DRI 待定）。
+- 原型组件：`Hero/Walkthrough/SeeYourGame/WhyGame/Pricing/Faq` + 结尾 CTA；CSS `.hscene/.hero-tag/.wt-*/.ppp*/.wow-*/.pnote`；新增 `Ic.globe`。**已从落地页移除渲染**：`Steps/Gallery/ThreeThings/Stories/FairDeal`（组件函数仍留在 `journey.jsx`，便于回退）。**已删数据**：`HEADLINE/SUB_LANDING`。
+- ⚠️ 全站中文为占位草稿，待 Joyce 定稿。
 
 ### 4.2 建游戏 — 步数随是否登录而变 ⭐
 > 由旧 6 步压缩（三体调研：先给成品再要注册，对标 Durable/Carrd/Canva）。合并两个 loader、把「试玩」「品牌」折叠进预览。
