@@ -170,8 +170,8 @@ function Demo({ game, brand }) {
 }
 
 /* ===================== flow chrome + loader ===================== */
-const STEPS = [{en:"Describe",zh:"描述"},{en:"Pick a game",zh:"选游戏"},{en:"Preview & publish",zh:"预览发布"}];
-const STEPS_RET = [{en:"Pick a game",zh:"选游戏"},{en:"Edit game",zh:"修改游戏"}]; // 登录后建游戏：免描述，2 步
+const STEPS = [{en:"Name",zh:"店名"},{en:"Pick a game",zh:"选游戏"},{en:"Publish",zh:"上线"}]; // 店名在首页输入=第1步(已完成)
+const STEPS_RET = [{en:"Pick a game",zh:"选游戏"},{en:"Edit & publish",zh:"改游戏 · 上线"}]; // 登录后建游戏：免店名，2 步
 function Stepper({ idx, steps = STEPS }) {
   const lang = useLang();
   return (<div className="stepper">{steps.map((s, i) => (
@@ -201,6 +201,7 @@ function Loader({ title, who, tasks, onDone }) {
 /* ===================== landing ===================== */
 function Hero({ go }) {
   const lang = useLang();
+  const [name, setName] = useState("");
   return (
     <section className="hero">
       <div>
@@ -213,8 +214,8 @@ function Hero({ go }) {
           <span className="hchip">{tr(lang,"No hardware","不用装设备")}</span>
         </div>
         <div className="wow-form">
-          <input placeholder={tr(lang,"Your business name","你的店名")} />
-          <button className="btn primary" onClick={go}>{tr(lang,"See my game →","看我的游戏 →")}</button>
+          <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
+          <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
         </div>
       </div>
       <div className="visual">
@@ -271,6 +272,7 @@ function Walkthrough() {
 }
 function SeeYourGame({ go }) {
   const lang = useLang();
+  const [name, setName] = useState("");
   return (
     <section className="sec">
       <div className="wow2">
@@ -278,8 +280,8 @@ function SeeYourGame({ go }) {
           <h2 className="wow-h">{tr(lang,"Type your business name","输入你的店名")}<br/><span className="hl">{tr(lang,"See your game in 3 min","3 分钟看到你的游戏")}</span></h2>
           <p className="wow-sub">{tr(lang,"Our AI matches 1,000+ formats to your trade and auto-brands one with your logo & colors.","AI 从上千种玩法里匹配你的行业，自动套上你的 logo 和品牌色。")}</p>
           <div className="wow-form">
-            <input placeholder={tr(lang,"Your business name","你的店名")} />
-            <button className="btn primary" onClick={go}>{tr(lang,"See my game →","看我的游戏 →")}</button>
+            <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
+            <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
           </div>
           <div className="wow-note">{tr(lang,"Free · no credit card","免费 · 无需信用卡")}</div>
         </div>
@@ -416,17 +418,16 @@ function Pricing({ go }) {
     <section className="sec">
       <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free. Pay only for new customers.","免费开始，只为新客付费")}</h2>
       <div className="tiers">
-        <div className="tier"><div className="tname">{tr(lang,"FREE FOREVER","永久免费")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"The software is free — always. Launch your game and start filling seats.","软件永远免费。上线你的游戏，把座位填满。")}</div>
+        <div className="tier"><div className="tname">{tr(lang,"FREE FOREVER","永久免费")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"For your very first game.","适合做你的第一个游戏。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"1 branded game","1 个品牌游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"Unlimited plays","不限游玩次数")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + dashboard","到店核销 + 看板")}</li></ul>
           <button className="btn ghost" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
-        <div className="tier pop"><div className="pbadge">{tr(lang,"Best value","最超值")}</div><div className="tname">{tr(lang,"PAY PER RESULT","按结果付费")}</div><div className="price"><span style={{ fontSize:"15px", fontWeight:700, color:"var(--muted)" }}>{tr(lang,"from ","低至 ")}</span>S$3<small>{tr(lang," / new customer"," / 位新客")}</small></div><div className="pdesc">{tr(lang,"Pay only for a genuinely new customer at your door — never a software fee. First 3 months free · price locked.","只为真正到店的新客付费 —— 永不收软件费。前 3 个月免费 · 价格锁定。")}</div>
+        <div className="tier pop"><div className="pbadge">{tr(lang,"Best value","最超值")}</div><div className="tname">{tr(lang,"PAY PER RESULT","按结果付费")}</div><div className="price"><span style={{ fontSize:"15px", fontWeight:700, color:"var(--muted)" }}>{tr(lang,"from ","低至 ")}</span>S$3<small>{tr(lang," / new customer"," / 位新客")}</small></div><div className="pdesc">{tr(lang,"First 3 months free · price locked.","前 3 个月免费 · 价格锁定。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Auto win-back for regulars","老客自动召回")}</li><li><span className="ck"><Check/></span>{tr(lang,"New-customer attribution","新客到店归因")}</li></ul>
           <button className="btn primary" onClick={go}>{tr(lang,"Get started","立即开始")}</button></div>
-        <div className="tier"><div className="tname">{tr(lang,"CHAINS","连锁版")}</div><div className="price">{tr(lang,"Contact us","联系我们")}</div><div className="pdesc">{tr(lang,"Multi-outlet, custom games and integrations.","多门店、定制玩法与对接。")}</div>
+        <div className="tier"><div className="tname">{tr(lang,"CHAINS","连锁版")}</div><div className="price">{tr(lang,"Contact us","联系我们")}</div><div className="pdesc">{tr(lang,"For growing multi-outlet brands.","适合成长中的多门店品牌。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"Multi-city · multi-outlet","多城市 · 多门店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Dedicated success manager","专属客户成功")}</li><li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","API / POS 对接")}</li></ul>
           <button className="btn ghost">{tr(lang,"Book a call","预约沟通")}</button></div>
       </div>
-      <div className="pnote">{tr(lang,"No software fees, ever — you pay for ","没有软件费 —— 你只为")}<b>{tr(lang,"results","结果")}</b>{tr(lang,", not access. Your own regulars are ","付费，而非使用权。你的老客")}<b>{tr(lang,"always free","永远免费")}</b>{tr(lang," to reward.","可奖励。")}</div>
     </section>
   );
 }
@@ -518,15 +519,41 @@ function Describe({ need, setNeed, onNext }) {
 }
 function Results({ need, onPick, onBack }) {
   const lang = useLang();
+  const n = TEMPLATES.length;
+  const [i, setI] = useState(Math.max(0, TEMPLATES.findIndex(t=>t.recommended)));
+  const name = (need||"").trim() || tr(lang,"your shop","你的店");
+  // 由店名派生一套稳定的品牌配色，全部卡片共用 → 传达"同一个品牌、不同玩法"
+  const color = COLOR_SETS[[...name].reduce((a,c)=>a+c.charCodeAt(0),0) % COLOR_SETS.length];
+  const go = (d) => setI(x => (x+d+n)%n);
+  const at = (o) => TEMPLATES[(i+o+n)%n];
+  const Phone = ({ t }) => (
+    <div className="pkph">
+      <div className="pkph-scr"><GamePreview kind={t.kind} colors={color} /></div>
+      <div className="pkph-nm">{P(lang,t.name)}</div>
+    </div>
+  );
   return (
-    <div className="canvas">
-      <div className="results-head"><div><div className="f-eye">{tr(lang,"Tap any to try it","点开任意一款即可试玩")}</div><h1>{tr(lang,"8 games for ","为")}<b>{tr(lang,'"','「')}{need || tr(lang,"your shop","你的店")}{tr(lang,'"','」')}</b>{tr(lang,"","挑了 8 款")}</h1></div><button className="relink" onClick={onBack}><Ic.back style={{ width:14, height:14, verticalAlign:"-2px" }}/> {tr(lang,"Back","返回")}</button></div>
-      <div className="grid">{TEMPLATES.map(t => (
-        <div key={t.id} className="gcard" onClick={()=>onPick(t)}>
-          {t.recommended && <div className="ribbon"><span className="dot"></span>{tr(lang,"AI pick","AI 首选")}</div>}
-          <div className="thumb"><GamePreview kind={t.kind} colors={t.g} /><div className="play"><span><Ic.play/> {tr(lang,"Try it","试玩")}</span></div></div>
-          <div className="gmeta"><div className="gname">{P(lang,t.name)}</div><div className="gtag">{P(lang,t.tag)}</div></div>
-        </div>))}</div>
+    <div className="canvas pk-wrap">
+      {onBack && <button className="canvas-back" style={{ alignSelf:"flex-start" }} onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
+      <div className="center" style={{ marginBottom:4 }}>
+        <div className="f-eye">{tr(lang,"STEP 2 · PICK A GAME","第 2 步 · 选一个游戏")}</div>
+        <h1 className="big">{tr(lang,"Pick the one you like","挑一个你喜欢的")}</h1>
+        <p className="sub">{tr(lang,"Each is already branded ","每个都套好「")}<b>{name}</b>{tr(lang," — swipe to browse.","」了 · 左右滑动看更多")}</p>
+      </div>
+      <div className="pk-deck">
+        <button className="pk-nav" onClick={()=>go(-1)} aria-label="prev"><Ic.back style={{ width:20, height:20 }}/></button>
+        <div className="pk-cards">
+          <div className="pk-slot side" onClick={()=>go(-1)}><Phone t={at(-1)} /></div>
+          <div className="pk-slot mid"><Phone t={at(0)} /></div>
+          <div className="pk-slot side" onClick={()=>go(1)}><Phone t={at(1)} /></div>
+        </div>
+        <button className="pk-nav" onClick={()=>go(1)} aria-label="next"><Ic.back style={{ width:20, height:20, transform:"scaleX(-1)" }}/></button>
+      </div>
+      <div className="pk-dots">{TEMPLATES.map((_,k)=><span key={k} className={"pk-dot"+(k===i?" on":"")} onClick={()=>setI(k)} />)}</div>
+      <div className="btn-row pk-actions">
+        <button className="btn ghost lg" onClick={()=>go(1)}>{tr(lang,"Next","下一个")}</button>
+        <button className="btn primary lg" onClick={()=>onPick(at(0), color)}>{tr(lang,"Use this game","用这个游戏")} <Ic.arrow/></button>
+      </div>
     </div>
   );
 }
@@ -650,7 +677,7 @@ function OutletScope({ outlets, gameOutlets, setGameOutlets, setOutlets, locked 
 const NEUTRAL_BRAND_COLOR = ["#9AA6B2","#C4CDD6"]; // 未品牌化前的中性模板配色
 function Preview({ game, brand, setBrand, onLaunch, onBack }) {
   const lang = useLang();
-  const [branded, setBranded] = useState(false);   // 是否已生成品牌版
+  const [branded, setBranded] = useState(true);    // 第2步已按店名套好品牌 → 进来即编辑态，直接上线
   const [gen, setGen] = useState(false);            // 变身动效进行中
   // 用户是否提供了素材（决定按钮文案 + IKEA 拥有感门槛）
   const hasInput = !!brand.logo || (brand.products && brand.products.length > 0) || (brand.color && brand.color[0] !== "#16A34A");
@@ -668,7 +695,7 @@ function Preview({ game, brand, setBrand, onLaunch, onBack }) {
   return (
     <div className="canvas wide">
       {onBack && <button className="canvas-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
-      <div className="center" style={{ marginBottom:18 }}><div className="f-eye">{branded ? tr(lang,"Your branded game","你的专属游戏") : tr(lang,"Your game is ready","你的游戏，做好了")}</div><h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{branded ? tr(lang,"Happy with it? Confirm","满意就确认") : tr(lang,"Make it yours, then generate","换成你的品牌，点生成")}</h1></div>
+      <div className="center" style={{ marginBottom:18 }}><div className="f-eye">{branded ? tr(lang,"STEP 3 · PUBLISH","第 3 步 · 上线") : tr(lang,"Your game is ready","你的游戏，做好了")}</div><h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{branded ? tr(lang,"One last tweak","最后微调一下") : tr(lang,"Make it yours, then generate","换成你的品牌，点生成")}</h1></div>
       <div className="preview lite">
         <div className="demo-stage" style={{ position:"relative" }}>
           <div className={"demo-skin" + (branded ? " on" : "")}><Demo game={game} brand={shown}/></div>
@@ -680,10 +707,10 @@ function Preview({ game, brand, setBrand, onLaunch, onBack }) {
           <p className="ph-sub" style={{ margin:"12px 2px 0" }}>{branded ? tr(lang,"Fine-tune live on the right. Set vouchers & outlets in your Activity next.","右侧可实时微调。下一步在「活动」里设奖品券和门店。") : tr(lang,"Upload your logo & colors, then generate your branded game.","传上 logo 和配色，一键生成你的定制游戏。")}</p>
           {/* 上一步在页面左上角；这一行固定：左=重新生成(生成后)，右=确认(主按钮，位置恒定) */}
           <div className="btn-row" style={{ marginTop:16, justifyContent:"space-between" }}>
-            {branded ? <button className="btn ghost lg" onClick={generate}><Ic.refresh/> {tr(lang,"Re-generate","重新生成")}</button> : <span/>}
+            {branded ? <button className="btn ghost lg" onClick={generate}><Ic.refresh/> {tr(lang,"Shuffle look","换个样子")}</button> : <span/>}
             {!branded
               ? <button className="btn primary lg" onClick={generate} disabled={gen}><Ic.spark style={{ width:18, height:18 }}/> {gen ? tr(lang,"Generating…","生成中…") : hasInput ? tr(lang,"Generate my game","生成我的定制游戏") : tr(lang,"Generate with suggested colors","用推荐配色生成")}</button>
-              : <button className="btn primary lg" onClick={onLaunch}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm","确认")}</button>}
+              : <button className="btn primary lg" onClick={onLaunch}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Publish","上线")}</button>}
           </div>
         </div>
       </div>
@@ -1672,7 +1699,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
 /* ===================== app ===================== */
 /* one narrated loader = matching + generating fused (Buell & Norton labor-illusion: visible work feels valuable) */
 const BUILD_TASKS = [{en:"Reading your shop type",zh:"读懂你的店型"},{en:"Scanning 1,012 game templates",zh:"扫描 1,012 个玩法模板"},{en:"Ranking by walk-in conversion",zh:"按到店转化率排序"},{en:"Picking the best fits",zh:"挑出最合适的几款"}];
-const STEP_IDX = { describe:0, building:0, results:1, preview:2, done:2 };       // first-run 3 步
+const STEP_IDX = { describe:0, building:1, results:1, preview:2, done:2 };       // 店名(0)在首页完成→loader/选游戏=1, 上线=2
 const STEP_IDX_RET = { describe:0, building:0, results:0, preview:1, done:1 };   // 登录后 2 步
 
 function App() {
@@ -1682,7 +1709,7 @@ function App() {
   const [screen, setScreen] = useState(initScreen);
   const [authed, setAuthed] = useState(_p.get("authed") === "1" || ["app","dashboard"].includes(initScreen));
   const [appSec, setAppSec] = useState(_p.get("sec") || (initScreen === "dashboard" ? "reports" : "home"));
-  const [need, setNeed] = useState("");
+  const [need, setNeed] = useState(_p.get("need") || "");
   const [game, setGame] = useState(TEMPLATES[0]);
   const [brand, setBrand] = useState({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] });
   const [outlets, setOutlets] = useState(OUTLETS.map(o => ({ ...o })));
@@ -1694,7 +1721,8 @@ function App() {
   const top = () => window.scrollTo(0,0);
   const toLanding = () => { setScreen("landing"); top(); };
   const enterApp = (sec) => { if (sec) setAppSec(sec); setScreen("app"); top(); };
-  const startBuild = () => { setNeed(""); setGame(TEMPLATES[0]); setBrand({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] }); setScreen(authed ? "results" : "describe"); top(); };
+  // 店名从首页 hero 输入带入(name)；未登录跳过 describe 直接进 loader→选游戏(swipe)
+  const startBuild = (name) => { const nm = typeof name==="string" ? name.trim() : ""; setNeed(nm); setGame(TEMPLATES[0]); setBrand({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] }); setScreen(authed ? "results" : "building"); top(); };
   const toPublishGate = () => { setScreen("register"); top(); };
   const backToPreview = () => { setScreen("preview"); top(); };
   // 第三步「确认」= 保存游戏(视觉)，不自动建活动；直接进主页（此时有游戏、无活动 → 主页空态引导建活动）
@@ -1714,7 +1742,7 @@ function App() {
   let flowStep = null;
   if (screen === "describe") flowStep = <Describe need={need} setNeed={setNeed} onNext={()=>setScreen("building")} />;
   else if (screen === "building") flowStep = <div className="canvas narrow"><Loader title={tr(lang,"Matching games for","正在为你挑玩法")} who={need || tr(lang,"your shop","你的店")} tasks={buildTasks} onDone={()=>setScreen("results")} /></div>;
-  else if (screen === "results") flowStep = <Results need={need} onPick={t=>{ setGame(t); setScreen("preview"); top(); }} onBack={()=> authed ? enterApp(appSec) : setScreen("describe")} />;
+  else if (screen === "results") flowStep = <Results need={need} onPick={(t,c)=>{ setGame(t); if(c) setBrand(b=>({...b,color:c})); setScreen("preview"); top(); }} onBack={()=> authed ? enterApp(appSec) : toLanding()} />;
   else if (screen === "preview" && authed) flowStep = <div><Workspace game={game} brand={brand} setBrand={setBrand} /><div style={{ display:"flex", gap:12, justifyContent:"flex-end", padding:"16px 28px" }}><button className="btn ghost lg" onClick={()=>{ setScreen("results"); top(); }}><Ic.back style={{ width:16, height:16 }}/> {tr(lang,"Back","上一步")}</button><button className="btn primary lg" onClick={publishDone}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Save game","保存游戏")}</button></div></div>;
   else if (screen === "preview") flowStep = <Preview game={game} brand={brand} setBrand={setBrand} onLaunch={toPublishGate} onBack={()=>{ setScreen("results"); top(); }} />;
 

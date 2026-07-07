@@ -361,6 +361,27 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .ribbon{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;box-shadow:var(--sh)}
 .ribbon .dot{width:6px;height:6px;border-radius:999px;background:var(--green-br)}
 
+/* ===== game picker (swipe deck) ===== */
+.pk-wrap{display:flex;flex-direction:column;align-items:center}
+.pk-deck{display:flex;align-items:center;gap:8px;margin-top:18px;width:100%;justify-content:center}
+.pk-cards{display:flex;align-items:center;justify-content:center;gap:14px}
+.pk-slot{transition:opacity .28s;flex:none}
+.pk-slot.mid{z-index:2}
+.pk-slot.side{opacity:.5;cursor:pointer;filter:saturate(.85)}
+.pk-slot.side .pkph{width:246px}
+.pk-slot.side:hover{opacity:.72}
+.pkph{width:330px;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--sh);padding:16px 16px 18px;display:flex;flex-direction:column}
+.pk-slot.mid .pkph{box-shadow:0 28px 54px -18px rgba(11,18,32,.38);border-color:var(--green-100)}
+.pkph-scr{position:relative;aspect-ratio:10/16;border-radius:18px;overflow:hidden;background:#0B1220}
+.pkph-scr .gp-tag{display:none}
+.pkph-nm{text-align:center;font-weight:700;font-size:17px;letter-spacing:-.01em;margin-top:13px}
+.pk-nav{width:40px;height:40px;border-radius:999px;background:#fff;border:1px solid var(--line);box-shadow:var(--sh);display:grid;place-items:center;color:var(--ink-2);flex:none;transition:transform .15s,background .15s}
+.pk-nav:hover{background:var(--green-50);transform:scale(1.06);color:var(--green-d)}
+.pk-dots{display:flex;gap:7px;justify-content:center;margin-top:20px}
+.pk-dot{width:7px;height:7px;border-radius:999px;background:var(--line);cursor:pointer;transition:background .2s,transform .2s}
+.pk-dot.on{background:var(--green-d);transform:scale(1.25)}
+.pk-actions{margin-top:22px;justify-content:center;gap:12px}
+
 .detail{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:40px;align-items:center}
 .demo-stage{background:radial-gradient(120% 120% at 50% 0%,#fff,#EAF2EE);border:1px solid var(--line);border-radius:26px;padding:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:440px;box-shadow:var(--sh)}
 .demo-live{font-size:12px;font-weight:700;color:var(--green-d);display:flex;align-items:center;gap:7px;align-self:flex-start;background:var(--green-50);padding:6px 12px;border-radius:999px;margin-bottom:6px}

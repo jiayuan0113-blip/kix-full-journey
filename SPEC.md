@@ -78,7 +78,7 @@
 - `activities`：商家的活动数组，每项含 `{id, name, outletIds, vouchers, gameId, status}`。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色)。
 
 ---
 
@@ -101,9 +101,9 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - 登录后再建游戏，第二步用**完整工作台**（Workspace），点「保存游戏」**跳过注册**，把游戏存进 myGames，直接落到**主页**（已是登录态，不再有 done 页）。
 - **发布游戏 ≠ 自动建活动**：保存游戏只进 My games；要让客人扫码玩，得去「活动」里新建活动并绑定该游戏、配券、选门店、提交审核上线。
 
-### 3.4 Describe 仅首次出现
-- **首次（未登录）**：问「你的店是做什么的？」，可填**店名或店型**，chips=店名(星巴克/麦当劳)+店型(咖啡/奶茶/烘焙/美甲)，底部可选「网站/社媒」。
-- **登录后：不再有描述步**（见 4.2，直接到选游戏）。原「按活动目标匹配」的设想已废——目标不改变玩法本身，是机制(到店核销/自动召回)带来拉新/复购。
+### 3.4 店名在首页输入，无独立描述步（2026-07-07 起）
+- **首次（未登录）**：店名在**落地页 hero** 输入（受控），点「See my game」带入建游戏流；**已删原独立 `describe` 店型屏**。`Describe` 组件仍在 `journey.jsx` 但未渲染（死路径，便于回退）。
+- **登录后**：点「新建游戏」直接到选游戏(swipe)。原「按活动目标/店型匹配」已废——目标不改变玩法本身，是机制(到店核销/自动召回)带来拉新/复购。
 
 ### 3.5 品牌素材来源
 - 「我的 / 品牌素材库」存 logo、品牌色（上传 logo 自动取色）、商品图。
@@ -172,22 +172,22 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 6. **FAQ｜Everything a business owner asks**（`id=questions`）：6 条，**静态全展开**（去掉 + 折叠——已讲完无需展开）。
 7. **结尾 CTA**：「Every business deserves its own playground」（playground 绿）+「Build my game — free」+ 细则（No credit card · first 3 months free · cancel anytime）+ 页脚。
 - **Nav**：The game · Why it works · Pricing · Questions（点击平滑滚动到对应 `id`；EN/中文 + 登录 + 免费开始 保留）。
-- **价格模型（2026-07-07 定：按结果付费）**：FREE FOREVER S$0 ·「PAY PER RESULT」from **S$3 / new customer**（前 3 个月免费 · 价格锁定 · **永不收软件费**）· CHAINS 联系我们 + 底注（只为结果付费、老客永远免费）。⚠️ **与 #58「我的」页 `PLANS`「专业 S$49/月」订阅模型冲突**，后台计费侧待对齐（DRI 待定）。
+- **价格模型（2026-07-07 定：按结果付费）**：FREE FOREVER S$0 ·「PAY PER RESULT」from **S$3 / new customer**（前 3 个月免费 · 价格锁定）· CHAINS 联系我们。⚠️ **与 #58「我的」页 `PLANS`「专业 S$49/月」订阅模型冲突**，后台计费侧待对齐（DRI 待定）。
+- **卡文案去重（#62）**：三卡描述改为"只讲 bullet 不讲的一件事"——FREE=`适合做你的第一个游戏。`；PAY=`前 3 个月免费 · 价格锁定。`（去掉与价格标签重复的"只为新客付费"及"永不收软件费"）；CHAINS=`适合成长中的多门店品牌。`（原描述是下方 bullet 的复述）。**已删**三卡下方 `.pnote` 底注（与卡描述 + 上方 WhyGame「老客免费」段重复）。
 - 原型组件：`Hero/Walkthrough/SeeYourGame/WhyGame/Pricing/Faq` + 结尾 CTA；CSS `.hscene/.hero-tag/.wt-*/.ppp*/.wow-*/.pnote`；新增 `Ic.globe`。**已从落地页移除渲染**：`Steps/Gallery/ThreeThings/Stories/FairDeal`（组件函数仍留在 `journey.jsx`，便于回退）。**已删数据**：`HEADLINE/SUB_LANDING`。
 - ⚠️ 全站中文为占位草稿，待 Joyce 定稿。
 
-### 4.2 建游戏 — 步数随是否登录而变 ⭐
-> 由旧 6 步压缩（三体调研：先给成品再要注册，对标 Durable/Carrd/Canva）。合并两个 loader、把「试玩」「品牌」折叠进预览。
-- **未登录＝3 步**（步骤条：描述 / 选游戏 / 预览发布）：
-  1. **描述**（`describe`）：问店型/店名。placeholder 含店名示例（如「星巴克，或『街角的咖啡店』」）；**店型 chips = 10 大类**（奶茶 / 甜品 / 咖啡 / 生鲜 / 便利店 / 桌游 / 运动 / 宠物 / 美妆 / 时尚，`EXAMPLES`，中英双语）；底部一个**可选**「网站或社媒」字段（用于自动取 logo/配色）。
-  2. **〔一个叙事 loader〕**（`building`）：合并原匹配+生成，逐条旁白。labor-illusion，≤60s。
-  3. **选一款**（`results`）→ 点一张直接进**预览**。
-- **登录后＝2 步**（步骤条：选游戏 / 修改游戏）：⭐ 点「新建游戏」**跳过描述与 loader，直接到选游戏** → **修改游戏**（完整三栏工作台：左 AI 对话 + 中预览 + 右品牌控制，与 My games 的 Workspace 同一组件）+ 底部「上一步」「保存游戏」按钮。
-- **可编辑预览**（`preview`）：左=已套品牌的**可玩**游戏；右侧=仅 `BrandControls`（换色 + 传 logo 自动取色 + 商品图）。
-  - **不再显示券和门店**——券和门店是「活动」的属性，不是游戏的（见 3.9）。提示「保存后在活动中设置奖品券和门店」。
-  - 两个按钮并排：**「← 上一步」**（返回选游戏页）+ **「上线 + 打印二维码」**（发布）。发布时自动创建一个默认活动（起步 1 张券、全部门店）。
-  - **已删**预览左上「你的专属游戏·已套用品牌」标签与「怎么收费」整段。
-- 步骤条**水平居中**于顶栏。
+### 4.2 建游戏 — 步数随是否登录而变 ⭐（2026-07-07 重做：店名前移到首页 + 选游戏改 swipe 轮换）
+> 由旧 6 步压缩（三体调研：先给成品再要注册，对标 Durable/Carrd/Canva）。**2026-07-07 起：第 1 步"店名"直接在落地页 hero 输入，未登录建游戏不再有独立"描述/店型"屏。**
+- **未登录＝3 步**（步骤条：**店名 / 选游戏 / 上线**；`STEP_IDX` building/results=1、preview=2 —— 店名在首页完成即 step0 打勾）：
+  1. **店名**（落地页 hero / `SeeYourGame` 输入框，受控）：点「See my game」带店名进入建游戏流（`startBuild(name)` → 未登录直接 `building`）。**已删原 `describe` 店型屏**（"目标不改变玩法本身"，店型 chips 不再需要）。
+  2. **〔一个叙事 loader〕**（`building`）：`Loader` 逐条旁白「正在为 {店名} 挑玩法」。labor-illusion，≤60s。
+  3. **选游戏 = swipe 轮换**（`results`，重写，取代旧 8 宫格）：3 台手机 coverflow（中间 330px / 两侧 246px 半透可点），`←/→` 键、圆点、点侧卡都能切；全部卡用**由店名派生的同一套品牌配色**（`COLOR_SETS` 按店名字符哈希），传达"同一品牌、不同玩法"；卡上**无店名/头像条、无 Play 按钮、无 GAMEPLAY 角标**（预览自身在动）。单一动作 =「用这个游戏」→ 带出配色写入 `brand.color` → 进第 3 步。
+- **登录后＝2 步**（步骤条：选游戏 / 改游戏·上线，`STEPS_RET`）：⭐ 点「新建游戏」**跳过店名与 loader，直接到选游戏(swipe)** → **修改游戏**（完整三栏工作台 `Workspace`）+ 底部「上一步」「保存游戏」（存草稿，发布走 My games 卡）。
+- **第 3 步 = 编辑页直接上线**（`preview`）：进来即 `branded=true`（不再 neutral→生成的变身），左=已套品牌的**可玩**游戏；右=`BrandControls`（换色 + 传 logo 自动取色 + 商品图）；标题「最后微调一下」。
+  - **不再显示券和门店**——券和门店是「活动」的属性（见 3.9）。
+  - 左上「← 上一步」（回 swipe）；主按钮 **`上线`**（未登录 → 注册闸门 `toPublishGate`，符合"注册后置到发布闸门"）。
+- 步骤条**水平居中**于顶栏。「上一步」在 swipe 页移到**左上角**（`alignSelf:flex-start`）。
 
 ### 4.3 注册（发布闸门）
 - 字段：商家名称\*、国家/地区\*、手机号\*（WhatsApp）。**已删主页/网站字段**（移到建游戏第 1 步作为可选项）。

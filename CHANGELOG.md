@@ -6,6 +6,27 @@
 
 ## 2026-07-07
 
+### 62. 定价卡文案去重（描述不再复述 bullet）
+**改了什么**（Joyce 红框标注：卡描述与下方 ✓ 列表重复）：
+- **删**价格区三卡下方 `.pnote`（「没有软件费… 老客永远免费」——与卡描述 + 上方「我们从不为你的老客收费」整段重复）。
+- 三卡**描述行**改为"只讲 bullet 不讲的一件事"：
+  - FREE FOREVER：`软件永远免费。上线你的游戏，把座位填满。` → **`适合做你的第一个游戏。`**
+  - PAY PER RESULT：`只为真正到店的新客付费。前 3 个月免费 · 价格锁定。` → **`前 3 个月免费 · 价格锁定。`**（去掉与价格标签 `S$3/new customer` 重复的部分，只留 promo）；同时早先已去掉「永不收软件费」（标题 + FREE 卡已表达）。
+  - CHAINS：`多门店、定制玩法与对接。`（= 下方 bullet 复述）→ **`适合成长中的多门店品牌。`**
+**影响文件**：`journey.jsx`（`Pricing`）。
+**原则**：一处只说一件事；描述 = 定位/promo，✓ 列表 = features，不重叠。
+
+### 61. 建游戏流程重做：首页输店名 → swipe 选游戏 → 编辑上线（未登录 3 步）⭐
+**改了什么**：
+- **第 1 步 = 首页 hero 输入店名**：`Hero`/`SeeYourGame` 输入框改为受控，点「See my game」带店名进入（`startBuild(name)`）；**未登录跳过原 `describe` 屏**（直接 `building` loader → 选游戏），删掉"再选一次店型"的冗余步。
+- **第 2 步 = swipe 轮换选游戏**（重写 `Results`，取代原 8 宫格 `.grid`）：3 台手机 coverflow（中间 330px / 两侧 246px 半透可点），`←/→`、圆点、点侧卡都能切；全部卡用**由店名派生的同一套品牌配色**（`COLOR_SETS` 按店名哈希），传达"同一品牌、不同玩法"；单一提交动作 =「用这个游戏」（带出配色写入 `brand.color`）。
+- **第 3 步 = 编辑页直接上线**：`Preview` 初始即 `branded=true`（进来就是编辑态，不再 neutral→生成），主按钮 `确认` → **`上线`**；标题「最后微调一下」。
+- **Stepper**：`STEPS` = 店名 / 选游戏 / 上线；`STEP_IDX` building/results=1、preview=2（**店名在首页完成 = step0 自动打勾**）。
+- **文案去重**（对照参考稿，一处只说一件事）：卡片去掉店名/头像条、去掉中卡 Play 按钮（预览本身在动）、删 GAMEPLAY 角标（仅 `.pkph-scr` 内，落地页画廊保留）。
+- **新增调试参数** `?need=<店名>`（`App` 读 `need` 初值，便于直达选游戏/编辑页）。
+**影响文件**：`journey.jsx`（`Hero`/`SeeYourGame`/`Results`/`Preview`/`STEPS`/`STEP_IDX`/`startBuild`/results 路由）、`index.html`（新增 `.pk-*`/`.pkph*` CSS + `.pkph-scr .gp-tag{display:none}`）。
+**研发注意**：`describe`（`Describe` 组件）现为未渲染死路径（保留便于回退，可后续清理）；登录后建游戏仍是 2 步（选游戏 → 改游戏·上线，`STEPS_RET`）。
+
 ### 60. 落地页并入老板设计稿（boss LEAN）· 整段重做 ⭐
 **改了什么**（Joyce 按老板 LEAN 稿逐屏截图标注驱动；本条替换 #59 的落地页）：
 - **Hero**：H1 →「They play. / They pay. / They stay.」(stay 绿)；眉标 `TURN YOUR BUSINESS INTO A PLAYGROUND`；chips = 3 min to launch · S$0 to start · No credit card · No hardware；CTA 由双按钮改为**输入框「Your business name」+「See my game →」**(与 WOW 一致)；右侧视觉换成**空店场景**「Another slow day… same empty seats」(纯 CSS `.hscene`) + 其下**闭环 flow-cap**；**删**信任条(Already live…)、旧 lede、冗余 note。
