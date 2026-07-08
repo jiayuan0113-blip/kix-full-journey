@@ -78,17 +78,19 @@
 - `activities`：商家的活动数组，每项含 `{id, name, outletIds, vouchers, gameId, status}`。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步)。
 
 ---
 
 ## 3. 关键分支与边界（研发必须实现，原型只演示了主路径）
 
-### 3.1 注册后置（发布闸门）
-- **未登录全程免注册**：落地页→建游戏六步全部可用、可玩、可改。
-- 仅当点「上线 + 打印二维码」时弹注册（`register`）。注册页文案=发布语境（"最后一步：创建账号，发布上线"）。
-- 注册页返回箭头=「返回继续编辑」→ 回 `preview`，**不丢已做好的游戏**。
-- 已有账号入口：注册页底部「登录」。
+### 3.1 注册后置（发布闸门）+ 收卡（2026-07-08）
+- **未登录全程免注册**：落地页→建游戏全部可用、可玩、可改。
+- 仅当点「上线」时弹注册（`register`）。**注册 = 两子步：① 账号（店名/地区/手机）② 绑卡（Airwallex，收卡放最后一步）**。
+- **绑卡步信任设计**：条款副标题(首 3 月免费·之后 S$3/位新客·老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Airwallex 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Airwallex hosted fields**，原型 mock。
+- **返回统一**：内容区左上角「← 上一步」（绑卡步→账号步；账号步→回预览 `onBack`），顶栏右上「退出」——与建游戏各步一致。删掉原顶栏右上返回箭头（避免双返回）。
+- 收卡写入 `cardOnFile`（**state 提升到 App**），存活进后台：我的>账单显示 ••••、后续上线活动直接显示已绑卡。落地页所有 "no credit card" 文案已删。
+- 已有账号入口：账号步底部「登录」。
 
 ### 3.2 首次 vs 登录后建游戏（防死胡同）
 - **首次（`authed=false`）**：建游戏全屏、无侧栏（聚焦）；顶栏「退出」→ 回落地页。
@@ -182,7 +184,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - **未登录＝3 步**（步骤条：**店名 / 选游戏 / 上线**；`STEP_IDX` building/results=1、preview=2 —— 店名在首页完成即 step0 打勾）：
   1. **店名**（落地页 hero / `SeeYourGame` 输入框，受控）：点「See my game」带店名进入建游戏流（`startBuild(name)` → 未登录直接 `building`）。**已删原 `describe` 店型屏**（"目标不改变玩法本身"，店型 chips 不再需要）。
   2. **〔一个叙事 loader〕**（`building`）：`Loader` 逐条旁白「正在为 {店名} 挑玩法」。labor-illusion，≤60s。
-  3. **选游戏 = swipe 轮换**（`results`，重写，取代旧 8 宫格）：3 台手机 coverflow（中间 330px / 两侧 246px 半透可点），`←/→` 键、圆点、点侧卡都能切；全部卡用**由店名派生的同一套品牌配色**（`COLOR_SETS` 按店名字符哈希），传达"同一品牌、不同玩法"；卡上**无店名/头像条、无 Play 按钮、无 GAMEPLAY 角标**（预览自身在动）。单一动作 =「用这个游戏」→ 带出配色写入 `brand.color` → 进第 3 步。
+  3. **选游戏 = 单台大手机「这是你的游戏」**（`results`，2026-07-08 重做，取代 coverflow/8 宫格）：居中大标题「这是你的游戏」（已是基于店名的基础定制游戏预览，非从零挑；标题不说"玩"——这步只预览动效，试玩在下一步）+ **预览手机在左 / 操作在右**（与第 3 步对齐）。右栏：`你输入了 X ✎改`（可现场改店名→实时换品牌配色，`onRename=setNeed`）→ 游戏名 + `推荐理由`(取模板 `lede`) → **「用这个游戏」**（带出配色写入 `brand.color` → 第 3 步）。手机下方「换一个看看」（循环 TEMPLATES，控制离手机最近）。品牌配色由店名 `COLOR_SETS` 哈希派生。
 - **登录后＝2 步**（步骤条：选游戏 / 改游戏·上线，`STEPS_RET`）：⭐ 点「新建游戏」**跳过店名与 loader，直接到选游戏(swipe)** → **修改游戏**（完整三栏工作台 `Workspace`）+ 底部「上一步」「保存游戏」（存草稿，发布走 My games 卡）。
 - **第 3 步 = 编辑页直接上线**（`preview`）：进来即 `branded=true`（不再 neutral→生成的变身），左=已套品牌的**可玩**游戏；右=`BrandControls`（换色 + 传 logo 自动取色 + 商品图）；标题「最后微调一下」。
   - **不再显示券和门店**——券和门店是「活动」的属性（见 3.9）。

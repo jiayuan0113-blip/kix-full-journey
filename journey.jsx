@@ -210,7 +210,7 @@ function Hero({ go }) {
         <div className="hero-chips">
           <span className="hchip"><b>{tr(lang,"3 min","3 分钟")}</b>{tr(lang," to launch"," 上线")}</span>
           <span className="hchip"><b>S$0</b>{tr(lang," to start"," 起步")}</span>
-          <span className="hchip">{tr(lang,"No credit card","无需信用卡")}</span>
+          <span className="hchip">{tr(lang,"First 3 months free","前 3 个月免费")}</span>
           <span className="hchip">{tr(lang,"No hardware","不用装设备")}</span>
         </div>
         <div className="wow-form">
@@ -283,7 +283,7 @@ function SeeYourGame({ go }) {
             <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
             <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
           </div>
-          <div className="wow-note">{tr(lang,"Free · no credit card","免费 · 无需信用卡")}</div>
+          <div className="wow-note">{tr(lang,"First 3 months free","前 3 个月免费")}</div>
         </div>
         <div className="wow-visual">
           <div className="wow-phone">
@@ -328,7 +328,7 @@ function Faq() {
   const QA = [
     { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional — it just unlocks more games and rewards for the ones who love it.","不需要。扫码即在浏览器里玩。KiX App 是可选的 —— 只是给爱玩的人解锁更多游戏和奖励。") },
     { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可核销。不改 POS、不用开发、不用找代理。") },
-    { q:tr(lang,"What does it actually cost?","到底怎么收费？"),                                a:tr(lang,"The software is free — always. No credit card to try. You only pay for the new customers we bring you — never a monthly software fee.","软件永远免费，试用无需信用卡。你只为我们带来的新客付费 —— 从不收月度软件费。") },
+    { q:tr(lang,"What does it actually cost?","到底怎么收费？"),                                a:tr(lang,"Free for the first 3 months. After that you only pay for the new customers we bring you — never a monthly software fee, regulars always free.","前 3 个月免费。之后你只为我们带来的新客付费 —— 从不收月度软件费，老客永远免费。") },
     { q:tr(lang,"I already run a loyalty program — does this replace it?","我已有会员体系 —— 这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，是给它供血。KiX 把新客带进门，你的会员体系把他们留住。两者协同。") },
     { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good — that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger — and your players discover more places to play, right alongside you.","好啊 —— 这正是重点。他们得做自己的、套自己的品牌。每加入一家店，整个 KiX 网络就更大 —— 你的玩家也会发现更多可玩的店，就在你旁边。") },
     { q:tr(lang,"Is my customer data safe?","我的客户数据安全吗？"),                             a:tr(lang,"Yes. Your customers and their data stay with your business. KiX is the invisible engine — we never take your customers away.","安全。你的客户和他们的数据都留在你店里。KiX 是隐形引擎 —— 我们从不把你的客户带走。") },
@@ -449,7 +449,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
         <h2 className="final-h">{tr(lang,"Every business deserves its own ","每家店都值得拥有自己的 ")}<span className="hl">{tr(lang,"playground.","游乐场。")}</span></h2>
         <p className="final-sub">{tr(lang,"Go live today — and give every visit a reason to come back.","今天就上线 —— 让每一次到店都有回头的理由。")}</p>
         <button className="btn primary final-cta" onClick={go}>{tr(lang,"Build my game — free →","免费搭建我的游戏 →")}</button>
-        <div className="final-fine">{tr(lang,"No credit card to try · first 3 months free · cancel anytime","无需信用卡试用 · 前 3 个月免费 · 随时取消")}</div>
+        <div className="final-fine">{tr(lang,"First 3 months free · regulars always free · cancel anytime","前 3 个月免费 · 老客永远免费 · 随时取消")}</div>
       </section>
       <footer><div>{tr(lang,"KiX · built for neighbourhood shops","KiX · 为街边小店而做")}</div><div>Mozat Pte Ltd · Singapore</div></footer>
     </div>
@@ -457,19 +457,49 @@ function Landing({ go, onSignIn, lang, setLang }) {
 }
 
 /* ===================== register (publish gate) ===================== */
-function Register({ onDone, onSignIn }) {
+function Register({ onDone, onSignIn, onSaveCard, onBack }) {
   const lang = useLang();
+  const [rstep, setRstep] = useState(new URLSearchParams(location.search).get("rstep")==="card" ? "card" : "account");   // account → card（收卡放最后一步，Airwallex）
+  const goBack = () => { if (rstep === "card") setRstep("account"); else onBack && onBack(); };
   const [name, setName] = useState(""), [phone, setPhone] = useState(""), [country, setCountry] = useState(0);
-  const ok = name.trim() && phone.trim();
+  const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
+  const acctOk = name.trim() && phone.trim();
+  const cardOk = num.replace(/\s/g,"").length >= 12 && exp.trim().length >= 4 && cvc.trim().length >= 3;
+  const chargeDate = (() => { const d = new Date(); d.setMonth(d.getMonth()+3); return d.toLocaleDateString(lang==="zh"?"zh-CN":"en-GB",{ year:"numeric", month:"short", day:"numeric" }); })();
+  const finish = () => { onSaveCard && onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" }); onDone(); };
   return (
-    <div className="reg-wrap"><div className="reg-card">
-      <h1>{tr(lang,"Last step: create an account to publish","最后一步：创建账号，发布上线")}</h1>
-      <div className="field"><label>{tr(lang,"Shop name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)} placeholder={tr(lang,"e.g. Kopi Corner","例如：Kopi Corner")}/></div>
-      <div className="field"><label>{tr(lang,"Country / region","国家 / 地区")} <span className="req">*</span></label><select value={country} onChange={e=>setCountry(+e.target.value)}>{COUNTRIES.map((c,i)=><option key={i} value={i}>{c.flag} {P(lang,c)}</option>)}</select></div>
-      <div className="field"><label>{tr(lang,"Mobile","手机号")} <span className="opt">{tr(lang,"(for WhatsApp)","（用于 WhatsApp 联系）")}</span> <span className="req">*</span></label>
-        <div className="phonewrap"><input className="cc" value="+65" readOnly/><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9123 4567"/></div></div>
-      <button className="btn primary" disabled={!ok} onClick={onDone}>{tr(lang,"Create account & publish","创建账号并发布游戏")}</button>
-      <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。{tr(lang,"Have an account? ","已有账号？")}<a onClick={onSignIn} style={{ cursor:"pointer" }}>{tr(lang,"Sign in","登录")}</a></div>
+    <div className="reg-wrap">
+      <button className="canvas-back reg-back" onClick={goBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>
+      <div className="reg-card">
+      <div className="reg-steps"><span className={rstep==="account"?"on":"done"}>1 · {tr(lang,"Account","账号")}</span><i></i><span className={rstep==="card"?"on":""}>2 · {tr(lang,"Card","绑卡")}</span></div>
+      {rstep === "account" ? <>
+        <h1>{tr(lang,"Last step: create your account","最后一步：创建你的账号")}</h1>
+        <div className="field"><label>{tr(lang,"Shop name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)} placeholder={tr(lang,"e.g. Kopi Corner","例如：Kopi Corner")}/></div>
+        <div className="field"><label>{tr(lang,"Country / region","国家 / 地区")} <span className="req">*</span></label><select value={country} onChange={e=>setCountry(+e.target.value)}>{COUNTRIES.map((c,i)=><option key={i} value={i}>{c.flag} {P(lang,c)}</option>)}</select></div>
+        <div className="field"><label>{tr(lang,"Mobile","手机号")} <span className="opt">{tr(lang,"(for WhatsApp)","（用于 WhatsApp 联系）")}</span> <span className="req">*</span></label>
+          <div className="phonewrap"><input className="cc" value="+65" readOnly/><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9123 4567" onKeyDown={e=>{ if(e.key==="Enter"&&acctOk) setRstep("card"); }}/></div></div>
+        <button className="btn primary" disabled={!acctOk} onClick={()=>setRstep("card")}>{tr(lang,"Continue","继续")}</button>
+        <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。{tr(lang,"Have an account? ","已有账号？")}<a onClick={onSignIn} style={{ cursor:"pointer" }}>{tr(lang,"Sign in","登录")}</a></div>
+      </> : <>
+        <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
+        <p className="login-sub">{tr(lang,"Free for 3 months, then S$3 per new customer. Regulars are always free.","首 3 个月免费，之后按 S$3/位新客收费，老客永远免费。")}</p>
+        <div className="trust-list">
+          <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends — around ${chargeDate}.`,`到期前 7 天提醒你 —— 大约 ${chargeDate}。`)}</span></div>
+          <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime, no minimum.","随时下线或取消，无最低消费。")}</span></div>
+          <div className="trust-row"><Ic.shield/><span>{tr(lang,"Airwallex-encrypted — we never see your card number.","卡号由 Airwallex 加密 —— 我们看不到。")}</span></div>
+        </div>
+        <div className="cardf">
+          <div className="cardf-input">
+            <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
+            <div className="cardf-row">
+              <input placeholder={tr(lang,"MM / YY","有效期 MM/YY")} value={exp} onChange={e=>setExp(e.target.value.replace(/[^\d/]/g,"").slice(0,5))} inputMode="numeric"/>
+              <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
+            </div>
+          </div>
+        </div>
+        <button className="btn primary" disabled={!cardOk} onClick={finish}>{tr(lang,"Add card & go live","绑卡并上线")}</button>
+        <div className="charge-note">{tr(lang,"You won't be charged today.","今天不会扣款。")}</div>
+      </>}
     </div></div>
   );
 }
@@ -517,42 +547,49 @@ function Describe({ need, setNeed, onNext }) {
     </div>
   );
 }
-function Results({ need, onPick, onBack }) {
+function Results({ need, onPick, onBack, onRename }) {
   const lang = useLang();
   const n = TEMPLATES.length;
   const [i, setI] = useState(Math.max(0, TEMPLATES.findIndex(t=>t.recommended)));
+  const [editing, setEditing] = useState(false);
+  const [buf, setBuf] = useState(need||"");
   const name = (need||"").trim() || tr(lang,"your shop","你的店");
-  // 由店名派生一套稳定的品牌配色，全部卡片共用 → 传达"同一个品牌、不同玩法"
+  const _w = name.split(/\s+/).filter(Boolean);
+  const initial = (_w.length>1 ? _w.slice(0,2).map(w=>w[0]).join("") : name.slice(0,2)).toUpperCase();
+  // 由店名派生一套稳定的品牌配色（改名即换色、实时重新品牌化）
   const color = COLOR_SETS[[...name].reduce((a,c)=>a+c.charCodeAt(0),0) % COLOR_SETS.length];
+  const cur = TEMPLATES[i];
   const go = (d) => setI(x => (x+d+n)%n);
-  const at = (o) => TEMPLATES[(i+o+n)%n];
-  const Phone = ({ t }) => (
-    <div className="pkph">
-      <div className="pkph-scr"><GamePreview kind={t.kind} colors={color} /></div>
-      <div className="pkph-nm">{P(lang,t.name)}</div>
-    </div>
-  );
+  const commitName = () => { onRename && onRename(buf.trim()); setEditing(false); };
   return (
-    <div className="canvas pk-wrap">
-      {onBack && <button className="canvas-back" style={{ alignSelf:"flex-start" }} onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
-      <div className="center" style={{ marginBottom:4 }}>
-        <div className="f-eye">{tr(lang,"STEP 2 · PICK A GAME","第 2 步 · 选一个游戏")}</div>
-        <h1 className="big">{tr(lang,"Pick the one you like","挑一个你喜欢的")}</h1>
-        <p className="sub">{tr(lang,"Each is already branded ","每个都套好「")}<b>{name}</b>{tr(lang," — swipe to browse.","」了 · 左右滑动看更多")}</p>
+    <div className="canvas gp2">
+      {onBack && <button className="canvas-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
+      <div className="center" style={{ marginBottom:20 }}>
+        <h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,"Here's your game","这是你的游戏")}</h1>
       </div>
-      <div className="pk-deck">
-        <button className="pk-nav" onClick={()=>go(-1)} aria-label="prev"><Ic.back style={{ width:20, height:20 }}/></button>
-        <div className="pk-cards">
-          <div className="pk-slot side" onClick={()=>go(-1)}><Phone t={at(-1)} /></div>
-          <div className="pk-slot mid"><Phone t={at(0)} /></div>
-          <div className="pk-slot side" onClick={()=>go(1)}><Phone t={at(1)} /></div>
+      <div className="gp2-grid">
+        <div className="gp2-r">
+          <div className="gp2-phone"><div className="gp2-screen">
+            <div className="gp2-brandbar"><span className="gp2-av" style={{ background:`linear-gradient(135deg,${color[0]},${color[1]})` }}>{initial}</span><b>{name}</b></div>
+            <GamePreview kind={cur.kind} colors={color} />
+          </div></div>
+          <button className="btn ghost lg gp2-another" onClick={()=>go(1)}><Ic.refresh style={{ width:16, height:16 }}/> {tr(lang,"Show me another","换一个看看")}</button>
         </div>
-        <button className="pk-nav" onClick={()=>go(1)} aria-label="next"><Ic.back style={{ width:20, height:20, transform:"scaleX(-1)" }}/></button>
-      </div>
-      <div className="pk-dots">{TEMPLATES.map((_,k)=><span key={k} className={"pk-dot"+(k===i?" on":"")} onClick={()=>setI(k)} />)}</div>
-      <div className="btn-row pk-actions">
-        <button className="btn ghost lg" onClick={()=>go(1)}>{tr(lang,"Next","下一个")}</button>
-        <button className="btn primary lg" onClick={()=>onPick(at(0), color)}>{tr(lang,"Use this game","用这个游戏")} <Ic.arrow/></button>
+        <div className="gp2-l">
+          <div className="gp2-typed">
+            {editing
+              ? <input autoFocus className="gp2-name-in" value={buf} onChange={e=>setBuf(e.target.value)} onBlur={commitName} onKeyDown={e=>{ if(e.key==="Enter") commitName(); }} placeholder={tr(lang,"Your business name","你的店名")}/>
+              : <><span className="gp2-typed-lbl">{tr(lang,"YOU TYPED","你输入了")}</span> <b>{name}</b> <button className="gp2-edit" onClick={()=>{ setBuf(need||""); setEditing(true); }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> {tr(lang,"edit","改")}</button></>}
+          </div>
+          <div className="gp2-game">
+            <span className="gp2-game-nm">{P(lang,cur.name)}{cur.recommended && <span className="gp2-pick"><Ic.spark style={{ width:11, height:11 }}/> {tr(lang,"AI pick","AI 首选")}</span>}</span>
+            <div className="gp2-why-lbl">{tr(lang,"WHY THIS ONE","推荐理由")}</div>
+            <p className="gp2-game-why">{P(lang,cur.lede)}</p>
+          </div>
+          <div className="gp2-actions">
+            <button className="btn primary lg" onClick={()=>onPick(cur, color)}>{tr(lang,"Use this game","用这个游戏")} <Ic.arrow/></button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -695,7 +732,7 @@ function Preview({ game, brand, setBrand, onLaunch, onBack }) {
   return (
     <div className="canvas wide">
       {onBack && <button className="canvas-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
-      <div className="center" style={{ marginBottom:18 }}><div className="f-eye">{branded ? tr(lang,"STEP 3 · PUBLISH","第 3 步 · 上线") : tr(lang,"Your game is ready","你的游戏，做好了")}</div><h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{branded ? tr(lang,"One last tweak","最后微调一下") : tr(lang,"Make it yours, then generate","换成你的品牌，点生成")}</h1></div>
+      <div className="center" style={{ marginBottom:18 }}><h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{branded ? tr(lang,"One last tweak","最后微调一下") : tr(lang,"Make it yours, then generate","换成你的品牌，点生成")}</h1></div>
       <div className="preview lite">
         <div className="demo-stage" style={{ position:"relative" }}>
           <div className={"demo-skin" + (branded ? " on" : "")}><Demo game={game} brand={shown}/></div>
@@ -801,7 +838,7 @@ function EmptyState({ icon, title, sub, actLabel, onAct, ghostLabel, onGhost }) 
   );
 }
 
-function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewAct, onRedeem, onGoActivity, onGoActivities, onGoGames, outlets = OUTLETS }) {
+function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewAct, onRedeem, onGoActivity, onGoActivities, onGoGames, onGoReports, outlets = OUTLETS }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
   const [scanOk, setScanOk] = useState(false);
@@ -809,80 +846,81 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   const doScan = () => { setScanning(true); setTimeout(() => { setScanning(false); setScanOk(true); setTimeout(() => setScanOk(false), 2800); }, 1700); };
   const liveAct = activities && activities.find(a => a.status === "live");
   const hasActs = activities && activities.length > 0;
+  const M = DEMO_METRICS;
+  // 分水岭：有真实到店(redeemed≥1) → 营业态 S2；否则启动态 S1。?nowalkins=1 演示"已上线待到店"
+  const _nw = new URLSearchParams(location.search).get("nowalkins") === "1";
+  const walkins = _nw ? 0 : M.walkins;
+  const hasWalkins = !!liveAct && walkins > 0;
+  // 启动态 hero：按进度只给一个下一步动作
+  const sh = liveAct
+    ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","正在跑"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
+    : liveGame
+    ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","正在跑"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
+    : hasActs
+    ? { badge:tr(lang,"Draft","修改中"), dark:false, title:tr(lang,"Finish and publish your activity","完善并上线你的活动"), sub:tr(lang,"Set a voucher, pick outlets, then go live — customers scan to play.","设一张券、选门店，点上线 —— 客人扫码就能玩。"), cta:tr(lang,"Finish activity","去完善"), on:onGoActivity }
+    : { badge:tr(lang,"No activity yet","暂时还没有活动"), dark:false, title:tr(lang,"Create an activity to open for business","建个活动，就能开门营业"), sub:tr(lang,"Pick outlets, set a voucher, link your game — customers scan to play.","选门店、设一张券、绑上你的游戏 —— 客人扫码就能玩。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct };
   return (
     <div className="app-body">
-      {liveAct
-        ? <div className="home-hero">
+      {hasWalkins ? (
+        /* ===== S2 营业态：收银台 + 成本一瞥 + 最近 + 召回（无上手清单，已毕业）===== */
+        <>
+          <div className="home-hero">
             <div style={{ flex:1 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
                 <span className="hl-live"><span className="b"></span>LIVE</span>
-                <h3 style={{ margin:0 }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
+                <h3 style={{ margin:0, cursor:"pointer" }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
               </div>
               <div className="live3">
-                <div className="lc"><div className="n">{DEMO_METRICS.today.plays}</div><div className="l">{tr(lang,"plays today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">{DEMO_METRICS.today.walkins}</div><div className="l">{tr(lang,"walked in","到店")}</div></div>
-                <div className="lc"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed","已核销")}</div></div>
+                <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"plays today","今天玩了")}</div></div>
+                <div className="lc"><div className="n">{M.today.walkins}</div><div className="l">{tr(lang,"walked in","到店")}</div></div>
+                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"redeemed","已核销")}</div></div>
               </div>
             </div>
             <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
               <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码核销")}
             </button>
           </div>
-        : liveGame
-          ? <div className="home-hero empty">
-              <div>
-                <span className="hl-live"><span className="b"></span>LIVE</span>
-                <h3 style={{ marginTop:12, cursor:"pointer" }} onClick={onGoGames}>{P(lang, liveGame.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
-                <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"40ch" }}>{tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。")}</p>
-              </div>
-              <div style={{ marginLeft:"auto", alignSelf:"center" }}>
-                <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","新建活动")}</button>
-              </div>
+          {/* 成本一瞥：进门第一眼看到花多少（P3）*/}
+          <button className="home-cost" onClick={onGoReports}>
+            <span className="hc-cell"><b>{M.newCust}</b> {tr(lang,"new customers this month","本月新客")}</span>
+            <span className="hc-trial"><Ic.spark style={{ width:13, height:13 }}/> {tr(lang,"First 3 months free · now S$0","首 3 个月免费 · 现在 S$0")}</span>
+            <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
+          </button>
+          <div className="panel" style={{ marginTop:16 }}>
+            <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
+            {FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
+          </div>
+          <div className={"recall" + (recalled ? " ok" : "")}>
+            <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
+            {recalled
+              ? <div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来核销就行。")}</p></div>
+              : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder — your easiest repeat business.","一键发送召回通知，把他们请回来 —— 这是你最容易赢回的复购。")}</p></div>
+                <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
+          </div>
+        </>
+      ) : (
+        /* ===== S1 启动态：唯一 CTA 在 hero + 进度清单(无按钮) + 计费心智 ===== */
+        <>
+          <div className={"home-hero" + (sh.dark ? "" : " empty")}>
+            <div>
+              <span className="hl-live" style={sh.dark ? {} : { background:"rgba(255,255,255,.12)", color:"#cdd8e4" }}>{sh.badge==="LIVE" ? <><span className="b"></span>LIVE</> : sh.badge}</span>
+              <h3 style={{ marginTop:12 }}>{sh.title}</h3>
+              <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"42ch" }}>{sh.sub}</p>
             </div>
-          : <div className="home-hero empty">
-              <div>
-                <span className="hl-live" style={{ background:"rgba(255,255,255,.12)", color:"#cdd8e4" }}>{tr(lang,"No activity yet","暂时还没有活动")}</span>
-                <h3>{tr(lang,"Create an activity to open for business","建个活动，就能开门营业")}</h3>
-                <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"38ch" }}>{tr(lang,"Pick outlets, set a voucher, link your game — customers scan to play.","选门店、设一张券、绑上你的游戏 —— 客人扫码就能玩。")}</p>
-              </div>
-              <div style={{ marginLeft:"auto", alignSelf:"center" }}>
-                <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","新建活动")}</button>
-              </div>
-            </div>}
-      {/* 上手清单：未上线/首次登录也显示（这是引导，不是数据）。第 2 步按是否已有活动动态切换 */}
-      {(() => {
-        const nudge = (
-          <div className="panel nudge">
+            <div style={{ marginLeft:"auto", alignSelf:"center" }}>
+              <button className="btn primary lg" onClick={sh.on}>{sh.cta}</button>
+            </div>
+          </div>
+          <div className="panel nudge" style={{ marginTop:18 }}>
             <h4 style={{ marginBottom:14 }}>{tr(lang,"Get your first wave playing","让第一波人玩起来")}</h4>
             <div className="nstep done"><span className="nt"><Ic.check/></span>{tr(lang,"Game created","游戏已创建")}</div>
-            {hasActs
-              ? <div className={"nstep "+(liveAct?"done":"cur")}><span className="nt">{liveAct?<Ic.check/>:"2"}</span>{tr(lang,"Set up & publish the activity","配置并上线活动")}{!liveAct && <button className="btn ghost sm na" onClick={onGoActivity}>{tr(lang,"Go","去完善")}</button>}</div>
-              : <div className="nstep cur"><span className="nt">2</span>{tr(lang,"Create your first activity","新建第一个活动")}<button className="btn ghost sm na" onClick={onNewAct}>{tr(lang,"Create","去新建")}</button></div>}
-            <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Print QR per outlet","打印各门店二维码")}{liveAct && <button className="btn ghost sm na" onClick={onGoActivities}>{tr(lang,"Download","去下载")}</button>}</div>
-            <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer redeems in store","第一位客人到店核销")}</div>
+            <div className={"nstep "+(liveAct?"done":"cur")}><span className="nt">{liveAct?<Ic.check/>:"2"}</span>{tr(lang,"Publish an activity","上线活动")}</div>
+            <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Print QR per outlet","打印各门店二维码")}</div>
+            <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer walks in","第一位客人到店")}</div>
+            <div className="nudge-free"><Ic.shield style={{ width:13, height:13, flexShrink:0 }}/> {tr(lang,"First 3 months free · regulars always free","首 3 个月免费 · 老客永远免费")}</div>
           </div>
-        );
-        // 没有已上线活动 = 还没有任何真实数据：只给上手清单，不显示「最近」动态与「召回老客」
-        if (!liveAct) return <div style={{ marginTop:18 }}>{nudge}</div>;
-        return (
-          <>
-            <div className="home-grid">
-              {nudge}
-              <div className="panel">
-                <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
-                {FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
-              </div>
-            </div>
-            <div className={"recall" + (recalled ? " ok" : "")}>
-              <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
-              {recalled
-                ? <><div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来核销就行。")}</p></div></>
-                : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder — your easiest repeat business.","一键发送召回通知，把他们请回来 —— 这是你最容易赢回的复购。")}</p></div>
-                  <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
-            </div>
-          </>
-        );
-      })()}
+        </>
+      )}
     </div>
   );
 }
@@ -1103,10 +1141,32 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
 }
 
 /* ===================== activities ===================== */
-function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
+// ⋯ 溢出菜单：低频操作收纳（复制/二维码/在App查看），点外部关闭
+function Kebab({ items }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [open]);
+  return (
+    <div className="kebab" ref={ref}>
+      <button className="kebab-btn" aria-label="More" onClick={(e)=>{ e.stopPropagation(); setOpen(o=>!o); }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+      </button>
+      {open && <div className="kebab-menu" onClick={e=>e.stopPropagation()}>
+        {items.map((it,i)=>(<button key={i} className="kebab-item" onClick={()=>{ setOpen(false); it.on(); }}>{it.ic}{it.label}</button>))}
+      </div>}
+    </div>
+  );
+}
+function ActivitiesView({ activities, onNew, onOpen, onDuplicate, onSetStatus }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
   const [appQr, setAppQr] = useState(false);
+  const dlQR = (name) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(name,100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
   // 状态机(2026-07-03 去审批)：draft(修改中)/live(已上线)/offline(已下线)。直接上线，无 review/rejected。
   const FILTS = [
     { k:"all",     en:"All",       zh:"全部",   match:()=>true },
@@ -1144,12 +1204,20 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate }) {
                   <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
                   <div className="mgmeta">
                     <div className="nm">{P(lang, act.name)}</div>
-                    <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>
-                    <div style={{ display:"flex", gap:8, marginTop:10 }}>
-                      <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onDuplicate(act); }} style={{ padding:"7px 12px", fontSize:12.5 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> {tr(lang,"Copy","复制")}</button>
-                      {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 24px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,90); ctx.font="13px sans-serif"; ctx.fillText(P(lang,act.name),100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); }} style={{ padding:"7px 12px", fontSize:12.5 }}><Ic.upload style={{ width:12, height:12, transform:"rotate(180deg)" }}/> {tr(lang,"QR","二维码")}</button>}
+                    {act.stat && (act.status==="live"||act.status==="offline")
+                      ? <div className="act-stat"><b>{act.stat.walkins}</b> {tr(lang,"walked in","到店")} · <b>{act.stat.newCust}</b> {tr(lang,"new","新客")}</div>
+                      : <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
+                    <div className="mgfoot">
+                      {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"offline"); }} style={{ padding:"7px 14px", fontSize:12.5 }}>{tr(lang,"Take offline","下线")}</button>}
+                      {act.status === "offline" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"live"); }} style={{ padding:"7px 14px", fontSize:12.5 }}><span className="b-dot"></span>{tr(lang,"Go live","上线")}</button>}
+                      <Kebab items={[
+                        { label:tr(lang,"Copy","复制"), ic:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>, on:()=>onDuplicate(act) },
+                        ...(act.status === "live" ? [
+                          { label:tr(lang,"QR code","二维码"), ic:<Ic.qr style={{ width:15, height:15 }}/>, on:()=>dlQR(P(lang,act.name)) },
+                          { label:tr(lang,"View in app","在 App 查看"), ic:<Ic.phone style={{ width:15, height:15 }}/>, on:()=>setAppQr(true) },
+                        ] : []),
+                      ]}/>
                     </div>
-                    {act.status === "live" && <button className="btn ghost sm inapp" style={{ width:"100%", marginTop:8, fontSize:12.5 }} onClick={(e)=>{ e.stopPropagation(); setAppQr(true); }}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button>}
                   </div>
                 </div>
               );
@@ -1165,6 +1233,12 @@ const ACT_STA = {
   live:     { en:"Live",          zh:"已上线", cls:"st-live" },
   offline:  { en:"Offline",       zh:"已下线", cls:"st-offline" },
 };
+// 赢奖难度档：商家选易/中/难（映射到分数），不再填裸分
+const WIN_TIERS = [
+  { k:"easy", en:"Easy",   zh:"容易",   score:300,  win:{en:"~70% win",zh:"约 7 成赢"} },
+  { k:"med",  en:"Medium", zh:"适中",   score:1000, win:{en:"~40% win",zh:"约 4 成赢"} },
+  { k:"hard", en:"Hard",   zh:"有挑战", score:2500, win:{en:"~15% win",zh:"约 1.5 成赢"} },
+];
 function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onConfirm }) {
   const lang = useLang();
   const [step, setStep] = useState(new URLSearchParams(location.search).get("done")==="1" ? "done" : "confirm");
@@ -1208,7 +1282,7 @@ function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onCon
                 </div>
                 {cardOnFile && <button className="linkbtn" style={{ marginTop:6 }} onClick={()=>{ setReplacing(false); setNum(""); }}>{tr(lang,"Use saved card","用已绑的卡")}</button>}
               </div>}
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for the first month. After that, you only pay per verified walk-in — take it offline anytime, no minimum.","第一个月免费。之后按客人真实到店笔数收费，随时可下线、无最低消费。")}</span></p>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for the first 3 months. After that, only S$3 per new customer — regulars always free, take it offline anytime.","首 3 个月免费。之后只按 S$3/位新客收费 —— 老客永远免费，随时可下线。")}</span></p>
         </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -1225,19 +1299,22 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
   const st = activity.status || "draft";
   const live = st === "live";
   const [pubOpen, setPubOpen] = useState(new URLSearchParams(location.search).get("pub")==="1");
+  const [appQr, setAppQr] = useState(false);
+  const curTier = (WIN_TIERS.find(t=>t.score===(activity.winScore||1000)) || WIN_TIERS[1]).k;
   // 活动直接上线（无审批）：draft/offline —上线→ live；live —下线→ offline
   const actOutlets = outlets.filter(o => (activity.outletIds||[]).includes(o.id));
   const dlQR = (label) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 22px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,88); ctx.font="12px sans-serif"; ctx.fillText(label,100,116); const a=document.createElement("a"); a.download="qr-"+label+".png"; a.href=c.toDataURL(); a.click(); };
   return (
     <div className="app-body" style={{ maxWidth:820 }}>
-      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live — customers can play now.","已上线 —— 客人现在就能扫码玩。")}</span></div>}
+      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live — customers can play now.","已上线 —— 客人现在就能扫码玩。")}</span><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button></div>}
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
         <div className="field" style={{ margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
         <div style={{ display:"flex", gap:12, marginTop:14 }}>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={activity.startDate||""} onChange={e=>upd("startDate",e.target.value)}/></div>
-          <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")}</label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
+          <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
         </div>
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely — take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <VoucherEditor vouchers={activity.vouchers} setVouchers={vs => upd("vouchers", vs)} showStock />
@@ -1264,12 +1341,16 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
           <button className="mgnew" onClick={onNewGame}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
         </div>
         <div className="win-cond">
-          <span className="wc-lbl">{tr(lang,"Win condition","赢奖条件")} <em className="opt">{tr(lang,"optional","选填")}</em></span>
-          <span className="wc-txt">{tr(lang,"Reach","达到")}</span>
-          <input className="wc-in" type="number" min="1" value={activity.winScore||1000} onChange={e=>upd("winScore",+e.target.value||0)}/>
-          <span className="wc-txt">{tr(lang,"to win the voucher","即可赢得奖品券")}</span>
+          <span className="wc-lbl">{tr(lang,"How hard to win","赢奖难度")}</span>
+          <div className="wc-tiers">
+            {WIN_TIERS.map(t => (
+              <button key={t.k} type="button" className={"wc-tier"+(curTier===t.k?" on":"")} onClick={()=>upd("winScore",t.score)}>
+                <b>{tr(lang,t.en,t.zh)}</b><span>{P(lang,t.win)}</span>
+              </button>
+            ))}
+          </div>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Depending on the game this is a score, level or round — players who hit it win. Higher = harder, you decide.","视游戏而定，这可能是分数、关卡或回合 —— 玩家达标即赢券。数值越高越难拿，你自己定。")}</p>
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win, vouchers last longer; easier = more win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <OutletScope outlets={outlets} gameOutlets={activity.outletIds} setGameOutlets={ids => upd("outletIds", ids)} setOutlets={setOutlets} locked={live} />
@@ -1278,10 +1359,12 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Activity QR codes — one per outlet","活动二维码 —— 每家门店一个")}</h3>
         <p className="ph-sub">{tr(lang,"Each outlet gets its own QR, so walk-ins are attributed to the right shop.","每家门店各一个二维码，到店才能归因到对应门店。")}</p>
-        <p className="ph-sub" style={{ marginTop:2, color:"var(--muted-2)" }}>{tr(lang,"Generated once on first save and stays fixed — safe to print. Later edits won't change it.","首次保存时生成、之后固定不变 —— 可放心打印，后续编辑活动也不会变。")}</p>
-        {actOutlets.length === 0
+        {st === "draft"
+          ? <p className="ph-sub" style={{ marginTop:8, color:"var(--muted-2)" }}><Ic.qr style={{ width:14, height:14, verticalAlign:"-2px", marginRight:4 }}/>{tr(lang,"Published once you go live: each outlet gets a fixed QR you can print — it never changes on later edits.","上线后每家门店各生成一个固定二维码，可放心打印 —— 后续编辑也不会变。")}</p>
+          : actOutlets.length === 0
           ? <div className="ph-sub">{tr(lang,"Select at least one outlet above.","请先在上面选择至少一家门店。")}</div>
-          : <div className="qr-list">
+          : <><p className="ph-sub" style={{ marginTop:2, color:"var(--muted-2)" }}>{tr(lang,"Fixed since first publish — safe to print. Later edits won't change it.","首次上线时已固定 —— 可放心打印，后续编辑也不会变。")}</p>
+            <div className="qr-list">
               {actOutlets.map(o => (
                 <div className="qr-card" key={o.id}>
                   <div className="qr" style={{ width:88, height:88, borderRadius:12 }}><Ic.qr style={{ width:56, height:56, color:"#0B1220" }}/></div>
@@ -1292,7 +1375,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
                   </div>
                 </div>
               ))}
-            </div>}
+            </div></>}
       </div>
       <div className="act-actions">
         {(st==="draft"||st==="offline") && <button className="btn primary lg" onClick={()=>setPubOpen(true)}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Publish","上线")}</button>}
@@ -1300,14 +1383,17 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
         <button className="btn ghost lg" onClick={onBack}>{tr(lang,"Save & close","保存并返回")}</button>
       </div>
       {pubOpen && <ActivityPublishModal activity={activity} cardOnFile={cardOnFile} onSaveCard={setCardOnFile} onClose={()=>setPubOpen(false)} onConfirm={()=>{ upd("status","live"); }}/>}
+      {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
     </div>
   );
 }
 
-function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, hasLiveGame, multiAct, onNewAct, onGoActivities, onGoGames, liveName }) {
+function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, hasLiveGame, multiAct, onNewAct, onGoActivities, onGoGames, onBilling, liveName }) {
   const lang = useLang();
   const M = DEMO_METRICS;
   const GM = GAME_METRICS;
+  // 计费（落地页口径）：新客=计费单位、首 3 月免费、老客永远免费。免费期不展示"试用后总价"（避免提前吓退，见弹卡三体）
+  const freeDaysLeft = 47;
   const ranges = [{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
   const [ri, setRi] = useState(1);
   const [tab, setTab] = useState(new URLSearchParams(location.search).get("tab") || (hasLive ? "activity" : (hasLiveGame ? "game" : "activity")));
@@ -1355,6 +1441,14 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         </div>
         <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
       </div>
+      {/* 计费仪表：新客=计费单位、老客免费；试用期就摊开"结束后要付多少"，反 bill-shock（Stripe/AWS 范式）*/}
+      <div className="billmeter">
+        <div className="bm-cost">
+          <div className="bm-trial"><Ic.spark style={{ width:14, height:14 }}/> {tr(lang,`First 3 months free · ${freeDaysLeft} days left · now `,`首 3 个月免费 · 还剩 ${freeDaysLeft} 天 · 现在 `)}<b>S$0</b></div>
+          <div className="bm-proj">{tr(lang,"Regulars always free — you only ever pay for new customers.","老客永远免费 —— 只为新客付费。")}</div>
+        </div>
+        <button className="panel-link bm-link" onClick={onBilling}>{tr(lang,"Billing","账单管理")} <Ic.arrow style={{ width:14, height:14 }}/></button>
+      </div>
       <div className="panels">
         {/* 转化漏斗：吸收"玩了游戏"作为分母，证明全链路通 */}
         <div className="panel">
@@ -1371,7 +1465,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         {/* 新客 vs 回头：证明"把路过变回头客" */}
         <div className="panel">
           <h3>{tr(lang,"New vs returning","新客 vs 回头客")}</h3>
-          <p className="ph-sub">{tr(lang,"Bringing in new faces — and getting them to come back","既在拉新客，也在让老客回头")}</p>
+          <p className="ph-sub">{tr(lang,"New faces are what you pay for — returning regulars are always free","新客才是你付费的对象 —— 老客回头永远免费")}</p>
           <div className="nvr">
             <div className="nvr-bar"><i className="nv-new" style={{ width:newPct+"%" }}></i><i className="nv-ret" style={{ width:retPct+"%" }}></i></div>
             <div className="nvr-legend">
@@ -1423,7 +1517,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         <div className="rh-l">
           <span className="rh-eye"><span className="b"></span>{tr(lang,`Game plays · ${P(lang,ranges[ri])}`,`游玩次数 · ${P(lang,ranges[ri])}`)}</span>
           <div className="rh-num">{GM.plays}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{GM.delta.plays} {note}</span></div>
-          <p className="rh-sub">{tr(lang,"How many times customers played your games — games can go live on their own, no prizes needed.","客人玩你游戏的总次数 —— 游戏可独立上线，无需奖品。")}</p>
+          <p className="rh-sub">{tr(lang,"How many times customers played — games go live on their own, no prizes, no walk-in charge.","客人玩你游戏的总次数 —— 游戏可独立上线，无奖品、不产生到店费用（免费）。")}</p>
         </div>
         <div className="rh-r">{GM.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/gtmax*100)+"%" }}></span>))}</div>
       </div>
@@ -1474,10 +1568,11 @@ function OutletPanel({ lang, outRed, omax }) {
 }
 
 /* ===== billing: plans + payment method ===== */
+// 价格 = 落地页口径（pay-per-result）：免费版靠功能门槛；按结果=S$3/位新客、首 3 月免费、老客永远免费
 const PLANS = [
-  { id:"free",  name:{en:"Free",zh:"免费版"},  price:{en:"S$0",zh:"S$0"},          note:{en:"First 50 walk-ins/mo free, then S$3 each · 1 game",zh:"每月前 50 位到店免费，超出 S$3/位 · 1 个游戏"} },
-  { id:"pro",   name:{en:"Pro",zh:"专业版"},   price:{en:"S$49/mo",zh:"S$49/月"},   note:{en:"Unlimited games, activities & walk-ins",zh:"不限游戏与活动 · 不限到店"} },
-  { id:"chain", name:{en:"Chain",zh:"连锁版"}, price:{en:"Contact us",zh:"联系我们"}, note:{en:"Multi-outlet · custom games & integration",zh:"多门店 · 定制玩法与对接"} },
+  { id:"free",   name:{en:"Free forever",zh:"永久免费"},  price:{en:"S$0",zh:"S$0"},              note:{en:"1 game · redemption + dashboard",zh:"1 个游戏 · 核销 + 数据看板"} },
+  { id:"result", name:{en:"Pay per result",zh:"按结果付费"}, price:{en:"from S$3/new customer",zh:"S$3 / 位新客起"}, note:{en:"Unlimited games & campaigns · first 3 months free · regulars always free",zh:"不限游戏与活动 · 首 3 个月免费 · 老客永远免费"} },
+  { id:"chain",  name:{en:"Chains",zh:"连锁版"},         price:{en:"Contact us",zh:"联系我们"},    note:{en:"Multi-outlet · custom games & integration",zh:"多门店 · 定制玩法与对接"} },
 ];
 function CardModal({ cardOnFile, onSave, onClose }) {
   const lang = useLang();
@@ -1497,7 +1592,7 @@ function CardModal({ cardOnFile, onSave, onClose }) {
               <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
             </div>
           </div>
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First month free. After that, billed per verified walk-in.","第一个月免费。之后按客人真实到店笔数收费。")}</span></p>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that, S$3 per new customer — regulars always free.","首 3 个月免费。之后按 S$3/位新客收费 —— 老客永远免费。")}</span></p>
         </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -1515,7 +1610,7 @@ function PlanModal({ plan, onPick, onClose }) {
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Switch plan","切换套餐")}</h3>
-        <p className="pub-sub">{tr(lang,"First month is free on any plan. Change anytime.","任意套餐首月免费，随时可改。")}</p>
+        <p className="pub-sub">{tr(lang,"Pay per result is free for the first 3 months. Regulars always free. Change anytime.","按结果付费首 3 个月免费，老客永远免费，随时可改。")}</p>
         <div className="plans">
           {PLANS.map(pl => (
             <button key={pl.id} className={"plan-opt"+(plan===pl.id?" on":"")} onClick={()=>{ onPick(pl.id); onClose(); }}>
@@ -1536,7 +1631,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
   const onLogo = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; setBusy(true); const rd = new FileReader(); rd.onload = async () => { const url = rd.result; const rgb = await extractColor(url); setBrand(b => ({ ...b, logo:url, logoMark:null, color: rgb ? paletteFromRgb(rgb) : b.color })); setBusy(false); }; rd.readAsDataURL(f); };
   const onProducts = (e) => { const fs = Array.from(e.target.files || []).slice(0,8); Promise.all(fs.map(f => new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }))).then(urls => setBrand(b => ({ ...b, products:[...(b.products||[]), ...urls].slice(0,8) }))); };
   const hasBrand = brand.logo || brand.logoMark;
-  const [plan, setPlan] = useState("pro");
+  const [plan, setPlan] = useState("result");
   const _bill = new URLSearchParams(location.search).get("bill");
   const [cardModal, setCardModal] = useState(_bill==="card"), [planModal, setPlanModal] = useState(_bill==="plan");
   const curPlan = PLANS.find(p=>p.id===plan) || PLANS[1];
@@ -1555,7 +1650,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Billing & plan","账单与套餐")}</h3>
-        <p className="ph-sub">{tr(lang,"First month free — after that you only pay per verified walk-in. Manage your plan and card here.","首月免费 —— 之后只按真实到店笔数收费。在这里管理套餐和银行卡。")}</p>
+        <p className="ph-sub">{tr(lang,"First 3 months free — after that you only pay S$3 per new customer. Regulars always free. Manage your plan and card here.","首 3 个月免费 —— 之后只按 S$3/位新客收费，老客永远免费。在这里管理套餐和银行卡。")}</p>
         <div className="billrow">
           <div className="bill-l"><span className="bill-ic"><Ic.spark style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Plan","套餐")}</div><div className="bill-v">{P(lang,curPlan.name)} · {P(lang,curPlan.price)}</div></div></div>
           <button className="btn ghost sm" onClick={()=>setPlanModal(true)}>{tr(lang,"Switch plan","切换套餐")}</button>
@@ -1564,7 +1659,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="bill-l"><span className="bill-ic"><Ic.card style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Payment method","付款方式")}</div><div className="bill-v">{cardOnFile ? <>Visa •••• {cardOnFile.last4}</> : <span style={{ color:"var(--muted)" }}>{tr(lang,"No card yet","尚未绑定银行卡")}</span>}</div></div></div>
           <button className="btn ghost sm" onClick={()=>setCardModal(true)}>{cardOnFile ? tr(lang,"Change","更换") : tr(lang,"Add card","添加银行卡")}</button>
         </div>
-        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged during the first month. No minimum, take activities offline anytime.","首月不扣款。无最低消费，活动随时可下线。")}</span></p>
+        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Regulars always free, no minimum, take activities offline anytime.","首 3 个月不扣款。老客永远免费、无最低消费，活动随时可下线。")}</span></p>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"KiX app","KiX App")}</h3>
@@ -1619,10 +1714,9 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
   );
 }
 
-function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, onNewGame, onExit, builder, builderIdx, builderSteps, onLeaveBuild, outlets, setOutlets, activities, setActivities, myGames, setMyGames, initEdit }) {
+function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, onNewGame, onExit, builder, builderIdx, builderSteps, onLeaveBuild, outlets, setOutlets, activities, setActivities, myGames, setMyGames, cardOnFile, setCardOnFile, initEdit }) {
   const [editing, setEditing] = useState(initEdit || null);
   const [editingAct, setEditingAct] = useState((()=>{ const e=new URLSearchParams(location.search).get("editact"); return e ? (activities[parseInt(e,10)-1]||activities[0]||null) : null; })()); // 调试直达活动编辑器（editact=1/2/3 指定第几个）
-  const [cardOnFile, setCardOnFile] = useState(new URLSearchParams(location.search).get("card")==="1" ? { last4:"4242" } : null); // 卡预存储(SetupIntent 语义,不扣款)——仅上线活动时收集
   const [menuOpen, setMenuOpen] = useState(false);
   const inBuild = !!builder;
   const cur = SB_ITEMS.find(i => i.id === sec) || SB_ITEMS[0];
@@ -1685,12 +1779,12 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
-          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} />
+          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
+          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=>setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
-          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
+          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
     </div>
   );
@@ -1714,6 +1808,8 @@ function App() {
   const [brand, setBrand] = useState({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] });
   const [outlets, setOutlets] = useState(OUTLETS.map(o => ({ ...o })));
   const [myGames, setMyGames] = useState([{...TEMPLATES[0], status:"live"}, {...TEMPLATES[1], status:"draft"}, {...TEMPLATES[3], status:"draft"}]);
+  // 卡预存储(SetupIntent 语义,不扣款)——注册最后一步收，需存活到进 AppShell，故提升到 App
+  const [cardOnFile, setCardOnFile] = useState(new URLSearchParams(location.search).get("card")==="1" ? { last4:"4242" } : null);
   // fresh=1：模拟全新商家首次登录（还没有任何活动）；否则用 demo 活动（老商家演示）
   const _fresh = _p.get("fresh") === "1";
   const [activities, setActivities] = useState(_fresh ? [] : DEFAULT_ACTIVITIES.map(a => ({...a, vouchers:a.vouchers.map(v=>({...v}))})));
@@ -1742,18 +1838,24 @@ function App() {
   let flowStep = null;
   if (screen === "describe") flowStep = <Describe need={need} setNeed={setNeed} onNext={()=>setScreen("building")} />;
   else if (screen === "building") flowStep = <div className="canvas narrow"><Loader title={tr(lang,"Matching games for","正在为你挑玩法")} who={need || tr(lang,"your shop","你的店")} tasks={buildTasks} onDone={()=>setScreen("results")} /></div>;
-  else if (screen === "results") flowStep = <Results need={need} onPick={(t,c)=>{ setGame(t); if(c) setBrand(b=>({...b,color:c})); setScreen("preview"); top(); }} onBack={()=> authed ? enterApp(appSec) : toLanding()} />;
+  else if (screen === "results") flowStep = <Results need={need} onRename={setNeed} onPick={(t,c)=>{ setGame(t); if(c) setBrand(b=>({...b,color:c})); setScreen("preview"); top(); }} onBack={()=> authed ? enterApp(appSec) : toLanding()} />;
   else if (screen === "preview" && authed) flowStep = <div><Workspace game={game} brand={brand} setBrand={setBrand} /><div style={{ display:"flex", gap:12, justifyContent:"flex-end", padding:"16px 28px" }}><button className="btn ghost lg" onClick={()=>{ setScreen("results"); top(); }}><Ic.back style={{ width:16, height:16 }}/> {tr(lang,"Back","上一步")}</button><button className="btn primary lg" onClick={publishDone}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Save game","保存游戏")}</button></div></div>;
   else if (screen === "preview") flowStep = <Preview game={game} brand={brand} setBrand={setBrand} onLaunch={toPublishGate} onBack={()=>{ setScreen("results"); top(); }} />;
 
-  const shellProps = { game, setGame, brand, setBrand, lang, setLang, sec:appSec, setSec:setAppSec, onExit:toLanding, outlets, setOutlets, activities, setActivities, myGames, setMyGames };
+  const shellProps = { game, setGame, brand, setBrand, lang, setLang, sec:appSec, setSec:setAppSec, onExit:toLanding, outlets, setOutlets, activities, setActivities, myGames, setMyGames, cardOnFile, setCardOnFile };
 
   let body;
   if (screen === "landing") body = <Landing go={startBuild} onSignIn={signIn} lang={lang} setLang={setLang} />;
   else if (screen === "register") body = (
     <div className="shell">
-      <div className="topbar"><div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/> <span className="tg">{tr(lang,"Merchant","商家版")}</span></div><LangToggle lang={lang} setLang={setLang} style={{ marginLeft:"auto" }} /><button className="iconx" onClick={backToPreview} title={tr(lang,"Back to editing","返回继续编辑")}><Ic.back/></button></div>
-      <Register onDone={publishDone} onSignIn={signIn} />
+      <div className="topbar">
+        <div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/> <span className="tg">{tr(lang,"Merchant","商家版")}</span></div>
+        <div style={{ marginLeft:"auto", display:"flex", gap:10, alignItems:"center" }}>
+          <LangToggle lang={lang} setLang={setLang} />
+          <button className="ghost-x" onClick={toLanding}>{tr(lang,"Exit","退出")}</button>
+        </div>
+      </div>
+      <Register onDone={publishDone} onSignIn={signIn} onSaveCard={setCardOnFile} onBack={backToPreview} />
     </div>
   );
   else if (screen === "login") body = (

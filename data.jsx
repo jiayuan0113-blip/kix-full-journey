@@ -153,12 +153,12 @@ const OUTLETS = [
   { id:"o2", name:{en:"Kopi Corner · Jurong",zh:"Kopi Corner · 裕廊"},     line1:"63 Jurong West Central 3, #B1-05", city:"Singapore", region:"", postal:"648331", country:0, primary:false },
 ];
 
-/* activities — 经营决策（门店+券+绑定游戏），与游戏视觉分离 */
+/* activities — 经营决策（门店+券+绑定游戏），与游戏视觉分离。stat=累计效果(walkins 到店/newCust 新客=计费)，draft 无数据 */
 const DEFAULT_ACTIVITIES = [
   { id:"a1", name:{en:"Weekend Coffee Promo",zh:"周末咖啡促销"},
     outletIds:["o1","o2"],
     vouchers: [ {...DEFAULT_VOUCHERS[0]} ],
-    gameId:"wheel", status:"live" },
+    gameId:"wheel", status:"live", winScore:1000, stat:{ walkins:52, newCust:41 } },
   { id:"a2", name:{en:"Mid-Autumn Mooncake",zh:"中秋月饼礼"},
     outletIds:["o1"],
     vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"Free mooncake",zh:"月饼一份"}, qty:60} ],
@@ -166,15 +166,15 @@ const DEFAULT_ACTIVITIES = [
   { id:"a3", name:{en:"New Drink Launch",zh:"新品上市试饮"},
     outletIds:["o2"],
     vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"$2 off new drink",zh:"新品减 2 元"}, qty:100} ],
-    gameId:"stack", status:"live" },
+    gameId:"stack", status:"live", winScore:1000, stat:{ walkins:21, newCust:15 } },
   { id:"a5", name:{en:"Birthday Cake Giveaway",zh:"生日蛋糕赠券"},
     outletIds:["o1"],
     vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"Free slice",zh:"蛋糕一块"}, qty:500} ],
-    gameId:"fruit", status:"live" },
+    gameId:"fruit", status:"live", winScore:2500, stat:{ walkins:13, newCust:9 } },
   { id:"a6", name:{en:"Lunar New Year Special",zh:"春节特惠（已结束）"},
     outletIds:["o1","o2"],
     vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"CNY treat",zh:"新年好礼"}, qty:300} ],
-    gameId:"wheel", status:"offline" },
+    gameId:"wheel", status:"offline", winScore:1000, stat:{ walkins:30, newCust:22 } },
 ];
 
 Object.assign(window, { P, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
