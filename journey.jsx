@@ -857,6 +857,9 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   const trialEnding = trialLeft <= 14;
   // 券快发完提醒（发完即停=静默失败）：live 活动中券剩余 ≤15% 的
   const lowStock = (activities||[]).filter(a=>a.status==="live").map(a=>{ const v=a.vouchers&&a.vouchers[0]; const qty=(v&&+v.qty)||0, rem=Math.max(0,qty-((v&&+v.awarded)||0)); return { a, qty, rem, pct: qty?rem/qty:1 }; }).filter(x=>x.qty>0 && x.pct<=0.15).sort((p,q)=>p.rem-q.rem);
+  // 当前 live 活动的券剩余（hero 第三个生命体征）
+  const _lv = liveAct && liveAct.vouchers && liveAct.vouchers[0];
+  const vQty = (_lv&&+_lv.qty)||0, vRem = _lv ? Math.max(0, vQty-((+_lv.awarded)||0)) : 0, vLow = vQty>0 && vRem/vQty<=0.15;
   // 启动态 hero：按进度只给一个下一步动作
   const sh = liveAct
     ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
@@ -879,6 +882,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
               <div className="live3">
                 <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
                 <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"walked in & redeemed","到店兑奖")}</div></div>
+                {vQty>0 && <div className="lc"><div className={"n"+(vLow?" low":"")}>{vRem}</div><div className="l">{tr(lang,"vouchers left","券剩余")}</div></div>}
               </div>
             </div>
             <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
