@@ -460,7 +460,6 @@ function Landing({ go, onSignIn, lang, setLang }) {
 function Register({ onDone, onSignIn, onSaveCard, onBack }) {
   const lang = useLang();
   const [rstep, setRstep] = useState(new URLSearchParams(location.search).get("rstep")==="card" ? "card" : "account");   // account → card（收卡放最后一步，Airwallex）
-  const goBack = () => { if (rstep === "card") setRstep("account"); else onBack && onBack(); };
   const [name, setName] = useState(""), [phone, setPhone] = useState(""), [country, setCountry] = useState(0);
   const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
   const acctOk = name.trim() && phone.trim();
@@ -469,7 +468,8 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
   const finish = () => { onSaveCard && onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" }); onDone(); };
   return (
     <div className="reg-wrap">
-      <button className="canvas-back reg-back" onClick={goBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>
+      {/* 返回只在"账号"步(回预览)；绑卡步不给返回——卡要绑定刚建的账户，不可回退 */}
+      {rstep === "account" && <button className="canvas-back reg-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
       <div className="reg-card">
       <div className="reg-steps"><span className={rstep==="account"?"on":"done"}>1 · {tr(lang,"Account","账号")}</span><i></i><span className={rstep==="card"?"on":""}>2 · {tr(lang,"Card","绑卡")}</span></div>
       {rstep === "account" ? <>
@@ -848,9 +848,13 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   const hasActs = activities && activities.length > 0;
   const M = DEMO_METRICS;
   // 分水岭：有真实到店(redeemed≥1) → 营业态 S2；否则启动态 S1。?nowalkins=1 演示"已上线待到店"
-  const _nw = new URLSearchParams(location.search).get("nowalkins") === "1";
+  const _p = new URLSearchParams(location.search);
+  const _nw = _p.get("nowalkins") === "1";
   const walkins = _nw ? 0 : M.walkins;
   const hasWalkins = !!liveAct && walkins > 0;
+  // 试用剩余天数（?trialleft=N 演示临近到期）；≤14 天亮预警 + 到期费率
+  const trialLeft = +_p.get("trialleft") || 47;
+  const trialEnding = trialLeft <= 14;
   // 启动态 hero：按进度只给一个下一步动作
   const sh = liveAct
     ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","正在跑"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
@@ -871,9 +875,8 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
                 <h3 style={{ margin:0, cursor:"pointer" }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
               </div>
               <div className="live3">
-                <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"plays today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">{M.today.walkins}</div><div className="l">{tr(lang,"walked in","到店")}</div></div>
-                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"redeemed","已核销")}</div></div>
+                <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
+                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"walked in & redeemed","到店核销")}</div></div>
               </div>
             </div>
             <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
@@ -881,9 +884,11 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
             </button>
           </div>
           {/* 成本一瞥：进门第一眼看到花多少（P3）*/}
-          <button className="home-cost" onClick={onGoReports}>
+          <button className={"home-cost"+(trialEnding?" ending":"")} onClick={onGoReports}>
             <span className="hc-cell"><b>{M.newCust}</b> {tr(lang,"new customers this month","本月新客")}</span>
-            <span className="hc-trial"><Ic.spark style={{ width:13, height:13 }}/> {tr(lang,"First 3 months free · now S$0","首 3 个月免费 · 现在 S$0")}</span>
+            <span className="hc-trial">{trialEnding
+              ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then S$3 / new customer`,`试用还剩 ${trialLeft} 天 · 到期后按 S$3/位新客`)}</>
+              : <>{<Ic.spark style={{ width:13, height:13 }}/>} {tr(lang,`First 3 months free · ${trialLeft} days left · now S$0`,`首 3 个月免费 · 还剩 ${trialLeft} 天 · 现在 S$0`)}</>}</span>
             <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
           </button>
           <div className="panel" style={{ marginTop:16 }}>

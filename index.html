@@ -739,6 +739,8 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .home-cost .hc-cell b{font-size:19px;font-weight:900;color:var(--ink);letter-spacing:-.02em;margin-right:4px}
 .home-cost .hc-trial{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:var(--green-d);padding-left:18px;border-left:1px solid var(--line)}
 .home-cost .hc-proj{font-size:12.5px;color:var(--muted-2);font-weight:600}
+.home-cost.ending{border-color:#F1E2C4;background:linear-gradient(135deg,#FFF7E8,#fff)}
+.home-cost.ending .hc-trial,.home-cost.ending .hc-trial svg{color:var(--amber)}
 /* 启动态清单底部：计费心智 */
 .nudge-free{display:flex;align-items:center;gap:7px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--green-d)}
 .nudge-free svg{color:var(--green-d)}
@@ -852,8 +854,8 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 
 /* my games */
 .mygames{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.mgcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh-sm)}
-.mgcard .mgart{aspect-ratio:1/1;display:grid;place-items:center;position:relative;overflow:hidden}
+.mgcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:visible;box-shadow:var(--sh-sm)}
+.mgcard .mgart{aspect-ratio:1/1;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:18px 18px 0 0}
 .mgcard .mgart .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.30);opacity:0;transition:opacity .2s;z-index:6}
 .mgcard .mgart:hover .play{opacity:1}
 .mgcard .mgart .play span{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--ink);font-weight:700;font-size:13.5px;padding:9px 16px;border-radius:999px;box-shadow:var(--sh)}
