@@ -154,7 +154,7 @@ function ScratchCard({ colors, prize }) {
         <div className="scratch-prize">
           <div style={{ fontSize:"13px", color:"var(--muted)", fontWeight:600 }}>{tr(lang,"You scratched","恭喜你刮中")}</div>
           <div className="big">{prize}</div>
-          <div style={{ fontSize:"12.5px", color:"var(--muted)" }}>{tr(lang,"redeem in store","到店扫码核销")}</div>
+          <div style={{ fontSize:"12.5px", color:"var(--muted)" }}>{tr(lang,"redeem in store","到店扫码兑奖")}</div>
         </div>
         <canvas ref={ref} className="scratch-canvas" onPointerDown={(e)=>{draw.current=true;e.currentTarget.setPointerCapture(e.pointerId);erase(e);}} onPointerMove={erase} onPointerUp={()=>{draw.current=false;}}/>
       </div>
@@ -229,7 +229,7 @@ function Hero({ go }) {
             <div className="counter"></div>
             <div className="person"></div>
           </div>
-          <p className="flow-cap">{tr(lang,"A customer ","顾客 ")}<b>{tr(lang,"plays","玩一玩")}</b> → <b>{tr(lang,"wins a voucher","赢一张券")}</b> → <b>{tr(lang,"walks in & redeems","到店核销")}</b> → {tr(lang,"becomes a ","变成")}<b>{tr(lang,"regular","常客")}</b></p>
+          <p className="flow-cap">{tr(lang,"A customer ","顾客 ")}<b>{tr(lang,"plays","玩一玩")}</b> → <b>{tr(lang,"wins a voucher","赢一张券")}</b> → <b>{tr(lang,"walks in & redeems","到店兑奖")}</b> → {tr(lang,"becomes a ","变成")}<b>{tr(lang,"regular","常客")}</b></p>
         </div>
       </div>
     </section>
@@ -242,7 +242,7 @@ function Walkthrough() {
     { scan:true,                                    label:tr(lang,"Scan — no app","扫码，免下载"),            sub:tr(lang,"Plays right in the browser","浏览器里直接玩") },
     { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Plays YOUR game","玩你的专属游戏"),         sub:tr(lang,"A 30-second branded game","30 秒品牌小游戏") },
     { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Wins a voucher","赢一张券"),               sub:tr(lang,"A reason to come in now","现在就进店的理由") },
-    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Walks in & redeems (QR)","到店核销（扫码）"), sub:tr(lang,"You scan → they're a regular","你一扫 → 成常客") },
+    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Walks in & redeems (QR)","到店兑奖（扫码）"), sub:tr(lang,"You scan → they're a regular","你一扫 → 成常客") },
   ];
   return (
     <section className="sec" id="the-game">
@@ -297,7 +297,7 @@ function SeeYourGame({ go }) {
 function WhyGame() {
   const lang = useLang();
   const C = [
-    { ic:Ic.gift,   h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your business — so they walk back in and spend, instead of pocketing a discount and leaving.","赢家拿到的是能在你店里核销的券 —— 于是他们走回店里消费，而不是揣着折扣离开。") },
+    { ic:Ic.gift,   h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your business — so they walk back in and spend, instead of pocketing a discount and leaving.","赢家拿到的是能在你店里兑奖的券 —— 于是他们走回店里消费，而不是揣着折扣离开。") },
     { ic:Ic.shield, h:tr(lang,"Every visit is verified","每一次到店都可验证"),       p:tr(lang,"A door scan proves which plays actually brought someone in. You pay only for real new customers — never for your own regulars.","到店一扫，就知道哪次游戏真的把人带进了门。你只为真正的新客付费 —— 永远不为你的老客买单。") },
     { ic:Ic.globe,  h:tr(lang,"Every game feeds the network","每个游戏都在壮大网络"), p:tr(lang,"Your players discover other businesses on KiX; theirs discover you. The more businesses join, the bigger every playground.","你的玩家在 KiX 上发现别家店，别家的玩家也发现你。加入的店越多，每个人的游乐场就越大。") },
   ];
@@ -327,7 +327,7 @@ function Faq() {
   const lang = useLang();
   const QA = [
     { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional — it just unlocks more games and rewards for the ones who love it.","不需要。扫码即在浏览器里玩。KiX App 是可选的 —— 只是给爱玩的人解锁更多游戏和奖励。") },
-    { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可核销。不改 POS、不用开发、不用找代理。") },
+    { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可兑奖。不改 POS、不用开发、不用找代理。") },
     { q:tr(lang,"What does it actually cost?","到底怎么收费？"),                                a:tr(lang,"Free for the first 3 months. After that you only pay for the new customers we bring you — never a monthly software fee, regulars always free.","前 3 个月免费。之后你只为我们带来的新客付费 —— 从不收月度软件费，老客永远免费。") },
     { q:tr(lang,"I already run a loyalty program — does this replace it?","我已有会员体系 —— 这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，是给它供血。KiX 把新客带进门，你的会员体系把他们留住。两者协同。") },
     { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good — that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger — and your players discover more places to play, right alongside you.","好啊 —— 这正是重点。他们得做自己的、套自己的品牌。每加入一家店，整个 KiX 网络就更大 —— 你的玩家也会发现更多可玩的店，就在你旁边。") },
@@ -374,7 +374,7 @@ function Gallery({ go }) {
 }
 function Steps() {
   const lang = useLang();
-  const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos — AI auto-colors and builds it.","传 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店核销"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动核销即可。") }];
+  const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos — AI auto-colors and builds it.","传 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店兑奖"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动兑奖即可。") }];
   return (
     <section className="sec">
       <div className="sec-eye">{tr(lang,"HOW IT WORKS","三步上线")}</div><h2 className="sec-h">{tr(lang,"Three steps to open for business","三步做好，开门收客")}</h2>
@@ -419,7 +419,7 @@ function Pricing({ go }) {
       <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free. Pay only for new customers.","免费开始，只为新客付费")}</h2>
       <div className="tiers">
         <div className="tier"><div className="tname">{tr(lang,"FREE FOREVER","永久免费")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"For your very first game.","适合做你的第一个游戏。")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"1 branded game","1 个品牌游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"Unlimited plays","不限游玩次数")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + dashboard","到店核销 + 看板")}</li></ul>
+          <ul><li><span className="ck"><Check/></span>{tr(lang,"1 branded game","1 个品牌游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"Unlimited plays","不限游玩次数")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + dashboard","到店兑奖 + 看板")}</li></ul>
           <button className="btn ghost" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
         <div className="tier pop"><div className="pbadge">{tr(lang,"Best value","最超值")}</div><div className="tname">{tr(lang,"PAY PER RESULT","按结果付费")}</div><div className="price"><span style={{ fontSize:"15px", fontWeight:700, color:"var(--muted)" }}>{tr(lang,"from ","低至 ")}</span>S$3<small>{tr(lang," / new customer"," / 位新客")}</small></div><div className="pdesc">{tr(lang,"First 3 months free · price locked.","前 3 个月免费 · 价格锁定。")}</div>
           <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Auto win-back for regulars","老客自动召回")}</li><li><span className="ck"><Check/></span>{tr(lang,"New-customer attribution","新客到店归因")}</li></ul>
@@ -668,7 +668,7 @@ function VoucherEditor({ vouchers, setVouchers, showStock }) {
         </div>}
       </div>
       <p className="vnote">{csrc==="custom"
-        ? tr(lang,"We hand out your uploaded codes in order until they run out; redemption verifies against your codes.","按你上传的券码依次发放、发完即停；核销时校验你的券码/二维码。")
+        ? tr(lang,"We hand out your uploaded codes in order until they run out; redemption verifies against your codes.","按你上传的券码依次发放、发完即停；兑奖时校验你的券码/二维码。")
         : tr(lang,"Given out until the quantity runs out — no win-rate to set. One voucher per activity for now.","按张数自然发放，发完即停 —— 不用设中奖率。目前一个活动发一种券。")}</p>
     </div>
   );
@@ -818,7 +818,7 @@ const SB_ITEMS = [
   { id:"home",       icon:"home",      en:"Home",       zh:"主页" },
   { id:"activities", icon:"clipboard", en:"Activities", zh:"活动" },
   { id:"games",      icon:"gamepad",   en:"My games",   zh:"我的游戏" },
-  { id:"redeem",     icon:"target",    en:"Redeem",     zh:"核销", badge:3 },
+  { id:"redeem",     icon:"target",    en:"Redeem",     zh:"兑奖", badge:3 },
   { id:"reports",    icon:"chart",     en:"Reports",    zh:"数据" },
   { id:"me",         icon:"user",      en:"Me",         zh:"我的" },
 ];
@@ -857,9 +857,9 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   const trialEnding = trialLeft <= 14;
   // 启动态 hero：按进度只给一个下一步动作
   const sh = liveAct
-    ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","正在跑"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
+    ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
     : liveGame
-    ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","正在跑"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
+    ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
     : hasActs
     ? { badge:tr(lang,"Draft","修改中"), dark:false, title:tr(lang,"Finish and publish your activity","完善并上线你的活动"), sub:tr(lang,"Set a voucher, pick outlets, then go live — customers scan to play.","设一张券、选门店，点上线 —— 客人扫码就能玩。"), cta:tr(lang,"Finish activity","去完善"), on:onGoActivity }
     : { badge:tr(lang,"No activity yet","暂时还没有活动"), dark:false, title:tr(lang,"Create an activity to open for business","建个活动，就能开门营业"), sub:tr(lang,"Pick outlets, set a voucher, link your game — customers scan to play.","选门店、设一张券、绑上你的游戏 —— 客人扫码就能玩。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct };
@@ -872,15 +872,15 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
             <div style={{ flex:1 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
                 <span className="hl-live"><span className="b"></span>LIVE</span>
-                <h3 style={{ margin:0, cursor:"pointer" }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","正在跑")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
+                <h3 style={{ margin:0, cursor:"pointer" }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","进行中")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
               </div>
               <div className="live3">
                 <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"walked in & redeemed","到店核销")}</div></div>
+                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"walked in & redeemed","到店兑奖")}</div></div>
               </div>
             </div>
             <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
-              <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码核销")}
+              <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码兑奖")}
             </button>
           </div>
           {/* 成本一瞥：进门第一眼看到花多少（P3）*/}
@@ -898,7 +898,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
           <div className={"recall" + (recalled ? " ok" : "")}>
             <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
             {recalled
-              ? <div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来核销就行。")}</p></div>
+              ? <div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来兑奖就行。")}</p></div>
               : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder — your easiest repeat business.","一键发送召回通知，把他们请回来 —— 这是你最容易赢回的复购。")}</p></div>
                 <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
           </div>
@@ -1075,13 +1075,13 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
   const toCome = vouchers.reduce((s,v)=>s+Math.max(0,(v.awarded||0)-(v.redeemed||0)),0);
   const totAwarded = vouchers.reduce((s,v)=>s+(v.awarded||0),0);
   const dlQR = () => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(liveName||"activity",100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
-  // 空状态分级：没 live 活动 = 无券可核销；有 live 但还没人赢券 = 等客人玩
+  // 空状态分级：没 live 活动 = 无券可兑奖；有 live 但还没人赢券 = 等客人玩
   if (!hasLive) return (
     <div className="app-body"><EmptyState
       icon={<Ic.target/>}
-      title={hasActs ? tr(lang,"Your activity isn't live yet","活动还没上线") : tr(lang,"Nothing to redeem yet","还没有可核销的奖品")}
+      title={hasActs ? tr(lang,"Your activity isn't live yet","活动还没上线") : tr(lang,"Nothing to redeem yet","还没有可兑奖的奖品")}
       sub={hasActs
-        ? tr(lang,"It's still being edited. Once it's live, customers play, win vouchers — then you scan to redeem here.","活动还在修改中。上线后客人才能玩、赢券，你才能在这里扫码核销。")
+        ? tr(lang,"It's still being edited. Once it's live, customers play, win vouchers — then you scan to redeem here.","活动还在修改中。上线后客人才能玩、赢券，你才能在这里扫码兑奖。")
         : tr(lang,"Create an activity and publish it. Customers play, win a voucher, walk in — you scan it here, and that counts as a real walk-in.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次真实到店。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
@@ -1091,7 +1091,7 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
     <div className="app-body"><EmptyState
       icon={<Ic.target/>}
       title={tr(lang,"No prizes won yet","还没有人赢到奖品")}
-      sub={tr(lang,"Stick your activity QR on the counter and share it. As soon as someone plays and wins, their prize shows up here to redeem.","把活动二维码贴到收银台、分享出去。客人一玩、一赢券，就会出现在这里等你核销。")}
+      sub={tr(lang,"Stick your activity QR on the counter and share it. As soon as someone plays and wins, their prize shows up here to redeem.","把活动二维码贴到收银台、分享出去。客人一玩、一赢券，就会出现在这里等你兑奖。")}
       actLabel={tr(lang,"Download activity QR","下载活动二维码")}
       onAct={dlQR}
       ghostLabel={tr(lang,"View activity","查看活动")}
@@ -1103,17 +1103,17 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
       <div className="rd-left">
         <div className="redeem-card">
           <div className="ic-big"><Ic.target/></div>
-          <h3>{tr(lang,"Redeem at the counter","到店核销")}</h3>
+          <h3>{tr(lang,"Redeem at the counter","到店兑奖")}</h3>
           <p>{tr(lang,"Scan the customer's prize QR — or type their code.","扫客人的奖品二维码 —— 或输入奖品码。")}</p>
           {scanning
             ? <div className="scanbox"><div className="scanline"></div><Ic.qr style={{ width:56, height:56, color:"#fff", opacity:.55 }}/><div className="scan-t">{tr(lang,"Point at the customer's QR…","对准客人的二维码…")}</div></div>
-            : <button className="btn primary lg scanbtn" onClick={scan}><Ic.qr style={{ width:20, height:20 }}/> {tr(lang,"Scan QR to redeem","扫码核销")}</button>}
+            : <button className="btn primary lg scanbtn" onClick={scan}><Ic.qr style={{ width:20, height:20 }}/> {tr(lang,"Scan QR to redeem","扫码兑奖")}</button>}
           <div className="redeem-or"><span>{tr(lang,"or enter the code","或 输入奖品码")}</span></div>
-          <div className="redeem-input"><input value={code} onChange={e=>setCode(e.target.value)} placeholder={tr(lang,"prize code","奖品码")} onKeyDown={e=>{ if(e.key==="Enter") submit(); }}/><button className="btn primary" onClick={submit}>{tr(lang,"Redeem","核销")}</button></div>
-          {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed — counted as a real walk-in","核销成功 —— 已计入真实到店")}</div>}
+          <div className="redeem-input"><input value={code} onChange={e=>setCode(e.target.value)} placeholder={tr(lang,"prize code","奖品码")} onKeyDown={e=>{ if(e.key==="Enter") submit(); }}/><button className="btn primary" onClick={submit}>{tr(lang,"Redeem","兑奖")}</button></div>
+          {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed — counted as a real walk-in","兑奖成功 —— 已计入真实到店")}</div>}
         </div>
         {reds.length > 0 && <div className="panel">
-          <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent redemptions","最近核销")}</h4>
+          <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent redemptions","最近兑奖")}</h4>
           {reds.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
         </div>}
       </div>
@@ -1121,13 +1121,13 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
       <div className="rd-right">
         {/* 简要概览 — 当下要瞄一眼的数；完整分析在「数据」页 */}
         <div className="rd-summary" style={{ marginTop:0 }}>
-          <div className="rd-sum"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed today","今日核销")}</div></div>
-          <div className="rd-sum"><div className="n">{toCome}</div><div className="l">{tr(lang,"not yet redeemed","待核销")}</div></div>
-          <div className="rd-sum"><div className="n">{totRedeemed}</div><div className="l">{tr(lang,"redeemed total","累计核销")}</div></div>
+          <div className="rd-sum"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed today","今日兑奖")}</div></div>
+          <div className="rd-sum"><div className="n">{toCome}</div><div className="l">{tr(lang,"not yet redeemed","待兑奖")}</div></div>
+          <div className="rd-sum"><div className="n">{totRedeemed}</div><div className="l">{tr(lang,"redeemed total","累计兑奖")}</div></div>
         </div>
         <div className="panel">
-          <div className="panel-head"><h4 style={{ fontSize:16, fontWeight:800, margin:0 }}>{tr(lang,"Voucher status","奖品券核销")}</h4><button className="panel-link" onClick={onReport}>{tr(lang,"Full report","查看完整数据")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Redeemed / total issued · per-outlet & trends in Reports","已核销 / 总张数 · 各门店与趋势看「数据」")}</p>
+          <div className="panel-head"><h4 style={{ fontSize:16, fontWeight:800, margin:0 }}>{tr(lang,"Voucher status","奖品券兑奖")}</h4><button className="panel-link" onClick={onReport}>{tr(lang,"Full report","查看完整数据")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
+          <p className="ph-sub">{tr(lang,"Redeemed / total issued · per-outlet & trends in Reports","已兑奖 / 总张数 · 各门店与趋势看「数据」")}</p>
           <div className="rd-list">
             {vouchers.map((v,i)=>{
               const cap=+v.qty||0, redeemed=v.redeemed||0;
@@ -1420,7 +1420,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       icon={<Ic.chart/>}
       title={hasActs ? tr(lang,"No data until you go live","上线后才有数据") : tr(lang,"No data yet","还没有数据")}
       sub={hasActs
-        ? tr(lang,"Once your activity is live and customers redeem in store, walk-ins, new vs returning, and per-outlet stats appear here.","活动上线、客人到店核销后，这里会显示真实到店、新客/回头客、各门店表现。")
+        ? tr(lang,"Once your activity is live and customers redeem in store, walk-ins, new vs returning, and per-outlet stats appear here.","活动上线、客人到店兑奖后，这里会显示真实到店、新客/回头客、各门店表现。")
         : tr(lang,"This page only counts people who actually walked in. Create an activity, go live, and your real walk-in data will build up here.","这页只统计真正走进门的人。建活动、上线后，真实到店数据会在这里累积。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
@@ -1429,7 +1429,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     <EmptyState
       icon={<Ic.chart/>}
       title={tr(lang,"Live — waiting for the first walk-in","已上线，等第一位到店")}
-      sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your walk-in numbers and trends will appear here.","只要有客人扫码玩、赢券、到店核销，到店数据和趋势就会出现在这里。")}
+      sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your walk-in numbers and trends will appear here.","只要有客人扫码玩、赢券、到店兑奖，到店数据和趋势就会出现在这里。")}
       actLabel={tr(lang,"Download activity QR","下载活动二维码")}
       onAct={dlQR}
       ghostLabel={tr(lang,"Manage activities","管理活动")}
@@ -1437,12 +1437,12 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     />
   ) : (
     <>
-      {/* Hero：真实到店核销 = 唯一付费指标、唯一独家证明，做绝对主角 */}
+      {/* Hero：真实到店兑奖 = 唯一付费指标、唯一独家证明，做绝对主角 */}
       <div className="rep-hero">
         <div className="rh-l">
-          <span className="rh-eye"><span className="b"></span>{tr(lang,`Verified walk-ins · ${P(lang,ranges[ri])}`,`真实到店核销 · ${P(lang,ranges[ri])}`)}</span>
+          <span className="rh-eye"><span className="b"></span>{tr(lang,`Verified walk-ins · ${P(lang,ranges[ri])}`,`真实到店兑奖 · ${P(lang,ranges[ri])}`)}</span>
           <div className="rh-num">{M.walkins}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{M.delta.walkins} {note}</span></div>
-          <p className="rh-sub">{tr(lang,"Only customers who actually walked in and were redeemed — the only thing you pay for.","只算真正走进门、被核销的客人 —— 也是你唯一付费的对象。")}</p>
+          <p className="rh-sub">{tr(lang,"Only customers who actually walked in and were redeemed — the only thing you pay for.","只算真正走进门、被兑奖的客人 —— 也是你唯一付费的对象。")}</p>
         </div>
         <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
       </div>
@@ -1464,7 +1464,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
             <div className="farrow"><b>{wonRate}%</b><span>{tr(lang,"won","赢券")}</span></div>
             <div className="fstep"><div className="fn">{M.awarded}</div><div className="fl">{tr(lang,"Won a voucher","赢到券")}</div></div>
             <div className="farrow"><b>{redRate}%</b><span>{tr(lang,"walked in","到店")}</span></div>
-            <div className="fstep on"><div className="fn">{M.walkins}</div><div className="fl">{tr(lang,"Walked in","到店核销")}</div></div>
+            <div className="fstep on"><div className="fn">{M.walkins}</div><div className="fl">{tr(lang,"Walked in","到店兑奖")}</div></div>
           </div>
         </div>
         {/* 新客 vs 回头：证明"把路过变回头客" */}
@@ -1483,7 +1483,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       {/* 每日到店趋势 */}
       <div className="panel">
         <h3>{tr(lang,"Walk-ins per day","每天有多少人到店")}</h3>
-        <p className="ph-sub">{tr(lang,"Played, then walked in and redeemed","扫码玩过、再走进门核销的人数")}</p>
+        <p className="ph-sub">{tr(lang,"Played, then walked in and redeemed","扫码玩过、再走进门兑奖的人数")}</p>
         <div className="bars7">{M.trend.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
       </div>
       {/* 条件区：多活动才有"排名"意义；多门店才有"分店"意义 */}
@@ -1575,7 +1575,7 @@ function OutletPanel({ lang, outRed, omax }) {
 /* ===== billing: plans + payment method ===== */
 // 价格 = 落地页口径（pay-per-result）：免费版靠功能门槛；按结果=S$3/位新客、首 3 月免费、老客永远免费
 const PLANS = [
-  { id:"free",   name:{en:"Free forever",zh:"永久免费"},  price:{en:"S$0",zh:"S$0"},              note:{en:"1 game · redemption + dashboard",zh:"1 个游戏 · 核销 + 数据看板"} },
+  { id:"free",   name:{en:"Free forever",zh:"永久免费"},  price:{en:"S$0",zh:"S$0"},              note:{en:"1 game · redemption + dashboard",zh:"1 个游戏 · 兑奖 + 数据看板"} },
   { id:"result", name:{en:"Pay per result",zh:"按结果付费"}, price:{en:"from S$3/new customer",zh:"S$3 / 位新客起"}, note:{en:"Unlimited games & campaigns · first 3 months free · regulars always free",zh:"不限游戏与活动 · 首 3 个月免费 · 老客永远免费"} },
   { id:"chain",  name:{en:"Chains",zh:"连锁版"},         price:{en:"Contact us",zh:"联系我们"},    note:{en:"Multi-outlet · custom games & integration",zh:"多门店 · 定制玩法与对接"} },
 ];

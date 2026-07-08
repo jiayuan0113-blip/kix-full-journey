@@ -52,32 +52,32 @@ const TEMPLATES = [
     name:{en:"Lucky Spin",zh:"幸运大转盘"}, tag:{en:"Scan & spin · easiest",zh:"扫码就转 · 最快上手"},
     lede:{en:"One spin to win — the classic foot-traffic game for shops.",zh:"转一下就赢 —— 街边店最经典的到店引流玩法。"},
     feats:{en:["Anyone gets it in 10 seconds","You set the prizes and win-rate","Winners walk in to redeem — no walk-in, no count"],
-           zh:["10 秒上手，老人小孩都会玩","奖品和中奖率，你自己说了算","赢家到店扫码核销，没核销不计数"]} },
+           zh:["10 秒上手，老人小孩都会玩","奖品和中奖率，你自己说了算","赢家到店扫码兑奖，没兑奖不计数"]} },
   { id:"scratch", kind:"scratch", g:["#0EA5E9","#38BDF8"], demo:"scratch",
     name:{en:"Scratch Card",zh:"刮刮乐"}, tag:{en:"Scratch today's prize",zh:"刮出今天的奖"},
     lede:{en:"A swipe of the finger reveals today's surprise.",zh:"手指一刮，揭晓今天的惊喜。"},
     feats:{en:["High suspense, very shareable","Set a 'try again' slice to control cost","A win creates a redemption code"],
-           zh:["悬念感强，朋友间爱分享","可设“谢谢惠顾”稳稳控成本","刮中即生成到店核销码"]} },
+           zh:["悬念感强，朋友间爱分享","可设“谢谢惠顾”稳稳控成本","刮中即生成到店兑奖码"]} },
   { id:"stack", kind:"stack", g:["#F59E0B","#FBBF24"], demo:"wheel",
     name:{en:"Stack It",zh:"叠叠乐"}, tag:{en:"Higher = bigger",zh:"越叠越高"},
     lede:{en:"The higher you stack, the bigger the prize.",zh:"叠得越高，奖越大 —— 越玩越上头。"},
     feats:{en:["Fast pace, longer dwell time","Adjustable difficulty","Top prize saved for in-store"],
-           zh:["节奏快，停留时长更长","难度可调，新客也敢试","封顶大奖留给到店核销"]} },
+           zh:["节奏快，停留时长更长","难度可调，新客也敢试","封顶大奖留给到店兑奖"]} },
   { id:"fruit", kind:"merge", g:["#EF4444","#FB7185"], demo:"scratch",
     name:{en:"Fruit Merge",zh:"合成水果"}, tag:{en:"Merge up",zh:"合成升级"},
     lede:{en:"Crash two together, merge into a big prize.",zh:"两两相撞，合出大奖。"},
     feats:{en:["Lively visuals catch the eye","Short rounds, great for queues","Big merge creates a code"],
-           zh:["画面热闹，吸引路过目光","回合短，适合排队时玩","大奖即生成核销码"]} },
+           zh:["画面热闹，吸引路过目光","回合短，适合排队时玩","大奖即生成兑奖码"]} },
   { id:"gift", kind:"drop", g:["#8B5CF6","#A78BFA"], demo:"wheel",
     name:{en:"Gift Drop",zh:"天降好礼"}, tag:{en:"Catch to win",zh:"接住就中"},
     lede:{en:"Catch the falling gift boxes to open a prize.",zh:"接住掉下来的礼物盒，开出奖。"},
     feats:{en:["Intuitive, zero learning curve","Freely mix your prizes","A win goes straight to redemption"],
-           zh:["操作直觉，零学习成本","奖品组合自由配","中奖直达到店核销"]} },
+           zh:["操作直觉，零学习成本","奖品组合自由配","中奖直达到店兑奖"]} },
   { id:"pair", kind:"flip", g:["#EC4899","#F9A8D4"], demo:"scratch",
     name:{en:"Match Pairs",zh:"翻翻配对"}, tag:{en:"Memory flip",zh:"记忆翻牌"},
     lede:{en:"Flip two matching cards to win a reward.",zh:"翻开两张相同的牌，赢奖励。"},
     feats:{en:["Relaxing, high replay","Three difficulty levels","A match creates a code"],
-           zh:["轻松解压，复玩率高","难度三档可调","配对成功生成核销码"]} },
+           zh:["轻松解压，复玩率高","难度三档可调","配对成功生成兑奖码"]} },
   { id:"hoop", kind:"hoop", g:["#0EA5E9","#22C55E"], demo:"wheel",
     name:{en:"Hoop Shot",zh:"投篮赢奖"}, tag:{en:"Beat the clock",zh:"手速挑战"},
     lede:{en:"Shoot the ball into the hoop before time runs out.",zh:"在倒计时内投进篮筐，赢取奖品。"},
@@ -87,7 +87,7 @@ const TEMPLATES = [
     name:{en:"Lucky Draw",zh:"幸运抽签"}, tag:{en:"One draw decides",zh:"一抽定输赢"},
     lede:{en:"Pull a ticket from the box — one draw, one prize.",zh:"从箱子里抽一张签，一抽定奖。"},
     feats:{en:["Simple, no learning curve","Classic lucky-draw excitement","Instant result, instant code"],
-           zh:["最简单，零门槛","经典抽签的期待感","即抽即出核销码"]} },
+           zh:["最简单，零门槛","经典抽签的期待感","即抽即出兑奖码"]} },
 ];
 
 const SAMPLE_LOGOS = [
@@ -108,17 +108,17 @@ const GAME_PERF = [
   { n:{en:"Stack It",zh:"叠叠乐"}, v:13, c:"linear-gradient(90deg,#F59E0B,#FBBF24)" },
 ];
 const FEED = [
-  { ic:"gift", bg:"#EEF1FF", c:"#4F46E5", who:{en:"User 88**",zh:"张**"}, act:{en:'redeemed “Free Americano” · counter',zh:'核销「一杯美式」· 收银台'}, z:{en:"just now",zh:"刚刚"} },
+  { ic:"gift", bg:"#EEF1FF", c:"#4F46E5", who:{en:"User 88**",zh:"张**"}, act:{en:'redeemed “Free Americano” · counter',zh:'兑奖「一杯美式」· 收银台'}, z:{en:"just now",zh:"刚刚"} },
   { ic:"star", bg:"#FFF3DA", c:"#F59E0B", who:{en:"New customer",zh:"新客"}, act:{en:"first visit ever",zh:"第一次到店"}, z:{en:"2 min ago",zh:"2 分钟前"} },
-  { ic:"gift", bg:"#EEF1FF", c:"#4F46E5", who:{en:"User 44**",zh:"李**"}, act:{en:'redeemed “1-for-1” · counter',zh:'核销「买一送一」· 收银台'}, z:{en:"5 min ago",zh:"5 分钟前"} },
+  { ic:"gift", bg:"#EEF1FF", c:"#4F46E5", who:{en:"User 44**",zh:"李**"}, act:{en:'redeemed “1-for-1” · counter',zh:'兑奖「买一送一」· 收银台'}, z:{en:"5 min ago",zh:"5 分钟前"} },
   { ic:"ret", bg:"#ECFDF3", c:"#16A34A", who:{en:"Returning",zh:"回头客"}, act:{en:"3rd visit",zh:"第 3 次到店"}, z:{en:"8 min ago",zh:"8 分钟前"} },
   { ic:"star", bg:"#FFF3DA", c:"#F59E0B", who:{en:"New customer",zh:"新客"}, act:{en:'played “Lucky Spin”, won a voucher',zh:'玩了「幸运大转盘」赢了券'}, z:{en:"12 min ago",zh:"12 分钟前"} },
 ];
 
-/* 统一 demo 指标 —— 全站(主页/核销/数据/我的游戏)从这里取数，口径自洽。
+/* 统一 demo 指标 —— 全站(主页/兑奖/数据/我的游戏)从这里取数，口径自洽。
    场景：live 活动 a1 / 2 门店 / 单券。7 天为主窗口，today 为其子集。改这一处，全站同步、不穿帮。
    自洽校验：new 61 + returning 25 = walkins 86；trend 7 天求和 = 86，末位 = today 12；
-   漏斗 plays 312 → awarded 120 → walkins/redeemed 86；byOutlet 50+36 = 86；券 awarded 120 / redeemed 86 → 待核销 34。 */
+   漏斗 plays 312 → awarded 120 → walkins/redeemed 86；byOutlet 50+36 = 86；券 awarded 120 / redeemed 86 → 待兑奖 34。 */
 const DEMO_METRICS = {
   plays: 312, awarded: 120, walkins: 86, newCust: 61, returning: 25,
   delta: { plays:"+18%", walkins:"+24%", newCust:"+31%", returning:"+12%" },
