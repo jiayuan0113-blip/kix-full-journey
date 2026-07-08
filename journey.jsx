@@ -1036,6 +1036,7 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
   const shown = myGames.filter(g => filt==="all" ? true : (g.status||"draft")===filt);
   return (
     <div className="app-body">
+      <p className="ph-sub" style={{ margin:"0 0 16px" }}>{tr(lang,"Games are your branded mini-games — customers scan and play. To hand out prizes and bring them in, add an ","游戏 = 你的品牌小游戏，客人扫码就能玩。想送奖品、把人带到店 → 去")}<b>{tr(lang,"Activity","「活动」")}</b>{tr(lang,".","加奖品和时限。")}</p>
       {myGames.length > 0 && tabs.length > 1 && <div className="act-filters">
         {tabs.map(([k,en,zh]) => (<button key={k} className={"afilt"+(filt===k?" on":"")} onClick={()=>setFilt(k)}>{tr(lang,en,zh)} <em>{cnt(k)}</em></button>))}
       </div>}
@@ -1047,7 +1048,7 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
               <div className="mgart"><GamePreview kind={g.kind} colors={g.g} /><span className={"mgstatus act-badge " + stt.cls}>{status==="live" && <span className="b"></span>}{tr(lang, stt.en, stt.zh)}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
               <div className="mgmeta">
                 <div className="nm">{P(lang,g.name)}</div>
-                <div className="st">{status==="live" ? tr(lang,"Live · scan to play","已上线 · 可扫码玩") : tr(lang,"Not live yet","未上线")}</div>
+                <div className="st">{status==="live" ? tr(lang,"Live · scan to play (no prizes)","已上线 · 可扫码玩（纯玩、无奖品）") : tr(lang,"Not live yet","未上线")}</div>
                 {status==="live"
                   ? <><button className="btn ghost sm inapp" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setAppQr(true); }}><Ic.phone style={{ width:14, height:14 }}/> {tr(lang,"View in app","在 App 查看")}</button>
                       <button className="btn ghost sm" style={{ width:"100%", marginTop:8 }} onClick={(e)=>{ e.stopPropagation(); onOffline(g); }}>{tr(lang,"Take offline","下线")}</button></>
@@ -1056,7 +1057,6 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
             </div>
           );
         })}
-        <button className="mgnew" onClick={onNew}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
       </div>
       {pubGame && <PublishGameModal game={pubGame} onClose={()=>setPubGame(null)} onConfirm={(patch)=>{ onPublish(pubGame, patch); }}/>}
       {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
@@ -1732,7 +1732,7 @@ function UndoToast({ onUndo, onClose, lang }) {
   useEffect(() => { const t = setTimeout(onClose, 6000); return () => clearTimeout(t); }, []);
   return ReactDOM.createPortal(
     <div className="undo-toast">
-      <span className="ut-txt"><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Activity taken offline · customer scans paused","活动已下线 · 客人扫码已暂停")}</span>
+      <span className="ut-txt"><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Taken offline · customer scans paused","已下线 · 客人扫码已暂停")}</span>
       <button className="ut-undo" onClick={onUndo}>{tr(lang,"Undo","撤销")}</button>
     </div>,
     document.body
@@ -1742,10 +1742,10 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   const [editing, setEditing] = useState(initEdit || null);
   const [editingAct, setEditingAct] = useState((()=>{ const e=new URLSearchParams(location.search).get("editact"); return e ? (activities[parseInt(e,10)-1]||activities[0]||null) : null; })()); // 调试直达活动编辑器（editact=1/2/3 指定第几个）
   const [menuOpen, setMenuOpen] = useState(false);
-  const [toast, setToast] = useState(null); // 下线撤销 toast：{id, prev}
-  // 下线活动 = 立即执行 + 可撤销（可逆动作不弹前置确认）
-  const takeOffline = (act) => { setActivities(list => list.map(a => a.id===act.id ? {...a, status:"offline"} : a)); setToast({ id:act.id, prev:act.status||"live" }); };
-  const undoOffline = () => { setToast(t => { if (t) setActivities(list => list.map(a => a.id===t.id ? {...a, status:t.prev} : a)); return null; }); };
+  const [toast, setToast] = useState(null); // 下线撤销 toast：{ undo }（可逆动作不弹前置确认）
+  const takeOffline = (act) => { const prev = act.status||"live"; setActivities(list => list.map(a => a.id===act.id ? {...a, status:"offline"} : a)); setToast({ undo:()=>setActivities(list => list.map(a => a.id===act.id ? {...a, status:prev} : a)) }); };
+  const takeGameOffline = (g) => { setMyGames(list => list.map(x => x.id===g.id ? {...x, status:"draft"} : x)); setToast({ undo:()=>setMyGames(list => list.map(x => x.id===g.id ? {...x, status:"live"} : x)) }); };
+  const undoOffline = () => { setToast(t => { if (t) t.undo(); return null; }); };
   const inBuild = !!builder;
   const cur = SB_ITEMS.find(i => i.id === sec) || SB_ITEMS[0];
   const navClick = (id) => { setEditing(null); setEditingAct(null); inBuild ? onLeaveBuild(id) : setSec(id); };
@@ -1791,6 +1791,9 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
             {!inBuild && !inEdit && !inActEdit && sec === "activities" && (
               <button className="btn primary" style={{ height:36, fontSize:14, padding:"0 16px" }} onClick={newAct}>+ {tr(lang,"New activity","新建活动")}</button>
             )}
+            {!inBuild && !inEdit && !inActEdit && sec === "games" && (
+              <button className="btn primary" style={{ height:36, fontSize:14, padding:"0 16px" }} onClick={onNewGame}>+ {tr(lang,"New game","新建游戏")}</button>
+            )}
             <div className="acct">
               <button className="acct-btn" onClick={()=>setMenuOpen(v=>!v)}>{avatar}<span className="acct-name">{shopName}</span><Ic.down style={{ width:13, height:13 }}/></button>
               {menuOpen && <><div className="acct-backdrop" onClick={()=>setMenuOpen(false)}/>
@@ -1809,7 +1812,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
           : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
-          : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
+          : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
