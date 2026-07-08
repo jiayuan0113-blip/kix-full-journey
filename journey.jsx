@@ -855,6 +855,8 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   // 试用剩余天数（?trialleft=N 演示临近到期）；≤14 天亮预警 + 到期费率
   const trialLeft = +_p.get("trialleft") || 47;
   const trialEnding = trialLeft <= 14;
+  // 券快发完提醒（发完即停=静默失败）：live 活动中券剩余 ≤15% 的
+  const lowStock = (activities||[]).filter(a=>a.status==="live").map(a=>{ const v=a.vouchers&&a.vouchers[0]; const qty=(v&&+v.qty)||0, rem=Math.max(0,qty-((v&&+v.awarded)||0)); return { a, qty, rem, pct: qty?rem/qty:1 }; }).filter(x=>x.qty>0 && x.pct<=0.15).sort((p,q)=>p.rem-q.rem);
   // 启动态 hero：按进度只给一个下一步动作
   const sh = liveAct
     ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
@@ -891,6 +893,13 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
               : <>{<Ic.spark style={{ width:13, height:13 }}/>} {tr(lang,`First 3 months free · ${trialLeft} days left · now S$0`,`首 3 个月免费 · 还剩 ${trialLeft} 天 · 现在 S$0`)}</>}</span>
             <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
           </button>
+          {lowStock.length>0 && <button className={"lowstock"+(lowStock[0].rem===0?" out":"")} onClick={onGoActivities}>
+            <span className="ls-ic"><Ic.bell style={{ width:17, height:17 }}/></span>
+            <span className="ls-t">{lowStock[0].rem===0
+              ? tr(lang,`"${P(lang,lowStock[0].a.name)}" is all out of vouchers — players can't win`,`「${P(lang,lowStock[0].a.name)}」券已发完 —— 客人现在赢不到奖了`)
+              : tr(lang,`"${P(lang,lowStock[0].a.name)}" has only ${lowStock[0].rem} vouchers left — runs out then stops`,`「${P(lang,lowStock[0].a.name)}」只剩 ${lowStock[0].rem} 张券 —— 发完就停`)}</span>
+            <span className="ls-cta">{tr(lang,"Top up","去加券")} <Ic.arrow style={{ width:13, height:13 }}/></span>
+          </button>}
           <div className="panel" style={{ marginTop:16 }}>
             <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
             {FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
@@ -1212,6 +1221,11 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate, onSetStatus })
                     {act.stat && (act.status==="live"||act.status==="offline")
                       ? <div className="act-stat"><b>{act.stat.walkins}</b> {tr(lang,"walked in","到店")} · <b>{act.stat.newCust}</b> {tr(lang,"new","新客")}</div>
                       : <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
+                    {(act.status==="live"||act.status==="offline") && (()=>{ const v=act.vouchers&&act.vouchers[0]; const qty=(v&&+v.qty)||0, issued=(v&&+v.awarded)||0, rem=Math.max(0,qty-issued), pct=qty?rem/qty:1; if(!qty) return null; return (
+                      <div className={"stockrow"+(rem===0?" out":pct<=0.15?" low":"")}>
+                        <div className="stock-bar"><i style={{ width:(pct*100)+"%" }}></i></div>
+                        <span className="stock-t">{rem===0 ? tr(lang,"All given out · top up","券已发完 · 加券") : tr(lang,`${issued} given · ${rem} left`,`送 ${issued} · 剩 ${rem}`)}</span>
+                      </div>); })()}
                     <div className="mgfoot">
                       {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"offline"); }} style={{ padding:"7px 14px", fontSize:12.5 }}>{tr(lang,"Take offline","下线")}</button>}
                       {act.status === "offline" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"live"); }} style={{ padding:"7px 14px", fontSize:12.5 }}><span className="b-dot"></span>{tr(lang,"Go live","上线")}</button>}

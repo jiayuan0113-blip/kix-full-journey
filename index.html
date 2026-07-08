@@ -949,6 +949,23 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .act-stat{font-size:13px;color:var(--ink-2);margin-top:4px}
 .act-stat b{font-size:15px;font-weight:800;color:var(--ink)}
 .act-bill{margin-left:7px;font-size:11px;font-weight:800;color:var(--green-d);background:var(--green-50);border-radius:999px;padding:2px 7px}
+/* 活动卡 券库存：送/剩 + 进度条 */
+.stockrow{margin-top:8px}
+.stock-bar{height:5px;border-radius:999px;background:var(--line-2);overflow:hidden}
+.stock-bar i{display:block;height:100%;background:var(--green);border-radius:999px}
+.stock-t{display:block;font-size:12px;color:var(--muted);margin-top:5px;font-weight:600}
+.stockrow.low .stock-bar i{background:var(--amber)}
+.stockrow.low .stock-t{color:var(--amber)}
+.stockrow.out .stock-bar i{background:#DC2626}
+.stockrow.out .stock-t{color:#DC2626;font-weight:800}
+/* 主页 券快发完提醒（条件出现） */
+.lowstock{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:14px;background:linear-gradient(135deg,#FFF7E8,#fff);border:1px solid #F1E2C4;border-radius:14px;padding:13px 16px;cursor:pointer;transition:transform .12s}
+.lowstock:hover{transform:translateY(-1px)}
+.lowstock.out{background:linear-gradient(135deg,#FEF2F2,#fff);border-color:#F6D0D0}
+.lowstock .ls-ic{flex:none;width:34px;height:34px;border-radius:10px;background:#FBEFD3;color:var(--amber);display:grid;place-items:center}
+.lowstock.out .ls-ic{background:#FBE0E0;color:#DC2626}
+.lowstock .ls-t{font-size:14px;font-weight:700;color:var(--ink-2)}
+.lowstock .ls-cta{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:800;color:var(--green-d)}
 .mgcard.sel{border:2px solid var(--green);box-shadow:var(--sh)}
 .mgnew{border:2px dashed var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);min-height:200px;transition:all .15s;background:#fff}
 .mgnew:hover{border-color:var(--green);color:var(--green-d)}
