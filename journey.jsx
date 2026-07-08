@@ -1640,6 +1640,8 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
   const _bill = new URLSearchParams(location.search).get("bill");
   const [cardModal, setCardModal] = useState(_bill==="card"), [planModal, setPlanModal] = useState(_bill==="plan");
   const curPlan = PLANS.find(p=>p.id===plan) || PLANS[1];
+  const [saved, setSaved] = useState(""), [appQr, setAppQr] = useState(false);
+  const save = (k) => { setSaved(k); setTimeout(()=>setSaved(s=>s===k?"":s), 2000); };
   const updO = (i, k, v) => setOutlets(os => os.map((o,j)=> j===i ? {...o,[k]:v} : o));
   const addO = () => setOutlets(os => [...os, { id:"o"+(os.length+1)+Date.now(), name:{en:"New outlet",zh:"新店铺"}, line1:"", city:"Singapore", region:"", postal:"", country:0, primary:false }]);
   const delO = (i) => setOutlets(os => os.filter((_,j)=>j!==i));
@@ -1652,6 +1654,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="field"><label>{tr(lang,"Business name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)}/></div>
           <div className="field"><label>{tr(lang,"Mobile (WhatsApp)","手机号（WhatsApp）")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input value={phone} onChange={e=>setPhone(e.target.value)}/></div>
         </div>
+        <div className="me-save">{saved==="acct" && <span className="me-saved"><Ic.check style={{ width:14, height:14 }}/> {tr(lang,"Saved","已保存")}</span>}<button className="btn primary sm" onClick={()=>save("acct")}>{tr(lang,"Save changes","保存修改")}</button></div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Billing & plan","账单与套餐")}</h3>
@@ -1666,10 +1669,13 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
         </div>
         <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Regulars always free, no minimum, take activities offline anytime.","首 3 个月不扣款。老客永远免费、无最低消费，活动随时可下线。")}</span></p>
       </div>
-      <div className="panel" style={{ marginTop:16 }}>
-        <h3>{tr(lang,"KiX app","KiX App")}</h3>
-        <p className="ph-sub">{tr(lang,"Your games & activities go live in the KiX app. Get the app to see them the way your customers do.","你的游戏和活动上线在 KiX App 里。装上 App，用客人的视角看它们。")}</p>
-        <QRDownload lang={lang}/>
+      <div className="panel me-approw" style={{ marginTop:16 }}>
+        <span className="me-app-ic"><Ic.phone style={{ width:20, height:20 }}/></span>
+        <div style={{ minWidth:0 }}>
+          <div className="bill-t">{tr(lang,"See it the way your customers do","在手机上以客人视角查看")}</div>
+          <div className="ph-sub" style={{ margin:0 }}>{tr(lang,"Your games & activities go live in the KiX app.","你的游戏和活动上线在 KiX App 里。")}</div>
+        </div>
+        <button className="btn ghost sm" style={{ marginLeft:"auto", flex:"none" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:14, height:14 }}/> {tr(lang,"Get the app","下载 App")}</button>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Outlets","店铺")}</h3>
@@ -1692,6 +1698,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           </div>
         ))}
         <button className="addrow" onClick={addO}>+ {tr(lang,"Add outlet","添加店铺")}</button>
+        <div className="me-save">{saved==="outlets" && <span className="me-saved"><Ic.check style={{ width:14, height:14 }}/> {tr(lang,"Saved","已保存")}</span>}<button className="btn primary sm" onClick={()=>save("outlets")}>{tr(lang,"Save changes","保存修改")}</button></div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Brand kit","品牌素材库")}</h3>
@@ -1715,14 +1722,30 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       {cardModal && <CardModal cardOnFile={cardOnFile} onSave={setCardOnFile} onClose={()=>setCardModal(false)}/>}
       {planModal && <PlanModal plan={plan} onPick={setPlan} onClose={()=>setPlanModal(false)}/>}
+      {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
     </div>
   );
 }
 
+// 下线撤销 toast（可逆动作：立即执行 + 撤销，不弹前置确认）
+function UndoToast({ onUndo, onClose, lang }) {
+  useEffect(() => { const t = setTimeout(onClose, 6000); return () => clearTimeout(t); }, []);
+  return ReactDOM.createPortal(
+    <div className="undo-toast">
+      <span className="ut-txt"><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Activity taken offline · customer scans paused","活动已下线 · 客人扫码已暂停")}</span>
+      <button className="ut-undo" onClick={onUndo}>{tr(lang,"Undo","撤销")}</button>
+    </div>,
+    document.body
+  );
+}
 function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, onNewGame, onExit, builder, builderIdx, builderSteps, onLeaveBuild, outlets, setOutlets, activities, setActivities, myGames, setMyGames, cardOnFile, setCardOnFile, initEdit }) {
   const [editing, setEditing] = useState(initEdit || null);
   const [editingAct, setEditingAct] = useState((()=>{ const e=new URLSearchParams(location.search).get("editact"); return e ? (activities[parseInt(e,10)-1]||activities[0]||null) : null; })()); // 调试直达活动编辑器（editact=1/2/3 指定第几个）
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toast, setToast] = useState(null); // 下线撤销 toast：{id, prev}
+  // 下线活动 = 立即执行 + 可撤销（可逆动作不弹前置确认）
+  const takeOffline = (act) => { setActivities(list => list.map(a => a.id===act.id ? {...a, status:"offline"} : a)); setToast({ id:act.id, prev:act.status||"live" }); };
+  const undoOffline = () => { setToast(t => { if (t) setActivities(list => list.map(a => a.id===t.id ? {...a, status:t.prev} : a)); return null; }); };
   const inBuild = !!builder;
   const cur = SB_ITEMS.find(i => i.id === sec) || SB_ITEMS[0];
   const navClick = (id) => { setEditing(null); setEditingAct(null); inBuild ? onLeaveBuild(id) : setSec(id); };
@@ -1785,12 +1808,13 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=>setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
+          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={(g)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, status:"draft"}:x))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
+      {toast && <UndoToast onUndo={undoOffline} onClose={()=>setToast(null)} lang={lang}/>}
     </div>
   );
 }

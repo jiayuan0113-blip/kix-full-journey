@@ -907,6 +907,17 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .btn.ghost.inapp{color:var(--green-d)}
 /* billing rows + plan picker */
 .billrow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-top:12px}
+/* 我的：保存反馈行 + App 一行 */
+.me-save{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px}
+.me-saved{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--green-d);animation:rise .25s both}
+.me-approw{display:flex;align-items:center;gap:13px}
+.me-app-ic{flex:none;width:40px;height:40px;border-radius:11px;background:var(--green-50);color:var(--green-d);display:grid;place-items:center}
+/* 下线撤销 toast */
+.undo-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:16px;background:var(--ink);color:#fff;border-radius:14px;padding:13px 16px 13px 18px;box-shadow:0 18px 40px -10px rgba(0,0,0,.4);animation:rise .28s cubic-bezier(.2,.8,.2,1) both}
+.undo-toast .ut-txt{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.undo-toast .ut-txt svg{color:var(--green-br)}
+.undo-toast .ut-undo{font-size:14px;font-weight:800;color:var(--green-br);padding:4px 8px;border-radius:8px;cursor:pointer;background:none;border:none}
+.undo-toast .ut-undo:hover{background:rgba(255,255,255,.12)}
 .bill-l{display:flex;align-items:center;gap:12px;min-width:0}
 .bill-ic{width:34px;height:34px;border-radius:9px;background:var(--green-50);color:var(--green-d);display:grid;place-items:center;flex:none}
 .bill-t{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
