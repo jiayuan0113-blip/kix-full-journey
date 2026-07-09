@@ -181,9 +181,9 @@ const DEFAULT_ACTIVITIES = [
     schedule:{ mode:"recurring", days:[5], time:"21:00", roundMins:3, endDate:"" },
     tiebreak:"earliest",
     prizeLadder:[
-      { from:1,  to:1,   prize:{ type:"cash",     value:60 } },
-      { from:2,  to:2,   prize:{ type:"cash",     value:40 } },
-      { from:3,  to:3,   prize:{ type:"cash",     value:20 } },
+      { from:1,  to:1,   prize:{ type:"cash",     denom:5, count:12 } },
+      { from:2,  to:2,   prize:{ type:"cash",     denom:5, count:8  } },
+      { from:3,  to:3,   prize:{ type:"cash",     denom:5, count:4  } },
       { from:4,  to:6,   prize:{ type:"item",     label:"芒果西米露 (M)" } },
       { from:7,  to:10,  prize:{ type:"item",     label:"龙井拿铁 (M)" } },
       { from:11, to:20,  prize:{ type:"discount", pct:20 } },

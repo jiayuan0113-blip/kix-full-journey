@@ -459,7 +459,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
 /* ===================== register (publish gate) ===================== */
 function Register({ onDone, onSignIn, onSaveCard, onBack }) {
   const lang = useLang();
-  const [rstep, setRstep] = useState(new URLSearchParams(location.search).get("rstep")==="card" ? "card" : "account");   // account → card（收卡放最后一步，Airwallex）
+  const [rstep, setRstep] = useState(new URLSearchParams(location.search).get("rstep")==="card" ? "card" : "account");   // account → card（收卡放最后一步，Stripe）
   const [name, setName] = useState(""), [phone, setPhone] = useState(""), [country, setCountry] = useState(0);
   const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
   const acctOk = name.trim() && phone.trim();
@@ -482,11 +482,11 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
         <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。{tr(lang,"Have an account? ","已有账号？")}<a onClick={onSignIn} style={{ cursor:"pointer" }}>{tr(lang,"Sign in","登录")}</a></div>
       </> : <>
         <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
-        <p className="login-sub">{tr(lang,"Free for 3 months, then from S$29/mo — only new business, regulars always free.","前 3 个月免费，之后 S$29/月起 —— 只算新生意、老客永远免费。")}</p>
+        <p className="login-sub">{tr(lang,"Free for 3 months, then from S$29/mo.","前 3 个月免费，之后 S$29/月起。")}</p>
         <div className="trust-list">
           <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends — around ${chargeDate}.`,`到期前 7 天提醒你 —— 大约 ${chargeDate}。`)}</span></div>
-          <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime, no minimum.","随时下线或取消，无最低消费。")}</span></div>
-          <div className="trust-row"><Ic.shield/><span>{tr(lang,"Airwallex-encrypted — we never see your card number.","卡号由 Airwallex 加密 —— 我们看不到。")}</span></div>
+          <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime.","随时下线或取消。")}</span></div>
+          <div className="trust-row"><Ic.shield/><span>{tr(lang,"Stripe-encrypted — we never see your card number.","卡号由 Stripe 加密 —— 我们看不到。")}</span></div>
         </div>
         <div className="cardf">
           <div className="cardf-input">
@@ -1345,9 +1345,9 @@ const WEEK_E = ["S","M","T","W","T","F","S"];
 const WEEK_E3 = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 // 阶梯奖池示例(一芳同款)——"套用示例奖池"一键铺好
 const SAMPLE_LADDER = [
-  { from:1,  to:1,   prize:{ type:"cash",     value:60 } },
-  { from:2,  to:2,   prize:{ type:"cash",     value:40 } },
-  { from:3,  to:3,   prize:{ type:"cash",     value:20 } },
+  { from:1,  to:1,   prize:{ type:"cash",     denom:5, count:12 } },
+  { from:2,  to:2,   prize:{ type:"cash",     denom:5, count:8  } },
+  { from:3,  to:3,   prize:{ type:"cash",     denom:5, count:4  } },
   { from:4,  to:6,   prize:{ type:"item",     label:"芒果西米露 (M)" } },
   { from:7,  to:10,  prize:{ type:"item",     label:"龙井拿铁 (M)" } },
   { from:11, to:20,  prize:{ type:"discount", pct:20 } },
@@ -1355,10 +1355,12 @@ const SAMPLE_LADDER = [
   { from:31, to:100, prize:{ type:"discount", pct:5  } },
 ];
 // 只加总"可精确的现金奖" + 名额总数；折扣/商品/自定义不折现(见 P1 三体：不臆测总价)
+// 现金奖 = 商家自定「面额 × 张数」（Kash 非固定面额，商家送什么、拆几张都自己定）→ 总额 = 面额×张数
+const cashTotal = (p) => (p && p.type === "cash") ? (+p.denom||0) * (+p.count||0) : 0;
 function ladderStats(ladder) {
-  let slots = 0, cash = 0;
-  (ladder||[]).forEach(r => { const n = Math.max(0, (+r.to||0) - (+r.from||0) + 1); slots += n; if (r.prize && r.prize.type === "cash") cash += n * (+r.prize.value||0); });
-  return { slots, cash };
+  let slots = 0, cash = 0, cashVouchers = 0;
+  (ladder||[]).forEach(r => { const n = Math.max(0, (+r.to||0) - (+r.from||0) + 1); slots += n; if (r.prize && r.prize.type === "cash") { cash += n * cashTotal(r.prize); cashVouchers += n * (+r.prize.count||0); } });
+  return { slots, cash, cashVouchers };
 }
 function schedSummary(s, lang) {
   if (!s) return "";
@@ -1399,9 +1401,10 @@ function nextLabel(s, lang) {
 function topPrizeShort(ladder, lang) {
   const p = ladder && ladder[0] ? ladder[0].prize : null;
   if (!p) return "";
-  if (p.type === "cash") return `S$${p.value||0}`;
+  if (p.label) return p.label;
+  if (p.type === "cash") return `S$${cashTotal(p)}`;
   if (p.type === "discount") return tr(lang, `${p.pct||0}% off`, `${p.pct||0}% 券`);
-  return p.label || "";
+  return "";
 }
 const PRIZE_TYPES = [
   { k:"cash",     en:"Cash voucher", zh:"现金券" },
@@ -1411,9 +1414,10 @@ const PRIZE_TYPES = [
 ];
 function prizeLabel(p, lang) {
   if (!p) return "";
-  if (p.type === "cash")     return tr(lang, `S$${p.value||0} cash`, `现金券 S$${p.value||0}`);
+  if (p.label) return p.label;
+  if (p.type === "cash")     return tr(lang, `S$${cashTotal(p)} cash`, `现金券 S$${cashTotal(p)}`);
   if (p.type === "discount") return tr(lang, `${p.pct||0}% off`, `${p.pct||0}% 折扣券`);
-  return p.label || tr(lang,"Prize","奖品");
+  return tr(lang,"Prize","奖品");
 }
 
 // 建活动第一步：选形态(带介绍帮用户选)
@@ -1489,38 +1493,52 @@ function ScheduleEditor({ schedule, setSchedule }) {
 function PrizeLadderEditor({ ladder, setLadder }) {
   const lang = useLang();
   const rows = ladder || [];
-  const { slots, cash } = ladderStats(rows);
+  const { slots, cash, cashVouchers } = ladderStats(rows);
   const updPrize = (i,patch) => setLadder(rows.map((r,j)=> j===i ? {...r, prize:{...r.prize, ...patch}} : r));
   const updRank  = (i,patch) => setLadder(rows.map((r,j)=> j===i ? {...r, ...patch} : r));
   const addRow = () => { const last = rows[rows.length-1]; const from = last ? (+last.to||0)+1 : 1; setLadder([...rows, { from, to:from, prize:{ type:"discount", pct:10 } }]); };
   const dupRow = (i) => { const r = rows[i]; const span = (+r.to||0)-(+r.from||0); const from = (+r.to||0)+1; setLadder([...rows.slice(0,i+1), { from, to:from+span, prize:{...r.prize} }, ...rows.slice(i+1)]); };
   const delRow = (i) => setLadder(rows.filter((_,j)=>j!==i));
   const useSample = () => setLadder(SAMPLE_LADDER.map(r=>({...r, prize:{...r.prize}})));
+  const onImg = (i,e) => { const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>updPrize(i,{img:rd.result}); rd.readAsDataURL(f); };
+  const pickCodes = (i) => { const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*,.csv,.zip,.xlsx,.pdf"; inp.onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f) updPrize(i,{codeSource:"custom", codeFile:f.name}); }; inp.click(); };
   return (
     <div className="panel" style={{ marginTop:16 }}>
       <div className="ladder-head"><h3 style={{ margin:0 }}>{tr(lang,"Prize ladder","阶梯奖池")}</h3><button className="linkbtn" onClick={useSample}>{tr(lang,"Use sample ladder","套用示例奖池")}</button></div>
-      <p className="ph-sub">{tr(lang,"Higher rank, better prize. Add any prize you like — cash, a menu item, a discount, or your own.","名次越高奖越好。奖品随你定 —— 现金、菜单商品、折扣、或自定义。")}</p>
+      <p className="ph-sub">{tr(lang,"Higher rank, better prize. Name each prize, add a photo, and let us auto-generate codes or upload your own.","名次越高奖越好。给每个奖品起名、配图，券码可系统自动生成或上传自有码。")}</p>
       <div className="cost-bar">
         <span className="cost-slots"><b>{slots}</b> {tr(lang,"prizes","个奖")}</span>
-        {cash>0 && <span className="cost-cash">· {tr(lang,"cash total","现金奖合计")} <b>S${cash}</b></span>}
-        <div className="cost-note">{tr(lang,"Awarded by actual rank — empty ranks pay nothing.","按实际排名发 —— 没人到的名次不发奖、不产生费用。")}</div>
+        {cash>0 && <span className="cost-cash">· {tr(lang,"cash total","现金奖合计")} <b>S${cash}</b>{cashVouchers>0 && tr(lang,` (${cashVouchers} vouchers)`,`（${cashVouchers} 张）`)}</span>}
+        <div className="cost-note">{tr(lang,"Awarded by actual rank — empty ranks pay nothing. Split cash into several vouchers to drive repeat visits.","按实际排名发 —— 没人到的名次不发奖、不产生费用。现金奖可拆成多张小券（每次到店用一张 → 多次到店）。")}</div>
       </div>
       <div className="ladder-rows">
-        {rows.map((r,i) => (
-          <div className="lrow" key={i}>
-            <div className="lrank">{tr(lang,"Rank","第")}<input type="number" min="1" value={r.from} onChange={e=>updRank(i,{from:+e.target.value})}/><span>–</span><input type="number" min="1" value={r.to} onChange={e=>updRank(i,{to:+e.target.value})}/>{tr(lang,"","名")}</div>
-            <div className="lprize">
-              <select value={r.prize.type} onChange={e=>updPrize(i,{ type:e.target.value })}>{PRIZE_TYPES.map(pt=>(<option key={pt.k} value={pt.k}>{tr(lang,pt.en,pt.zh)}</option>))}</select>
-              {r.prize.type==="cash"     && <div className="pfield">S$<input type="number" min="0" value={r.prize.value||""} onChange={e=>updPrize(i,{value:+e.target.value})}/></div>}
-              {r.prize.type==="discount" && <div className="pfield"><input type="number" min="0" max="100" value={r.prize.pct||""} onChange={e=>updPrize(i,{pct:+e.target.value})}/>%</div>}
-              {(r.prize.type==="item"||r.prize.type==="custom") && <input className="plabel" placeholder={r.prize.type==="item"?tr(lang,"Menu item name","商品名"):tr(lang,"Prize name","奖品名")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>}
+        {rows.map((r,i) => { const total = cashTotal(r.prize); return (
+          <div className="lcard" key={i}>
+            <div className="lrow-top">
+              <div className="lrank">{tr(lang,"Rank","第")}<input type="number" min="1" value={r.from} onChange={e=>updRank(i,{from:+e.target.value})}/><span>–</span><input type="number" min="1" value={r.to} onChange={e=>updRank(i,{to:+e.target.value})}/>{tr(lang,"","名")}</div>
+              <div className="lprize">
+                <select value={r.prize.type} onChange={e=>updPrize(i,{ type:e.target.value })}>{PRIZE_TYPES.map(pt=>(<option key={pt.k} value={pt.k}>{tr(lang,pt.en,pt.zh)}</option>))}</select>
+                {r.prize.type==="cash"     && <div className="pfield pcash">{tr(lang,"S$","每张 S$")}<input type="number" min="0" value={r.prize.denom||""} onChange={e=>updPrize(i,{denom:+e.target.value})}/><span className="pcash-x">×</span><input type="number" min="1" value={r.prize.count||""} onChange={e=>updPrize(i,{count:+e.target.value})}/>{tr(lang,"vouchers","张")}{total>0 && <span className="cash-split">= S${total}</span>}</div>}
+                {r.prize.type==="discount" && <div className="pfield"><input type="number" min="0" max="100" value={r.prize.pct||""} onChange={e=>updPrize(i,{pct:+e.target.value})}/>%</div>}
+              </div>
+              <div className="lact">
+                <button type="button" title={tr(lang,"Duplicate","复制上一档")} onClick={()=>dupRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                <button type="button" title={tr(lang,"Remove","删除")} onClick={()=>delRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+              </div>
             </div>
-            <div className="lact">
-              <button type="button" title={tr(lang,"Duplicate","复制上一档")} onClick={()=>dupRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-              <button type="button" title={tr(lang,"Remove","删除")} onClick={()=>delRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            <div className="lrow-detail">
+              <input className="pname" placeholder={r.prize.type==="item"?tr(lang,"Menu item name","菜单商品名") : r.prize.type==="custom"?tr(lang,"Prize name","奖品名称") : tr(lang,"Prize name (optional)","奖品名称（选填）")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>
+              <label className="pimg" title={tr(lang,"Prize photo","奖品配图")}>{r.prize.img ? <img src={r.prize.img} alt=""/> : <><Ic.image style={{ width:15, height:15 }}/><span>{tr(lang,"Photo","图")}</span></>}<input type="file" accept="image/*" hidden onChange={e=>onImg(i,e)}/></label>
+              <div className="pcode">
+                <select value={r.prize.codeSource||"auto"} onChange={e=>updPrize(i,{ codeSource:e.target.value, ...(e.target.value==="auto"?{codeFile:null}:{}) })}>
+                  <option value="auto">{tr(lang,"Auto-generate codes","系统自动生成券码")}</option>
+                  <option value="custom">{tr(lang,"Upload my codes","上传自有券码")}</option>
+                </select>
+                {r.prize.codeSource==="custom" && <button type="button" className="linkbtn" onClick={()=>pickCodes(i)}>{r.prize.codeFile ? "✓ "+r.prize.codeFile : tr(lang,"Upload QR / code file","上传二维码/码文件")}</button>}
+              </div>
             </div>
           </div>
-        ))}
+        ); })}
       </div>
       <button className="btn ghost sm" style={{ marginTop:12 }} onClick={addRow}><span style={{ fontSize:16, lineHeight:1 }}>+</span> {tr(lang,"Add a tier","加一档")}</button>
     </div>
@@ -2012,7 +2030,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   // 建活动第一步先选形态（长期/挑战赛），再进对应编辑器
   const openNewActPicker = () => { setEditing(null); setEditingAct(null); setPickForm(true); };
   const blankLongrun = () => ({ id:"a"+Date.now(), form:"longrun", name:{en:"New activity",zh:"新活动"}, outletIds:outlets.map(o=>o.id), vouchers:STARTER_VOUCHERS.map(v=>({...v})), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft" });
-  const blankChallenge = () => ({ id:"a"+Date.now(), form:"challenge", name:{en:"New challenge",zh:"新挑战赛"}, outletIds:outlets.map(o=>o.id), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft", schedule:{ mode:"oneoff", date:"", days:[5,6,0], time:"21:00", roundMins:3, endDate:"" }, tiebreak:"earliest", prizeLadder:[ { from:1,to:1,prize:{type:"cash",value:20} }, { from:2,to:5,prize:{type:"discount",pct:20} }, { from:6,to:20,prize:{type:"discount",pct:10} } ] });
+  const blankChallenge = () => ({ id:"a"+Date.now(), form:"challenge", name:{en:"New challenge",zh:"新挑战赛"}, outletIds:outlets.map(o=>o.id), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft", schedule:{ mode:"oneoff", date:"", days:[5,6,0], time:"21:00", roundMins:3, endDate:"" }, tiebreak:"earliest", prizeLadder:[ { from:1,to:1,prize:{type:"cash",denom:5,count:4} }, { from:2,to:5,prize:{type:"discount",pct:20} }, { from:6,to:20,prize:{type:"discount",pct:10} } ] });
   const createAct = (form) => { setPickForm(false); openAct(form==="challenge" ? blankChallenge() : blankLongrun()); };
   // 复制现有活动：同游戏/券/门店/赢奖条件，名字加副本，回到 draft、清空运行数据，打开编辑器微调
   const dupAct = (act) => { openAct({ ...act, id:"a"+Date.now(), name:{ en:(act.name.en||"Activity")+" (copy)", zh:(act.name.zh||"活动")+"（副本）" }, vouchers:(act.vouchers||[]).map(v=>({...v, awarded:0, redeemed:0})), stat:undefined, status:"draft" }); };

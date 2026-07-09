@@ -77,7 +77,7 @@
 - `myGames`：商家已创建的游戏数组（纯视觉模板实例）。
 - `activities`：商家的活动数组。两种形态（`form`，2026-07-09）：
   - `longrun`（现有，默认）：`{id, name, form:'longrun', outletIds, vouchers, gameId, winScore, status, logo?, stat?}` —— 时间窗+达标赢券。
-  - `challenge`（限时挑战赛）：`{id, name, form:'challenge', outletIds, gameId, status, logo?, schedule:{mode:'oneoff'|'recurring', date?, days?:[0-6], time, roundMins, endDate?}, tiebreak:'earliest', prizeLadder:[{from, to, prize:{type:'cash'|'item'|'discount'|'custom', value?|pct?|label?}}], stat?:{players, walkins, newCust}}` —— 定点开赛+排名定奖（见 §3.9a）。
+  - `challenge`（限时挑战赛）：`{id, name, form:'challenge', outletIds, gameId, status, logo?, schedule:{mode:'oneoff'|'recurring', date?, days?:[0-6], time, roundMins, endDate?}, tiebreak:'earliest', prizeLadder:[{from, to, prize:{type:'cash'|'item'|'discount'|'custom', denom?&count?(cash：商家自定面额×张数，总额=denom×count) | pct?(discount), label?(名称/商品名), img?(配图), codeSource?:'auto'|'custom', codeFile?}}], stat?:{players, walkins, newCust}}` —— 定点开赛+排名定奖（见 §3.9a）。奖品券码=系统自动生成或商家上传自有码（同长期活动 codeSource）。
 - `outlets`：账号下的门店数组（结构化地址）。
 
 URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数)。
@@ -88,8 +88,8 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 ### 3.1 注册后置（发布闸门）+ 收卡（2026-07-08）
 - **未登录全程免注册**：落地页→建游戏全部可用、可玩、可改。
-- 仅当点「上线」时弹注册（`register`）。**注册 = 两子步：① 账号（店名/地区/手机）② 绑卡（Airwallex，收卡放最后一步）**。
-- **绑卡步信任设计**：条款副标题(前 3 月免费·之后 S$29/月起、只算新生意、老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Airwallex 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Airwallex hosted fields**，原型 mock。
+- 仅当点「上线」时弹注册（`register`）。**注册 = 两子步：① 账号（店名/地区/手机）② 绑卡（Stripe，收卡放最后一步）**。
+- **绑卡步信任设计**：条款副标题(前 3 月免费·之后 S$29/月起、只算新生意、老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Stripe 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Stripe hosted fields**，原型 mock。
 - ⭐ **计费口径 = bible §4.0 CANON（2026-07-09，`mozatyin/kix-platform`）**：软件永久免费；基础费按**品牌 MAU**（本月玩过≥1次的活跃用户）= `max($29/品牌/月 地板, 梯度费)`、**≤12% 增量**、**只算新生意、永不碰老客存量**；免费窗口 = 满 3 个月或活跃用户达 1,000（先到）。梯度 0–1k=$0.49/1k–5k=$0.39/5k–20k=$0.29/20k–100k=$0.19/100k+=$0.12。广告 B = 竞价（非固定 CPA）。**旧「S$3/位新客·pay-per-result·从不收月费」全部作废**，商家端所有文案已迁（落地页三卡/FAQ/登录/主页成本条/PLANS/账单）。
 - **返回统一**：内容区左上角「← 上一步」（绑卡步→账号步；账号步→回预览 `onBack`），顶栏右上「退出」——与建游戏各步一致。删掉原顶栏右上返回箭头（避免双返回）。
 - 收卡写入 `cardOnFile`（**state 提升到 App**，authed=已有卡），存活进后台：我的>账单显示 ••••。落地页所有 "no credit card" 文案已删。**上线活动弹窗（ActivityPublishModal）不再显示「付款方式」**（卡在注册即收，不重复要卡、不显定价）——弹窗只剩 标题+说明+活动名+确认上线。
