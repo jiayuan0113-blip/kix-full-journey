@@ -328,7 +328,7 @@ function Faq() {
   const QA = [
     { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional — it just unlocks more games and rewards for the ones who love it.","不需要。扫码即在浏览器里玩。KiX App 是可选的 —— 只是给爱玩的人解锁更多游戏和奖励。") },
     { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可兑奖。不改 POS、不用开发、不用找代理。") },
-    { q:tr(lang,"What does it actually cost?","到底怎么收费？"),                                a:tr(lang,"Free for the first 3 months. After that you only pay for the new customers we bring you — never a monthly software fee, regulars always free.","前 3 个月免费。之后你只为我们带来的新客付费 —— 从不收月度软件费，老客永远免费。") },
+    { q:tr(lang,"What does it actually cost?","到底怎么收费？"),                                a:tr(lang,"Free for the first 3 months. After that you pay only as you grow — from S$29/mo, charged only on genuinely new business (never your regulars), capped at 12%.","前 3 个月免费。之后只在你增长时才付费 —— S$29/月起，只算新生意、永不碰老客，封顶 12%。") },
     { q:tr(lang,"I already run a loyalty program — does this replace it?","我已有会员体系 —— 这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，是给它供血。KiX 把新客带进门，你的会员体系把他们留住。两者协同。") },
     { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good — that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger — and your players discover more places to play, right alongside you.","好啊 —— 这正是重点。他们得做自己的、套自己的品牌。每加入一家店，整个 KiX 网络就更大 —— 你的玩家也会发现更多可玩的店，就在你旁边。") },
     { q:tr(lang,"Is my customer data safe?","我的客户数据安全吗？"),                             a:tr(lang,"Yes. Your customers and their data stay with your business. KiX is the invisible engine — we never take your customers away.","安全。你的客户和他们的数据都留在你店里。KiX 是隐形引擎 —— 我们从不把你的客户带走。") },
@@ -416,17 +416,17 @@ function Pricing({ go }) {
   const lang = useLang();
   return (
     <section className="sec">
-      <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Start free. Pay only for new customers.","免费开始，只为新客付费")}</h2>
+      <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只在你增长时才付费。")}</h2>
       <div className="tiers">
-        <div className="tier"><div className="tname">{tr(lang,"FREE FOREVER","永久免费")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"For your very first game.","适合做你的第一个游戏。")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"1 branded game","1 个品牌游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"Unlimited plays","不限游玩次数")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + dashboard","到店兑奖 + 看板")}</li></ul>
+        <div className="tier"><div className="tname">{tr(lang,"FREE TO START","免费开始")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"New to KiX","初次上手")}</div>
+          <ul><li><span className="ck"><Check/></span>{tr(lang,"Your branded game","你的品牌游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"Unlimited plays","不限游玩次数")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + dashboard","到店兑奖 + 看板")}</li></ul>
           <button className="btn ghost" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
-        <div className="tier pop"><div className="pbadge">{tr(lang,"Best value","最超值")}</div><div className="tname">{tr(lang,"PAY PER RESULT","按结果付费")}</div><div className="price"><span style={{ fontSize:"15px", fontWeight:700, color:"var(--muted)" }}>{tr(lang,"from ","低至 ")}</span>S$3<small>{tr(lang," / new customer"," / 位新客")}</small></div><div className="pdesc">{tr(lang,"First 3 months free · price locked.","前 3 个月免费 · 价格锁定。")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Auto win-back for regulars","老客自动召回")}</li><li><span className="ck"><Check/></span>{tr(lang,"New-customer attribution","新客到店归因")}</li></ul>
+        <div className="tier pop"><div className="pbadge">{tr(lang,"Best value","最超值")}</div><div className="tname">{tr(lang,"GROW WITH KIX","成长版")}</div><div className="price"><span style={{ fontSize:"15px", fontWeight:700, color:"var(--muted)" }}>{tr(lang,"from ","低至 ")}</span>S$29<small>{tr(lang," / mo"," / 月")}</small></div><div className="pdesc">{tr(lang,"Growing shops","成长中的门店")}</div>
+          <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Only new business, never your regulars — capped at 12%","只算新生意、永不碰老客 —— 封顶 12%")}</li><li><span className="ck"><Check/></span>{tr(lang,"Cheaper as you grow · all stores, one bill","越做越便宜 · 多店合并一张账单")}</li></ul>
           <button className="btn primary" onClick={go}>{tr(lang,"Get started","立即开始")}</button></div>
-        <div className="tier"><div className="tname">{tr(lang,"CHAINS","连锁版")}</div><div className="price">{tr(lang,"Contact us","联系我们")}</div><div className="pdesc">{tr(lang,"For growing multi-outlet brands.","适合成长中的多门店品牌。")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"Multi-city · multi-outlet","多城市 · 多门店")}</li><li><span className="ck"><Check/></span>{tr(lang,"Dedicated success manager","专属客户成功")}</li><li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","API / POS 对接")}</li></ul>
-          <button className="btn ghost">{tr(lang,"Book a call","预约沟通")}</button></div>
+        <div className="tier"><div className="tname">{tr(lang,"GROW FASTER (optional)","加速拉新（可选）")}</div><div className="price" style={{ fontSize:"27px" }}>{tr(lang,"You set the price","你来定价")}</div><div className="pdesc">{tr(lang,"Want more new customers","想要更多新客")}</div>
+          <ul><li><span className="ck"><Check/></span>{tr(lang,"Only pay for genuinely new faces","只为真正的新客付费")}</li><li><span className="ck"><Check/></span>{tr(lang,"Free until they come back","回头前不收费")}</li><li><span className="ck"><Check/></span>{tr(lang,"Multi-outlet · custom plans","多门店 · 定制方案")}</li></ul>
+          <button className="btn ghost">{tr(lang,"Talk to us","联系我们")}</button></div>
       </div>
     </section>
   );
@@ -482,7 +482,7 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
         <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。{tr(lang,"Have an account? ","已有账号？")}<a onClick={onSignIn} style={{ cursor:"pointer" }}>{tr(lang,"Sign in","登录")}</a></div>
       </> : <>
         <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
-        <p className="login-sub">{tr(lang,"Free for 3 months, then S$3 per new customer. Regulars are always free.","首 3 个月免费，之后按 S$3/位新客收费，老客永远免费。")}</p>
+        <p className="login-sub">{tr(lang,"Free for 3 months, then from S$29/mo — only new business, regulars always free.","前 3 个月免费，之后 S$29/月起 —— 只算新生意、老客永远免费。")}</p>
         <div className="trust-list">
           <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends — around ${chargeDate}.`,`到期前 7 天提醒你 —— 大约 ${chargeDate}。`)}</span></div>
           <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime, no minimum.","随时下线或取消，无最低消费。")}</span></div>
@@ -893,7 +893,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
           <button className={"home-cost"+(trialEnding?" ending":"")} onClick={onGoReports}>
             <span className="hc-cell"><b>{M.newCust}</b> {tr(lang,"new customers this month","本月新客")}</span>
             <span className="hc-trial">{trialEnding
-              ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then S$3 / new customer`,`试用还剩 ${trialLeft} 天 · 到期后按 S$3/位新客`)}</>
+              ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then from S$29/mo`,`试用还剩 ${trialLeft} 天 · 到期后 S$29/月起`)}</>
               : <>{<Ic.spark style={{ width:13, height:13 }}/>} {tr(lang,`First 3 months free · ${trialLeft} days left · now S$0`,`首 3 个月免费 · 还剩 ${trialLeft} 天 · 现在 S$0`)}</>}</span>
             <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
           </button>
@@ -1180,11 +1180,40 @@ function Kebab({ items }) {
     </div>
   );
 }
-function ActivitiesView({ activities, onNew, onOpen, onDuplicate, onSetStatus }) {
+// 多店活动二维码弹层：逐门店一个（到店归因）
+function ActivityQRSheet({ act, outlets, lang, onDownload, onClose }) {
+  const list = (act.outletIds||[]).map(id => outlets.find(o=>o.id===id)).filter(Boolean);
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:430 }} onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"Outlet QR codes","门店二维码")}</h3>
+        <p className="pub-sub">{tr(lang,"One QR per outlet — walk-ins are attributed to the right shop. Fixed since first publish, safe to print.","每家门店各一个 —— 到店才能归因到对应店。首次上线即固定，可放心打印。")}</p>
+        <div className="qr-list">
+          {list.map(o => (
+            <div className="qr-card" key={o.id}>
+              <div className="qr" style={{ width:72, height:72, borderRadius:12 }}><Ic.qr style={{ width:44, height:44, color:"#0B1220" }}/></div>
+              <div className="qr-meta">
+                <div className="nm">{P(lang,o.name)}</div>
+                <div className="ad">{o.city}</div>
+                <button className="btn ghost sm" style={{ marginTop:8 }} onClick={()=>onDownload(P(lang,o.name))}><Ic.upload style={{ width:13, height:13, transform:"rotate(180deg)" }}/> {tr(lang,"Download","下载")}</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, onSetStatus }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
   const [appQr, setAppQr] = useState(false);
+  const [qrFor, setQrFor] = useState(null);   // 多店活动二维码弹层
   const dlQR = (name) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(name,100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
+  // 每店一码（归因）：多店→弹门店清单逐个下；单店直接下
+  const openQR = (act) => { const ids = act.outletIds || []; if (ids.length > 1) setQrFor(act); else dlQR(P(lang, act.name)); };
   // 状态机(2026-07-03 去审批)：draft(修改中)/live(已上线)/offline(已下线)。直接上线，无 review/rejected。
   const FILTS = [
     { k:"all",     en:"All",       zh:"全部",   match:()=>true },
@@ -1197,6 +1226,8 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate, onSetStatus })
   const tabs = FILTS.filter(f => f.k==="all" || cnt(f) > 0);
   const cur = (tabs.find(f=>f.k===filt) || FILTS[0]);
   const shown = activities.filter(a => cur.match(a.status||"draft"));
+  // 选中的筛选态计数归零→标签被隐藏时，重置回"全部"，避免列表静默变全量却无高亮
+  useEffect(() => { if (filt !== "all" && !tabs.some(f => f.k === filt)) setFilt("all"); }, [filt, tabs.length]);
   return (
     <div className="app-body">
       {activities.length > 0 && tabs.length > 1 && <div className="act-filters">
@@ -1210,36 +1241,47 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate, onSetStatus })
         ? <EmptyState
             icon={<Ic.clipboard/>}
             title={tr(lang,"No activities yet","还没有活动")}
-            sub={tr(lang,"An activity is how customers reach you — pick outlets, set a voucher, link your game, then publish.","活动是客人触达你的方式 —— 选门店、设一张券、绑上游戏，再上线。")}
+            sub={tr(lang,"An activity is a promotion that gets customers scanning, playing and coming in. Pick outlets, add a prize, link your game — then go live.","活动就是一场让客人扫码玩、赢奖进店的促销。选门店、放个奖、绑上游戏，就能上线。")}
             actLabel={"+ " + tr(lang,"New activity","新建活动")}
             onAct={onNew}
           />
         : <div className="mygames">
             {shown.map(act => {
               const tpl = TEMPLATES.find(t => t.id === act.gameId) || TEMPLATES[0];
+              const isChal = (act.form||"longrun") === "challenge";
+              const ls = isChal ? ladderStats(act.prizeLadder) : null;
+              const ran = act.status==="live" || act.status==="offline";
               return (
                 <div key={act.id} className="mgcard clickable" onClick={() => onOpen(act)}>
                   <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
                   <div className="mgmeta">
-                    <div className="nm">{P(lang, act.name)}</div>
-                    {act.stat && (act.status==="live"||act.status==="offline")
-                      ? <div className="act-stat"><b>{act.stat.walkins}</b> {tr(lang,"walked in","到店")} · <b>{act.stat.newCust}</b> {tr(lang,"new","新客")}</div>
-                      : <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
-                    {(act.status==="live"||act.status==="offline") && (()=>{ const v=act.vouchers&&act.vouchers[0]; const qty=(v&&+v.qty)||0, issued=(v&&+v.awarded)||0, rem=Math.max(0,qty-issued), pct=qty?rem/qty:1; if(!qty) return null; return (
-                      <div className={"stockrow"+(rem===0?" out":pct<=0.15?" low":"")}>
-                        <div className="stock-bar"><i style={{ width:(pct*100)+"%" }}></i></div>
-                        <span className="stock-t">{rem===0 ? tr(lang,"All given out · top up","券已发完 · 加券") : tr(lang,`${issued} given · ${rem} left`,`送 ${issued} · 剩 ${rem}`)}</span>
-                      </div>); })()}
+                    <div className="nm">{isChal && <span className="chal-badge"><Ic.trophy style={{ width:11, height:11 }}/>{tr(lang,"Challenge","限时赛")}</span>}{P(lang, act.name)}</div>
+                    {isChal
+                      ? (()=>{ const isLive=act.status==="live", isOff=act.status==="offline"; const ns=isLive?nextSession(act.schedule):null; return <>
+                          <div className={"chal-when"+(isLive&&ns?" next":"")}>{isLive&&ns && <span className="cw-dot"></span>}{isOff ? tr(lang,"Ended","已结束") : isLive ? (ns ? tr(lang,"Next","下一场")+" · "+nextLabel(act.schedule,lang) : tr(lang,"Finished","已跑完")) : schedSummary(act.schedule,lang)}</div>
+                          {isOff && act.stat && <div className="act-stat"><b>{act.stat.players}</b> {tr(lang,"played","人参赛")} · <b>{act.stat.walkins}</b> {tr(lang,"walked in","到店")}</div>}
+                          {!ran && <div className="st">{ls.slots} {tr(lang,"prizes","个奖")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
+                        </>; })()
+                      : <>
+                          {act.stat && ran
+                            ? <div className="act-stat"><b>{act.stat.walkins}</b> {tr(lang,"walked in","人到店")}<span style={{ color:"var(--muted)", fontWeight:400 }}>{tr(lang,` (incl. ${act.stat.newCust} new)`,`（含 ${act.stat.newCust} 新客）`)}</span></div>
+                            : <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
+                          {act.status==="live" && (()=>{ const v=act.vouchers&&act.vouchers[0]; const qty=(v&&+v.qty)||0, issued=(v&&+v.awarded)||0, rem=Math.max(0,qty-issued), pct=qty?rem/qty:1; if(!qty) return null; return (
+                            <div className={"stockrow"+(rem===0?" out":pct<=0.15?" low":"")}>
+                              <div className="stock-bar"><i style={{ width:(pct*100)+"%" }}></i></div>
+                              <span className="stock-t">{rem===0 ? tr(lang,"All vouchers given out — open to top up","券已发完 —— 打开可补券") : tr(lang,`${issued} given · ${rem} left`,`送 ${issued} · 剩 ${rem}`)}</span>
+                            </div>); })()}
+                        </>}
                     <div className="mgfoot">
-                      {act.status === "live" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"offline"); }} style={{ padding:"7px 14px", fontSize:12.5 }}>{tr(lang,"Take offline","下线")}</button>}
+                      {act.status === "live" && <button className="btn primary sm" onClick={(e)=>{ e.stopPropagation(); openQR(act); }} style={{ padding:"7px 14px", fontSize:12.5 }}><Ic.qr style={{ width:14, height:14 }}/> {tr(lang,"QR code","门店二维码")}</button>}
                       {act.status === "offline" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"live"); }} style={{ padding:"7px 14px", fontSize:12.5 }}><span className="b-dot"></span>{tr(lang,"Go live","上线")}</button>}
-                      <Kebab items={[
+                      {act.status === "draft" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onDuplicate(act); }} style={{ padding:"7px 14px", fontSize:12.5 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> {tr(lang,"Copy","复制")}</button>}
+                      {act.status !== "draft" && <Kebab items={[
                         { label:tr(lang,"Copy","复制"), ic:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>, on:()=>onDuplicate(act) },
-                        ...(act.status === "live" ? [
-                          { label:tr(lang,"QR code","二维码"), ic:<Ic.qr style={{ width:15, height:15 }}/>, on:()=>dlQR(P(lang,act.name)) },
-                          { label:tr(lang,"View in app","在 App 查看"), ic:<Ic.phone style={{ width:15, height:15 }}/>, on:()=>setAppQr(true) },
-                        ] : []),
-                      ]}/>
+                        ...(act.status === "offline" ? [{ label:tr(lang,"QR code","门店二维码"), ic:<Ic.qr style={{ width:15, height:15 }}/>, on:()=>openQR(act) }] : []),
+                        { label:tr(lang,"View in KiX app","在 KiX App 里看"), ic:<Ic.phone style={{ width:15, height:15 }}/>, on:()=>setAppQr(true) },
+                        ...(act.status === "live" ? [{ label:tr(lang,"Take offline","下线"), ic:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/></svg>, on:()=>onSetStatus(act,"offline") }] : []),
+                      ]}/>}
                     </div>
                   </div>
                 </div>
@@ -1247,12 +1289,13 @@ function ActivitiesView({ activities, onNew, onOpen, onDuplicate, onSetStatus })
             })}
           </div>}
       {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
+      {qrFor && <ActivityQRSheet act={qrFor} outlets={outlets} lang={lang} onDownload={dlQR} onClose={()=>setQrFor(null)}/>}
     </div>
   );
 }
 // 去审批(2026-07-03)：只有 draft/live/offline，无 review/rejected
 const ACT_STA = {
-  draft:    { en:"Draft",         zh:"草稿",   cls:"st-draft" },
+  draft:    { en:"Draft",         zh:"修改中", cls:"st-draft" },
   live:     { en:"Live",          zh:"已上线", cls:"st-live" },
   offline:  { en:"Offline",       zh:"已下线", cls:"st-offline" },
 };
@@ -1265,15 +1308,8 @@ const WIN_TIERS = [
 function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onConfirm }) {
   const lang = useLang();
   const [step, setStep] = useState(new URLSearchParams(location.search).get("done")==="1" ? "done" : "confirm");
-  const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
-  const [replacing, setReplacing] = useState(false);
-  const savedCard = cardOnFile && !replacing;
-  const cardOk = savedCard || num.replace(/\s/g,"").length >= 12;
-  const confirm = () => {
-    if (!savedCard) onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" });
-    onConfirm();
-    setStep("done");
-  };
+  // 卡在注册/绑卡步已收，上线弹窗不再显示付款方式（去 off-canon 定价 + 不重复要卡）
+  const confirm = () => { onConfirm(); setStep("done"); };
   if (step === "done") return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
@@ -1291,31 +1327,206 @@ function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onCon
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Publish activity","上线活动")}</h3>
-        <p className="pub-sub">{tr(lang,"Once live, customers can play and win vouchers right away.","上线后客人即可扫码玩、赢券进店。")}</p>
+        <p className="pub-sub">{(activity.form||"longrun")==="challenge" ? tr(lang,"Once live, customers can join the race and win by rank.","上线后客人即可扫码参赛、按名次赢奖。") : tr(lang,"Once live, customers can play and win vouchers right away.","上线后客人即可扫码玩、赢券进店。")}</p>
         <div className="pub-confirm-name">{P(lang, activity.name)}</div>
-        <div className="cardf">
-          <div className="cardf-h"><Ic.card style={{ width:15, height:15 }}/> {tr(lang,"Payment method","付款方式")}</div>
-          {savedCard
-            ? <div className="cardf-saved"><span><b>{tr(lang,"Card","Visa")} •••• {cardOnFile.last4}</b></span><button className="linkbtn" onClick={()=>setReplacing(true)}>{tr(lang,"Change","更换")}</button></div>
-            : <div className="cardf-input">
-                <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
-                <div className="cardf-row">
-                  <input placeholder={tr(lang,"MM / YY","有效期 MM/YY")} value={exp} onChange={e=>setExp(e.target.value.replace(/[^\d/]/g,"").slice(0,5))} inputMode="numeric"/>
-                  <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
-                </div>
-                {cardOnFile && <button className="linkbtn" style={{ marginTop:6 }} onClick={()=>{ setReplacing(false); setNum(""); }}>{tr(lang,"Use saved card","用已绑的卡")}</button>}
-              </div>}
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for the first 3 months. After that, only S$3 per new customer — regulars always free, take it offline anytime.","首 3 个月免费。之后只按 S$3/位新客收费 —— 老客永远免费，随时可下线。")}</span></p>
-        </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
-          <button className="btn primary lg" disabled={!cardOk} onClick={confirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+          <button className="btn primary lg" onClick={confirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
         </div>
       </div>
     </div>,
     document.body
   );
 }
+/* ===== 限时挑战赛(KiX Challenge)：第二种活动形态 =====
+   longrun(现有)=时间窗+达标赢券；challenge=定点开赛+排名定奖+阶梯奖池 */
+const WEEK_Z = ["日","一","二","三","四","五","六"];
+const WEEK_E = ["S","M","T","W","T","F","S"];
+const WEEK_E3 = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+// 阶梯奖池示例(一芳同款)——"套用示例奖池"一键铺好
+const SAMPLE_LADDER = [
+  { from:1,  to:1,   prize:{ type:"cash",     value:60 } },
+  { from:2,  to:2,   prize:{ type:"cash",     value:40 } },
+  { from:3,  to:3,   prize:{ type:"cash",     value:20 } },
+  { from:4,  to:6,   prize:{ type:"item",     label:"芒果西米露 (M)" } },
+  { from:7,  to:10,  prize:{ type:"item",     label:"龙井拿铁 (M)" } },
+  { from:11, to:20,  prize:{ type:"discount", pct:20 } },
+  { from:21, to:30,  prize:{ type:"discount", pct:10 } },
+  { from:31, to:100, prize:{ type:"discount", pct:5  } },
+];
+// 只加总"可精确的现金奖" + 名额总数；折扣/商品/自定义不折现(见 P1 三体：不臆测总价)
+function ladderStats(ladder) {
+  let slots = 0, cash = 0;
+  (ladder||[]).forEach(r => { const n = Math.max(0, (+r.to||0) - (+r.from||0) + 1); slots += n; if (r.prize && r.prize.type === "cash") cash += n * (+r.prize.value||0); });
+  return { slots, cash };
+}
+function schedSummary(s, lang) {
+  if (!s) return "";
+  const t = s.time || "21:00";
+  if (s.mode === "recurring") {
+    const days = (s.days||[]).slice().sort((a,b)=>a-b);
+    if (days.length === 0 || days.length === 7) return tr(lang, `Nightly ${t}`, `每晚 ${t}`);
+    const lbl = days.map(d => lang === "zh" ? WEEK_Z[d] : WEEK_E3[d]).join(lang === "zh" ? "·" : "/");
+    return tr(lang, `Every ${lbl} ${t}`, `每周${lbl} ${t}`);
+  }
+  return (s.date ? s.date : tr(lang,"Date TBD","日期待定")) + " " + t;
+}
+// 算真实"下一场"：recurring 按 days[] 找 >= 今天最近一天；oneoff 取 date
+function nextSession(s) {
+  if (!s) return null;
+  const [hh,mm] = (s.time||"21:00").split(":").map(Number);
+  const now = new Date();
+  if (s.mode === "recurring") {
+    const days = s.days || [];
+    for (let i=0;i<8;i++){ const d=new Date(now); d.setDate(now.getDate()+i); d.setHours(hh,mm,0,0); if((days.length===0||days.includes(d.getDay())) && d>=now) return d; }
+    return null;
+  }
+  if (s.date) return new Date(s.date+"T"+(s.time||"21:00"));
+  return null;
+}
+function nextLabel(s, lang) {
+  const d = nextSession(s); if (!d) return schedSummary(s, lang);
+  const t = s.time || "21:00";
+  const d0 = new Date(); d0.setHours(0,0,0,0);
+  const dd = new Date(d); dd.setHours(0,0,0,0);
+  const diff = Math.round((dd - d0) / 86400000);
+  if (diff <= 0) return tr(lang, `Today ${t}`, `今天 ${t}`);
+  if (diff === 1) return tr(lang, `Tomorrow ${t}`, `明天 ${t}`);
+  if (diff < 7) return tr(lang, `${WEEK_E3[d.getDay()]} ${t}`, `周${WEEK_Z[d.getDay()]} ${t}`);
+  return `${d.getMonth()+1}/${d.getDate()} ${t}`;
+}
+// 卡片头奖简写：现金→S$X / 折扣→X%券 / 商品/自定义→名称
+function topPrizeShort(ladder, lang) {
+  const p = ladder && ladder[0] ? ladder[0].prize : null;
+  if (!p) return "";
+  if (p.type === "cash") return `S$${p.value||0}`;
+  if (p.type === "discount") return tr(lang, `${p.pct||0}% off`, `${p.pct||0}% 券`);
+  return p.label || "";
+}
+const PRIZE_TYPES = [
+  { k:"cash",     en:"Cash voucher", zh:"现金券" },
+  { k:"item",     en:"Menu item",    zh:"菜单商品" },
+  { k:"discount", en:"% discount",   zh:"折扣券" },
+  { k:"custom",   en:"Custom",       zh:"自定义" },
+];
+function prizeLabel(p, lang) {
+  if (!p) return "";
+  if (p.type === "cash")     return tr(lang, `S$${p.value||0} cash`, `现金券 S$${p.value||0}`);
+  if (p.type === "discount") return tr(lang, `${p.pct||0}% off`, `${p.pct||0}% 折扣券`);
+  return p.label || tr(lang,"Prize","奖品");
+}
+
+// 建活动第一步：选形态(带介绍帮用户选)
+function NewActivityPicker({ onPick, onClose }) {
+  const lang = useLang();
+  const forms = [
+    { k:"longrun", ic:<Ic.clipboard/>, tag:{en:"Slow & steady",zh:"细水长流"}, nm:{en:"Long-run activity",zh:"长期活动"},
+      line:{en:"Customers play anytime and win a voucher when they hit the target.",zh:"这段时间客人随时扫码玩，达标就赢券。"},
+      fit:{en:"Daily traffic · clear stock · new-item trials",zh:"日常引流 · 清库存 · 新品试吃"},
+      eg:{en:"Play within 2 weeks, win a voucher, redeem in store",zh:"两周内玩游戏得券，到店兑"} },
+    { k:"challenge", ic:<Ic.trophy/>, tag:{en:"One big push",zh:"冲一波"}, nm:{en:"Timed challenge",zh:"限时挑战赛"},
+      line:{en:"Everyone competes at a set time — top ranks win the big prizes.",zh:"约定某晚同时开赛，比分数排名，名次高赢大奖。"},
+      fit:{en:"Buzz & hype · festival peaks · headline prizes",zh:"造话题 · 节日冲人气 · 大奖吸睛"},
+      eg:{en:"Fri 21:00, 3-min score race, top 100 win",zh:"本周五 21:00，3 分钟冲分，前 100 名赢奖"} },
+  ];
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="na-pick" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"New activity","新建活动")}</h3>
+        <p className="pub-sub">{tr(lang,"Two ways to bring customers in — pick one.","两种把客人带进店的方式，选一种。")}</p>
+        <div className="na-cards">
+          {forms.map(f => (
+            <button key={f.k} className={"na-card na-"+f.k} onClick={()=>onPick(f.k)}>
+              <div className="na-ic">{f.ic}</div>
+              <div className="na-tag">{P(lang,f.tag)}</div>
+              <div className="na-nm">{P(lang,f.nm)}</div>
+              <p className="na-line">{P(lang,f.line)}</p>
+              <div className="na-fit"><span className="na-fit-l">{tr(lang,"Best for","适合")}</span>{P(lang,f.fit)}</div>
+              <div className="na-eg">{tr(lang,"e.g. ","例：")}{P(lang,f.eg)}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function ScheduleEditor({ schedule, setSchedule }) {
+  const lang = useLang();
+  const s = schedule || {};
+  const upd = (k,v) => setSchedule({ ...s, [k]:v });
+  const days = s.days || [];
+  const toggleDay = (d) => upd("days", days.includes(d) ? days.filter(x=>x!==d) : [...days, d]);
+  const rounds = [1,2,3,5,10];
+  return (
+    <div className="panel" style={{ marginTop:16 }}>
+      <h3>{tr(lang,"When it runs","开赛档期")}</h3>
+      <p className="ph-sub">{tr(lang,"Everyone plays at the same set time and competes for rank.","大家在同一约定时间开赛、比分数排名。")}</p>
+      <div className="seg2" style={{ marginTop:12 }}>
+        <button type="button" className={s.mode!=="recurring"?"on":""} onClick={()=>upd("mode","oneoff")}>{tr(lang,"One-off","一次性")}</button>
+        <button type="button" className={s.mode==="recurring"?"on":""} onClick={()=>upd("mode","recurring")}>{tr(lang,"Recurring","循环")}</button>
+      </div>
+      {s.mode === "recurring"
+        ? <div className="field" style={{ marginTop:14 }}><label>{tr(lang,"On which nights","每周哪几晚")}</label>
+            <div className="day-chips">{[0,1,2,3,4,5,6].map(d => (
+              <button key={d} type="button" className={"dchip"+(days.includes(d)?" on":"")} onClick={()=>toggleDay(d)}>{lang==="zh"?WEEK_Z[d]:WEEK_E[d]}</button>
+            ))}</div>
+          </div>
+        : <div className="field" style={{ marginTop:14 }}><label>{tr(lang,"Date","开赛日期")}</label><input type="date" value={s.date||""} onChange={e=>upd("date",e.target.value)}/></div>}
+      <div style={{ display:"flex", gap:12, marginTop:14 }}>
+        <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start time","开赛时间")}</label><input type="time" value={s.time||"21:00"} onChange={e=>upd("time",e.target.value)}/></div>
+        <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Round length","单局时长")}</label>
+          <select value={s.roundMins||3} onChange={e=>upd("roundMins",+e.target.value)}>{rounds.map(r=>(<option key={r} value={r}>{tr(lang,`${r} min`,`${r} 分钟`)}</option>))}</select>
+        </div>
+      </div>
+      {s.mode === "recurring" && <div className="field" style={{ marginTop:14, marginBottom:0 }}><label>{tr(lang,"Runs until","循环截止")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input type="date" value={s.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>}
+    </div>
+  );
+}
+
+function PrizeLadderEditor({ ladder, setLadder }) {
+  const lang = useLang();
+  const rows = ladder || [];
+  const { slots, cash } = ladderStats(rows);
+  const updPrize = (i,patch) => setLadder(rows.map((r,j)=> j===i ? {...r, prize:{...r.prize, ...patch}} : r));
+  const updRank  = (i,patch) => setLadder(rows.map((r,j)=> j===i ? {...r, ...patch} : r));
+  const addRow = () => { const last = rows[rows.length-1]; const from = last ? (+last.to||0)+1 : 1; setLadder([...rows, { from, to:from, prize:{ type:"discount", pct:10 } }]); };
+  const dupRow = (i) => { const r = rows[i]; const span = (+r.to||0)-(+r.from||0); const from = (+r.to||0)+1; setLadder([...rows.slice(0,i+1), { from, to:from+span, prize:{...r.prize} }, ...rows.slice(i+1)]); };
+  const delRow = (i) => setLadder(rows.filter((_,j)=>j!==i));
+  const useSample = () => setLadder(SAMPLE_LADDER.map(r=>({...r, prize:{...r.prize}})));
+  return (
+    <div className="panel" style={{ marginTop:16 }}>
+      <div className="ladder-head"><h3 style={{ margin:0 }}>{tr(lang,"Prize ladder","阶梯奖池")}</h3><button className="linkbtn" onClick={useSample}>{tr(lang,"Use sample ladder","套用示例奖池")}</button></div>
+      <p className="ph-sub">{tr(lang,"Higher rank, better prize. Add any prize you like — cash, a menu item, a discount, or your own.","名次越高奖越好。奖品随你定 —— 现金、菜单商品、折扣、或自定义。")}</p>
+      <div className="cost-bar">
+        <span className="cost-slots"><b>{slots}</b> {tr(lang,"prizes","个奖")}</span>
+        {cash>0 && <span className="cost-cash">· {tr(lang,"cash total","现金奖合计")} <b>S${cash}</b></span>}
+        <div className="cost-note">{tr(lang,"Awarded by actual rank — empty ranks pay nothing.","按实际排名发 —— 没人到的名次不发奖、不产生费用。")}</div>
+      </div>
+      <div className="ladder-rows">
+        {rows.map((r,i) => (
+          <div className="lrow" key={i}>
+            <div className="lrank">{tr(lang,"Rank","第")}<input type="number" min="1" value={r.from} onChange={e=>updRank(i,{from:+e.target.value})}/><span>–</span><input type="number" min="1" value={r.to} onChange={e=>updRank(i,{to:+e.target.value})}/>{tr(lang,"","名")}</div>
+            <div className="lprize">
+              <select value={r.prize.type} onChange={e=>updPrize(i,{ type:e.target.value })}>{PRIZE_TYPES.map(pt=>(<option key={pt.k} value={pt.k}>{tr(lang,pt.en,pt.zh)}</option>))}</select>
+              {r.prize.type==="cash"     && <div className="pfield">S$<input type="number" min="0" value={r.prize.value||""} onChange={e=>updPrize(i,{value:+e.target.value})}/></div>}
+              {r.prize.type==="discount" && <div className="pfield"><input type="number" min="0" max="100" value={r.prize.pct||""} onChange={e=>updPrize(i,{pct:+e.target.value})}/>%</div>}
+              {(r.prize.type==="item"||r.prize.type==="custom") && <input className="plabel" placeholder={r.prize.type==="item"?tr(lang,"Menu item name","商品名"):tr(lang,"Prize name","奖品名")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>}
+            </div>
+            <div className="lact">
+              <button type="button" title={tr(lang,"Duplicate","复制上一档")} onClick={()=>dupRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button type="button" title={tr(lang,"Remove","删除")} onClick={()=>delRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button className="btn ghost sm" style={{ marginTop:12 }} onClick={addRow}><span style={{ fontSize:16, lineHeight:1 }}>+</span> {tr(lang,"Add a tier","加一档")}</button>
+    </div>
+  );
+}
+
 function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, cardOnFile, setCardOnFile, onNewGame, onViewGame, onBack }) {
   const lang = useLang();
   const upd = (k, v) => setActivity(a => ({...a, [k]: v}));
@@ -1323,6 +1534,8 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
   const live = st === "live";
   const [pubOpen, setPubOpen] = useState(new URLSearchParams(location.search).get("pub")==="1");
   const [appQr, setAppQr] = useState(false);
+  const isChal = (activity.form||"longrun") === "challenge";
+  const onLogo = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => upd("logo", rd.result); rd.readAsDataURL(f); };
   const curTier = (WIN_TIERS.find(t=>t.score===(activity.winScore||1000)) || WIN_TIERS[1]).k;
   // 活动直接上线（无审批）：draft/offline —上线→ live；live —下线→ offline
   const actOutlets = outlets.filter(o => (activity.outletIds||[]).includes(o.id));
@@ -1332,16 +1545,26 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
       {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live — customers can play now.","已上线 —— 客人现在就能扫码玩。")}</span><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button></div>}
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
-        <div className="field" style={{ margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
-        <div style={{ display:"flex", gap:12, marginTop:14 }}>
+        <div className="act-idrow">
+          <div className="field" style={{ flex:1, margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={isChal ? tr(lang,"e.g. Friday Night Challenge","例如：周五夜赛") : tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
+          <label className="act-logo-up" title={tr(lang,"Brand logo","品牌 Logo")}>
+            {activity.logo ? <img src={activity.logo} alt=""/> : <><Ic.image style={{ width:17, height:17 }}/><span>Logo</span></>}
+            <input type="file" accept="image/*" hidden onChange={onLogo}/>
+          </label>
+        </div>
+        <p className="ph-sub" style={{ marginTop:8 }}>{isChal ? tr(lang,"Brand logo shows on the poster, app card and the leaderboard. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报、App 卡片和排行榜上。留空则沿用所选游戏的品牌。") : tr(lang,"Brand logo shows on the poster and app card. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报和 App 卡片上。留空则沿用所选游戏的品牌。")}</p>
+        {!isChal && <><div style={{ display:"flex", gap:12, marginTop:14 }}>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={activity.startDate||""} onChange={e=>upd("startDate",e.target.value)}/></div>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely — take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p>
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely — take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
       </div>
-      <div className="panel" style={{ marginTop:16 }}>
-        <VoucherEditor vouchers={activity.vouchers} setVouchers={vs => upd("vouchers", vs)} showStock />
-      </div>
+      {isChal
+        ? <><ScheduleEditor schedule={activity.schedule} setSchedule={s => upd("schedule", s)} />
+            <PrizeLadderEditor ladder={activity.prizeLadder} setLadder={l => upd("prizeLadder", l)} /></>
+        : <div className="panel" style={{ marginTop:16 }}>
+            <VoucherEditor vouchers={activity.vouchers} setVouchers={vs => upd("vouchers", vs)} showStock />
+          </div>}
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Game","游戏")}</h3>
         <p className="ph-sub">{myGames.length ? tr(lang,"Pick which game to use for this activity.","选一个游戏用在这个活动上。") : tr(lang,"You don't have a game yet — create one first.","你还没有游戏 —— 先新建一个。")}</p>
@@ -1363,7 +1586,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
           })}
           <button className="mgnew" onClick={onNewGame}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
         </div>
-        <div className="win-cond">
+        {!isChal && <><div className="win-cond">
           <span className="wc-lbl">{tr(lang,"How hard to win","赢奖难度")}</span>
           <div className="wc-tiers">
             {WIN_TIERS.map(t => (
@@ -1373,8 +1596,15 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
             ))}
           </div>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win, vouchers last longer; easier = more win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p>
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win, vouchers last longer; easier = more win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p></>}
+        {isChal && <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Players race for a high score in this game — ranking decides the prizes above.","玩家在这个游戏里冲高分，排名决定上面的奖池。")}</p>}
       </div>
+      {isChal && <div className="panel" style={{ marginTop:16 }}>
+        <h3>{tr(lang,"Race rules","赛制")}</h3>
+        <p className="ph-sub" style={{ marginTop:2 }}><Ic.check style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5, color:"var(--green-d)" }}/>{tr(lang,"Tie-break: same score, earlier submission ranks higher.","同分裁决：分数相同，先提交者排名靠前。")}</p>
+        <p className="ph-sub" style={{ marginTop:6 }}><Ic.shield style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5 }}/>{tr(lang,"One play per person per round — enforced in the KiX app.","每人每场限一局 —— 由 KiX App 保证。")}</p>
+        <p className="ph-sub" style={{ marginTop:6 }}><Ic.trophy style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5, color:"#C2410C" }}/>{tr(lang,"Prizes are awarded by actual final rank — no minimum turnout needed.","按实际最终排名发奖 —— 不设最低人数门槛，来多少人都照常开赛。")}</p>
+      </div>}
       <div className="panel" style={{ marginTop:16 }}>
         <OutletScope outlets={outlets} gameOutlets={activity.outletIds} setGameOutlets={ids => upd("outletIds", ids)} setOutlets={setOutlets} locked={live} />
         {live && <p className="ph-sub" style={{ marginTop:10 }}>{tr(lang,"To change outlets, take the activity offline first.","要改门店，请先把活动下线。")}</p>}
@@ -1591,10 +1821,10 @@ function OutletPanel({ lang, outRed, omax }) {
 }
 
 /* ===== billing: plans + payment method ===== */
-// 价格 = 落地页口径（pay-per-result）：免费版靠功能门槛；按结果=S$3/位新客、首 3 月免费、老客永远免费
+// 价格 = 落地页 bible MAU 口径：免费版功能门槛；成长版 S$29/品牌/月起(按 MAU 梯度、只算新生意封顶 12%)、前 3 月免费、老客永远免费
 const PLANS = [
   { id:"free",   name:{en:"Free forever",zh:"永久免费"},  price:{en:"S$0",zh:"S$0"},              note:{en:"1 game · redemption + dashboard",zh:"1 个游戏 · 兑奖 + 数据看板"} },
-  { id:"result", name:{en:"Pay per result",zh:"按结果付费"}, price:{en:"from S$3/new customer",zh:"S$3 / 位新客起"}, note:{en:"Unlimited games & campaigns · first 3 months free · regulars always free",zh:"不限游戏与活动 · 首 3 个月免费 · 老客永远免费"} },
+  { id:"result", name:{en:"Grow with KiX",zh:"成长版"}, price:{en:"from S$29/mo",zh:"S$29 / 月起"}, note:{en:"Unlimited games & campaigns · only new business, capped 12% · cheaper as you grow, one bill",zh:"不限游戏与活动 · 只算新生意、封顶 12% · 越做越便宜、多店合一"} },
   { id:"chain",  name:{en:"Chains",zh:"连锁版"},         price:{en:"Contact us",zh:"联系我们"},    note:{en:"Multi-outlet · custom games & integration",zh:"多门店 · 定制玩法与对接"} },
 ];
 function CardModal({ cardOnFile, onSave, onClose }) {
@@ -1615,7 +1845,7 @@ function CardModal({ cardOnFile, onSave, onClose }) {
               <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
             </div>
           </div>
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that, S$3 per new customer — regulars always free.","首 3 个月免费。之后按 S$3/位新客收费 —— 老客永远免费。")}</span></p>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that from S$29/mo — only new business, regulars always free.","前 3 个月免费。之后 S$29/月起 —— 只算新生意、老客永远免费。")}</span></p>
         </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -1633,7 +1863,7 @@ function PlanModal({ plan, onPick, onClose }) {
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Switch plan","切换套餐")}</h3>
-        <p className="pub-sub">{tr(lang,"Pay per result is free for the first 3 months. Regulars always free. Change anytime.","按结果付费首 3 个月免费，老客永远免费，随时可改。")}</p>
+        <p className="pub-sub">{tr(lang,"Free for the first 3 months, then pay only as you grow. Regulars always free, change anytime.","前 3 个月免费，之后只在你增长时才付费。老客永远免费，随时可改。")}</p>
         <div className="plans">
           {PLANS.map(pl => (
             <button key={pl.id} className={"plan-opt"+(plan===pl.id?" on":"")} onClick={()=>{ onPick(pl.id); onClose(); }}>
@@ -1676,7 +1906,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Billing & plan","账单与套餐")}</h3>
-        <p className="ph-sub">{tr(lang,"First 3 months free — after that you only pay S$3 per new customer. Regulars always free. Manage your plan and card here.","首 3 个月免费 —— 之后只按 S$3/位新客收费，老客永远免费。在这里管理套餐和银行卡。")}</p>
+        <p className="ph-sub">{tr(lang,"First 3 months free — after that from S$29/mo, only new business, regulars always free. Manage your plan and card here.","前 3 个月免费 —— 之后 S$29/月起，只算新生意、老客永远免费。在这里管理套餐和银行卡。")}</p>
         <div className="billrow">
           <div className="bill-l"><span className="bill-ic"><Ic.spark style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Plan","套餐")}</div><div className="bill-v">{P(lang,curPlan.name)} · {P(lang,curPlan.price)}</div></div></div>
           <button className="btn ghost sm" onClick={()=>setPlanModal(true)}>{tr(lang,"Switch plan","切换套餐")}</button>
@@ -1685,7 +1915,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="bill-l"><span className="bill-ic"><Ic.card style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Payment method","付款方式")}</div><div className="bill-v">{cardOnFile ? <>Visa •••• {cardOnFile.last4}</> : <span style={{ color:"var(--muted)" }}>{tr(lang,"No card yet","尚未绑定银行卡")}</span>}</div></div></div>
           <button className="btn ghost sm" onClick={()=>setCardModal(true)}>{cardOnFile ? tr(lang,"Change","更换") : tr(lang,"Add card","添加银行卡")}</button>
         </div>
-        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Regulars always free, no minimum, take activities offline anytime.","首 3 个月不扣款。老客永远免费、无最低消费，活动随时可下线。")}</span></p>
+        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Only new business counts, regulars always free, take activities offline anytime.","前 3 个月不扣款。只算新生意、老客永远免费，活动随时可下线。")}</span></p>
       </div>
       <div className="panel me-approw" style={{ marginTop:16 }}>
         <span className="me-app-ic"><Ic.phone style={{ width:20, height:20 }}/></span>
@@ -1761,6 +1991,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   const [editingAct, setEditingAct] = useState((()=>{ const e=new URLSearchParams(location.search).get("editact"); return e ? (activities[parseInt(e,10)-1]||activities[0]||null) : null; })()); // 调试直达活动编辑器（editact=1/2/3 指定第几个）
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null); // 下线撤销 toast：{ undo }（可逆动作不弹前置确认）
+  const [pickForm, setPickForm] = useState(false); // 建活动第一步：选形态弹窗
   const takeOffline = (act) => { const prev = act.status||"live"; setActivities(list => list.map(a => a.id===act.id ? {...a, status:"offline"} : a)); setToast({ undo:()=>setActivities(list => list.map(a => a.id===act.id ? {...a, status:prev} : a)) }); };
   const takeGameOffline = (g) => { setMyGames(list => list.map(x => x.id===g.id ? {...x, status:"draft"} : x)); setToast({ undo:()=>setMyGames(list => list.map(x => x.id===g.id ? {...x, status:"live"} : x)) }); };
   const undoOffline = () => { setToast(t => { if (t) t.undo(); return null; }); };
@@ -1777,11 +2008,17 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   const goMe = () => { setMenuOpen(false); setEditing(null); setEditingAct(null); setSec("me"); };
   const liveAct = activities.find(a => a.status === "live");
   const actVouchers = liveAct ? liveAct.vouchers : DEFAULT_VOUCHERS;
-  const openAct = (act) => { setEditingAct({...act, vouchers:act.vouchers.map(v=>({...v}))}); };
-  const newAct = () => { openAct({ id:"a"+Date.now(), name:{en:"New activity",zh:"新活动"}, outletIds:outlets.map(o=>o.id), vouchers:STARTER_VOUCHERS.map(v=>({...v})), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft" }); };
+  const openAct = (act) => { setEditingAct({...act, vouchers:(act.vouchers||[]).map(v=>({...v})), prizeLadder:(act.prizeLadder||[]).map(p=>({...p, prize:{...p.prize}})), schedule:act.schedule?{...act.schedule, days:[...(act.schedule.days||[])]}:undefined }); };
+  // 建活动第一步先选形态（长期/挑战赛），再进对应编辑器
+  const openNewActPicker = () => { setEditing(null); setEditingAct(null); setPickForm(true); };
+  const blankLongrun = () => ({ id:"a"+Date.now(), form:"longrun", name:{en:"New activity",zh:"新活动"}, outletIds:outlets.map(o=>o.id), vouchers:STARTER_VOUCHERS.map(v=>({...v})), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft" });
+  const blankChallenge = () => ({ id:"a"+Date.now(), form:"challenge", name:{en:"New challenge",zh:"新挑战赛"}, outletIds:outlets.map(o=>o.id), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft", schedule:{ mode:"oneoff", date:"", days:[5,6,0], time:"21:00", roundMins:3, endDate:"" }, tiebreak:"earliest", prizeLadder:[ { from:1,to:1,prize:{type:"cash",value:20} }, { from:2,to:5,prize:{type:"discount",pct:20} }, { from:6,to:20,prize:{type:"discount",pct:10} } ] });
+  const createAct = (form) => { setPickForm(false); openAct(form==="challenge" ? blankChallenge() : blankLongrun()); };
   // 复制现有活动：同游戏/券/门店/赢奖条件，名字加副本，回到 draft、清空运行数据，打开编辑器微调
-  const dupAct = (act) => { openAct({ ...act, id:"a"+Date.now(), name:{ en:(act.name.en||"Activity")+" (copy)", zh:(act.name.zh||"活动")+"（副本）" }, vouchers:act.vouchers.map(v=>({...v, awarded:0, redeemed:0})), status:"draft" }); };
+  const dupAct = (act) => { openAct({ ...act, id:"a"+Date.now(), name:{ en:(act.name.en||"Activity")+" (copy)", zh:(act.name.zh||"活动")+"（副本）" }, vouchers:(act.vouchers||[]).map(v=>({...v, awarded:0, redeemed:0})), stat:undefined, status:"draft" }); };
   const saveAct = () => { setActivities(as => { const idx = as.findIndex(a=>a.id===editingAct.id); return idx>=0 ? as.map((a,i)=>i===idx?editingAct:a) : [...as, editingAct]; }); setEditingAct(null); };
+  // 调试：?act=<id> 直接打开该活动编辑器；?pickact=1 打开形态选择弹窗
+  useEffect(() => { const p=new URLSearchParams(location.search); const id=p.get("act"); if(id){ const a=activities.find(x=>x.id===id); if(a) openAct(a); } if(p.get("pickact")==="1") setPickForm(true); }, []);
   const barTitle = inBuild ? tr(lang,"New game","新建游戏")
     : inEdit ? <><button className="iconx sm" onClick={()=>setEditing(null)} style={{ marginRight:10, verticalAlign:"middle" }}><Ic.back/></button>{P(lang,editing.name)}</>
     : inActEdit ? <><button className="iconx sm" onClick={()=>setEditingAct(null)} style={{ marginRight:10, verticalAlign:"middle" }}><Ic.back/></button>{P(lang,editingAct.name)}</>
@@ -1807,7 +2044,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           {inActEdit && <span className={"act-badge " + ACT_STA[editingAct.status||"draft"].cls}>{(editingAct.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[editingAct.status||"draft"])}</span>}
           <div className="app-bar-r">
             {!inBuild && !inEdit && !inActEdit && sec === "activities" && (
-              <button className="btn primary" style={{ height:36, fontSize:14, padding:"0 16px" }} onClick={newAct}>+ {tr(lang,"New activity","新建活动")}</button>
+              <button className="btn primary" style={{ height:36, fontSize:14, padding:"0 16px" }} onClick={openNewActPicker}>+ {tr(lang,"New activity","新建活动")}</button>
             )}
             {!inBuild && !inEdit && !inActEdit && sec === "games" && (
               <button className="btn primary" style={{ height:36, fontSize:14, padding:"0 16px" }} onClick={onNewGame}>+ {tr(lang,"New game","新建游戏")}</button>
@@ -1828,14 +2065,15 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
-          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={newAct} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} onNew={newAct} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
+          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={openNewActPicker} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
+          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} />
-          : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={newAct} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
+          : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
-          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={newAct} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
+          : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
       {toast && <UndoToast onUndo={undoOffline} onClose={()=>setToast(null)} lang={lang}/>}
+      {pickForm && <NewActivityPicker onPick={createAct} onClose={()=>setPickForm(false)}/>}
     </div>
   );
 }
@@ -1859,10 +2097,11 @@ function App() {
   const [outlets, setOutlets] = useState(OUTLETS.map(o => ({ ...o })));
   const [myGames, setMyGames] = useState([{...TEMPLATES[0], status:"live"}, {...TEMPLATES[1], status:"draft"}, {...TEMPLATES[3], status:"draft"}]);
   // 卡预存储(SetupIntent 语义,不扣款)——注册最后一步收，需存活到进 AppShell，故提升到 App
-  const [cardOnFile, setCardOnFile] = useState(new URLSearchParams(location.search).get("card")==="1" ? { last4:"4242" } : null);
+  // 卡在注册最后一步就收 → 能进 Portal(authed)= 已有 card-on-file。?card=0 可强制无卡调试
+  const [cardOnFile, setCardOnFile] = useState(() => { const c = _p.get("card"); if (c==="1") return { last4:"4242" }; if (c==="0") return null; return authed ? { last4:"4242" } : null; });
   // fresh=1：模拟全新商家首次登录（还没有任何活动）；否则用 demo 活动（老商家演示）
   const _fresh = _p.get("fresh") === "1";
-  const [activities, setActivities] = useState(_fresh ? [] : DEFAULT_ACTIVITIES.map(a => ({...a, vouchers:a.vouchers.map(v=>({...v}))})));
+  const [activities, setActivities] = useState(_fresh ? [] : DEFAULT_ACTIVITIES.map(a => ({...a, vouchers:(a.vouchers||[]).map(v=>({...v})), prizeLadder:(a.prizeLadder||[]).map(p=>({...p, prize:{...p.prize}}))})));
 
   const top = () => window.scrollTo(0,0);
   const toLanding = () => { setScreen("landing"); top(); };

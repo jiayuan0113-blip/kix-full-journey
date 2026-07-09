@@ -175,6 +175,22 @@ const DEFAULT_ACTIVITIES = [
     outletIds:["o1","o2"],
     vouchers: [ {...DEFAULT_VOUCHERS[0], name:{en:"CNY treat",zh:"新年好礼"}, qty:300} ],
     gameId:"wheel", status:"offline", winScore:1000, stat:{ walkins:30, newCust:22 } },
+  /* 限时挑战赛(KiX Challenge)demo — 定点开赛、排名定奖、阶梯奖池(一芳同款) */
+  { id:"a7", form:"challenge", name:{en:"Friday Night Challenge",zh:"周五夜赛"},
+    outletIds:["o1","o2"], gameId:"hoop", status:"live",
+    schedule:{ mode:"recurring", days:[5], time:"21:00", roundMins:3, endDate:"" },
+    tiebreak:"earliest",
+    prizeLadder:[
+      { from:1,  to:1,   prize:{ type:"cash",     value:60 } },
+      { from:2,  to:2,   prize:{ type:"cash",     value:40 } },
+      { from:3,  to:3,   prize:{ type:"cash",     value:20 } },
+      { from:4,  to:6,   prize:{ type:"item",     label:"芒果西米露 (M)" } },
+      { from:7,  to:10,  prize:{ type:"item",     label:"龙井拿铁 (M)" } },
+      { from:11, to:20,  prize:{ type:"discount", pct:20 } },
+      { from:21, to:30,  prize:{ type:"discount", pct:10 } },
+      { from:31, to:100, prize:{ type:"discount", pct:5  } },
+    ],
+    stat:{ players:184, walkins:63, newCust:47 } },
 ];
 
 Object.assign(window, { P, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });

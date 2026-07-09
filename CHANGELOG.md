@@ -4,6 +4,44 @@
 
 ---
 
+## 2026-07-09
+
+### 81. 活动页产品三体（4-lens 收敛）
+**产品三体**（4 个互不重合 sub-agent 找命门：非技术可懂性 / 两类型IA+状态全覆盖 / 单一焦点冗余 / 忙碌操作效率）。收敛后实施：
+- **卡片 footer 重排**：live 卡主按钮 = 绿色「门店二维码」（高频动作上位），「下线」降进 ⋯；offline 主按钮 = 「上线」，⋯ 含 复制/二维码/在 KiX App 里看；draft = 直接「复制」按钮（去掉只含 1 项的 ⋯）。
+- **多店二维码**：点「门店二维码」→ ≥2 店弹门店清单逐个下载（每店一码归因，`ActivityQRSheet`）；单店直下。
+- **状态/文案**：徽章「草稿」→「修改中」（与筛选一致）；longrun 卡「52 人到店（含 41 新客）」消歧义；「在 App 查看」→「在 KiX App 里看」；「加券」伪按钮 → 陈述「券已发完 —— 打开可补券」；空态去「触达」行话。
+- **状态机全态修正**：offline 挑战赛补实测「X 人参赛 · Y 到店」（已发生的历史+计费KPI，非前瞻）；一次性挑战赛过期 `nextSession` 返 null → 卡显「已跑完」不再假"今天"；库存条仅 `live` 显（offline 不显前瞻"剩X"）；筛选态计数归零 → useEffect 重置 filt="all"。
+- **新建弹窗**：删「选这个」伪 CTA（整卡可点）。
+**影响文件**：`journey.jsx`（ActivitiesView、ActivityQRSheet、ACT_STA、NewActivityPicker、nextSession；AppShell 传 outlets）、`index.html`。收敛文档见 `Desktop/Mozat/kix/[评审] 2026-07-09-活动页内容设计-产品三体收敛.md`。
+
+### 80. 全站定价迁到 bible MAU 口径 + 上线弹窗去卡
+**为什么**：CEO bible（`mozatyin/kix-platform` §4.0 CANON，2026-07-09）定：基础费 = 按品牌 MAU、`max($29/品牌/月, 梯度)`、≤12% 增量、软件永久免费、"never a monthly fee"式读法作废。商家端旧「S$3/位新客 · pay-per-result」全部 off-canon。
+**改了什么**：
+- 落地页三卡（Joyce 手改）= S$29/月起 · 只算新生意封顶12% · 越做越便宜多店合一。
+- 其余全部对齐：FAQ、登录副标题、主页成本条、PLANS、切套餐弹窗、我的·账单、换卡弹窗 → 「S$29/月起，只算新生意、老客永远免费」；清除所有 `S$3`/pay-per-result/"从不收月费"。
+- **上线活动弹窗（ActivityPublishModal）删「付款方式」整块**（卡在注册即收，不重复要卡、不显 off-canon 定价）。
+- `cardOnFile` 默认：authed（能进 Portal）= 已有卡（`?card=0` 调试无卡）。
+**影响文件**：`journey.jsx`（Faq/login-sub/HomeView/PLANS/PlanModal/CardModal/MeView/ActivityPublishModal/App cardOnFile）。
+
+### 79. 活动品牌 Logo 上传 + 去「最少参赛人数」
+- 活动名称行右侧加方形 Logo 上传位（长期+挑战赛共用）；说明"显示在海报/App卡片（挑战赛用在排行榜），留空沿用游戏品牌"。
+- 删挑战赛「最少参赛人数」（幻影控件：开赛前人数不可知、人已参赛无法回头取消）；赛制面板改明确承诺"不设最低人数门槛、来多少人都照常开赛"。
+**影响文件**：`journey.jsx`（ActivityEditor onLogo + act-idrow；赛制面板）、`index.html`（`.act-idrow`/`.act-logo-up`）、`data.jsx`（去 a7 minPlayers）。
+
+### 78. 限时挑战赛卡片内容（三体收敛）
+challenge 卡去「到店/参赛人数/头奖」（不可知前瞻 or 用户自设已知值），只留可动作的「下一场 · <倒计时口径时间>」；草稿=「N 个奖 · X 门店」；已下线补实测（见 #81）。对标 Eventbrite/Faceit/Whatnot（倒计时=头条）。
+**影响文件**：`journey.jsx`（ActivitiesView challenge 分支、`nextSession`/`nextLabel`/`schedSummary`/`topPrizeShort`）、`index.html`（`.chal-when.next`/`.cw-dot`）。
+
+### 77. KiX Challenge（限时挑战赛）= 第二种活动形态
+**canon**：`Activity.form` = `longrun`（现有：游戏+券，随时玩达标赢券）| `challenge`（新：游戏+阶梯奖池，定点开赛按排名赢）。品牌**自营**（自己的游戏/排行榜/档期），非赞助平台夜赛。
+- **建活动第一步**：形态选择弹窗（`NewActivityPicker`，长期/挑战赛对比卡）。
+- **挑战赛编辑器**：档期（一次性/循环 + 星期 chips + 时间 + 单局时长 + 循环截止）；**阶梯奖池**（逐档 名次区间→奖品，四类可配 现金/菜单商品/折扣/自定义，「套用示例奖池」+复制/删；**成本条** = 名额合计 + 现金奖合计 +"空名次不发不花钱"，不臆测折扣/商品总价）；赛制（同分裁决+每人限一局）；游戏/门店/二维码/上线复用。
+- **数据模型**：`{form:'challenge', schedule:{mode,date|days,time,roundMins,endDate}, tiebreak, prizeLadder:[{from,to,prize:{type,value|pct|label}}], stat:{players,walkins,newCust}}`。demo `a7`。
+**影响文件**：`journey.jsx`（NewActivityPicker/ScheduleEditor/PrizeLadderEditor/ActivityEditor 分支/ladderStats/schedSummary；AppShell pickForm/createAct）、`index.html`（`.na-*`/`.seg2`/`.day-chips`/`.ladder-*`/`.cost-bar`/`.chal-badge`）、`data.jsx`（a7 + 初始化 guard prizeLadder）。
+
+---
+
 ## 2026-07-08
 
 ### 76. 主页 hero 加「券剩余」（当前活动第三个生命体征）

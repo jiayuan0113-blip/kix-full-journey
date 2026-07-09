@@ -75,10 +75,12 @@
 - `lang`：`en`（默认）/ `zh`。
 - `need` / `game` / `brand`：本次建游戏的输入、所选模板、品牌（色/logo/商品图）。
 - `myGames`：商家已创建的游戏数组（纯视觉模板实例）。
-- `activities`：商家的活动数组，每项含 `{id, name, outletIds, vouchers, gameId, status}`。
+- `activities`：商家的活动数组。两种形态（`form`，2026-07-09）：
+  - `longrun`（现有，默认）：`{id, name, form:'longrun', outletIds, vouchers, gameId, winScore, status, logo?, stat?}` —— 时间窗+达标赢券。
+  - `challenge`（限时挑战赛）：`{id, name, form:'challenge', outletIds, gameId, status, logo?, schedule:{mode:'oneoff'|'recurring', date?, days?:[0-6], time, roundMins, endDate?}, tiebreak:'earliest', prizeLadder:[{from, to, prize:{type:'cash'|'item'|'discount'|'custom', value?|pct?|label?}}], stat?:{players, walkins, newCust}}` —— 定点开赛+排名定奖（见 §3.9a）。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数)。
 
 ---
 
@@ -87,9 +89,10 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 ### 3.1 注册后置（发布闸门）+ 收卡（2026-07-08）
 - **未登录全程免注册**：落地页→建游戏全部可用、可玩、可改。
 - 仅当点「上线」时弹注册（`register`）。**注册 = 两子步：① 账号（店名/地区/手机）② 绑卡（Airwallex，收卡放最后一步）**。
-- **绑卡步信任设计**：条款副标题(首 3 月免费·之后 S$3/位新客·老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Airwallex 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Airwallex hosted fields**，原型 mock。
+- **绑卡步信任设计**：条款副标题(前 3 月免费·之后 S$29/月起、只算新生意、老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Airwallex 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Airwallex hosted fields**，原型 mock。
+- ⭐ **计费口径 = bible §4.0 CANON（2026-07-09，`mozatyin/kix-platform`）**：软件永久免费；基础费按**品牌 MAU**（本月玩过≥1次的活跃用户）= `max($29/品牌/月 地板, 梯度费)`、**≤12% 增量**、**只算新生意、永不碰老客存量**；免费窗口 = 满 3 个月或活跃用户达 1,000（先到）。梯度 0–1k=$0.49/1k–5k=$0.39/5k–20k=$0.29/20k–100k=$0.19/100k+=$0.12。广告 B = 竞价（非固定 CPA）。**旧「S$3/位新客·pay-per-result·从不收月费」全部作废**，商家端所有文案已迁（落地页三卡/FAQ/登录/主页成本条/PLANS/账单）。
 - **返回统一**：内容区左上角「← 上一步」（绑卡步→账号步；账号步→回预览 `onBack`），顶栏右上「退出」——与建游戏各步一致。删掉原顶栏右上返回箭头（避免双返回）。
-- 收卡写入 `cardOnFile`（**state 提升到 App**），存活进后台：我的>账单显示 ••••、后续上线活动直接显示已绑卡。落地页所有 "no credit card" 文案已删。
+- 收卡写入 `cardOnFile`（**state 提升到 App**，authed=已有卡），存活进后台：我的>账单显示 ••••。落地页所有 "no credit card" 文案已删。**上线活动弹窗（ActivityPublishModal）不再显示「付款方式」**（卡在注册即收，不重复要卡、不显定价）——弹窗只剩 标题+说明+活动名+确认上线。
 - 已有账号入口：账号步底部「登录」。
 
 ### 3.2 首次 vs 登录后建游戏（防死胡同）
@@ -142,6 +145,21 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - ⚠️ **审核后台 review-admin.html 逻辑已与商家端脱节**（商家端去审批直接上线，审核后台仍展示"待审批"队列）；暂留，待定改「发布后审核」或删除。
 - **活动编辑器**（`ActivityEditor`）：从上到下 = 顶部进度条（修改/审批/上线） → 活动名称 + 活动期限（开始/结束日期） → 奖品券（`VoucherEditor`，**单券、无有效期**） → 选游戏（展示用户已创建的所有游戏大卡片，点选即绑定；卡片下方「选择」「查看详情」按钮；末尾「+ 新建游戏」卡） → **参与门店（`OutletScope`，移到底部、紧挨二维码；已上线时置灰锁定，改门店需先下线）** → 活动二维码（**上线后每门店各一个 + 下载**） → 底部按钮（按状态：提交审核 / 取消提交 / 下线活动 / 修改并重新提交）+ 保存。
 - **游戏选择器**：活动编辑器中展示商家已创建的所有游戏（大卡片 + 玩法动画预览），已绑定的游戏标记「已选」，可点击切换。末尾有「+ 新建游戏」大卡片入口。
+
+### 3.9a 限时挑战赛（`form:'challenge'`，2026-07-09）⭐
+第二种活动形态，与长期活动并列。品牌**自营**（用自己的品牌游戏、自己的排行榜、自己的档期），非赞助平台夜赛。
+- **建活动第一步**：形态选择弹窗 `NewActivityPicker`（长期活动 vs 限时挑战赛对比卡，含"适合/例"）。选完进对应编辑器。
+- **挑战赛编辑器**（`ActivityEditor` 内按 `form` 分支）：活动名+Logo → **档期 `ScheduleEditor`**（一次性/循环 段选、循环选星期 chips、开赛时间、单局时长、循环截止）→ **阶梯奖池 `PrizeLadderEditor`**（逐档 `名次区间 from–to → 奖品`；奖品四类可配 `cash`(填 S$)/`item`(菜单商品名+图)/`discount`(填%)/`custom`(自填名+图)；「套用示例奖池」`SAMPLE_LADDER` 一键铺 + 「复制上一档」+ 删；**成本条** = 名额合计 + 现金奖合计 + "按实际排名发、空名次不发不花钱"，**不折现/不加总折扣与商品**，避免臆测总价与损失厌恶）→ **赛制**（同分裁决=先提交者靠前 + 每人每场限一局，均 app 侧保证；**不设最低人数门槛**，来多少人都照常开赛）→ 游戏/门店/二维码/上线复用长期活动那套。
+- **不设人数上限/中奖上限**：开赛前人数不可知、人已参赛无法回头取消；成本由 card-on-file + 按真到店新客计费兜底，无需封顶。
+- **App 侧契约**（Portal 只配置）：倒计时卡 + 开赛推送 → 限时玩一局 → 赛后排行榜 → 名次出券 → 到店兑（= verified walk-in 计费，同长期活动）。排行榜结算/名次出券/推送 = 后端职责。
+- **helper**：`ladderStats(ladder)`→{slots,cash}；`schedSummary`/`nextSession`/`nextLabel`（`nextSession` 对过期一次性返 null → 卡显「已跑完」）。
+
+### 3.9b 活动列表卡内容（产品三体收敛，2026-07-09）⭐
+`ActivitiesView` 卡片按 form × status 自适应，原则 = **只放"可动作/可识别"信息；不放不可知前瞻或用户自设已知值；完整分析归数据页**。
+- **footer 动作按状态**：`live` 主按钮 = 「门店二维码」（高频，点→多店弹 `ActivityQRSheet` 逐门店下载、单店直下），⋯ = 复制/在 KiX App 里看/下线；`offline` 主按钮 = 「上线」，⋯ = 复制/二维码/在 KiX App 里看；`draft` = 直接「复制」按钮（无 ⋯）。整卡点击 = 打开编辑器。
+- **longrun 卡**：live/offline 显「X 人到店（含 Y 新客）」+ (**仅 live**) 券库存条「送 X · 剩 Y」(≤15% 橙/=0 红「打开可补券」)；draft 显「X 张券 · Y 门店」。
+- **challenge 卡**：live 显「下一场 · <今天/明天/周五/日期 时间>」(过期=「已跑完」)；offline 显「X 人参赛 · Y 到店」(已发生实测)；draft 显「N 个奖 · X 门店」。徽章「🏆限时赛」。
+- **筛选 pill**：全部/修改中/已上线/已下线（零计数隐藏；选中态计数归零→自动重置回"全部"）。徽章文案 `draft` = 「修改中」（与筛选一致，不再叫"草稿"）。
 
 ### 3.10 二维码体系（两种码，用途不同）⭐
 
