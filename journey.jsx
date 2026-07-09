@@ -328,7 +328,16 @@ function Faq() {
   const QA = [
     { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional — it just unlocks more games and rewards for the ones who love it.","不需要。扫码即在浏览器里玩。KiX App 是可选的 —— 只是给爱玩的人解锁更多游戏和奖励。") },
     { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可兑奖。不改 POS、不用开发、不用找代理。") },
-    { q:tr(lang,"What does it actually cost?","到底怎么收费？"),                                a:tr(lang,"Free for the first 3 months. After that you pay only as you grow — from S$29/mo, charged only on genuinely new business (never your regulars), capped at 12%.","前 3 个月免费。之后只在你增长时才付费 —— S$29/月起，只算新生意、永不碰老客，封顶 12%。") },
+    { q:tr(lang,"What does it actually cost?","到底怎么收费？"), a:(<>
+        {tr(lang,"Free for the first 3 months (or your first 1,000 players). After that you're billed by monthly active players — people who actually played your game that month — and the more play, the cheaper each one:","前 3 个月（或首 1,000 位玩家）免费。之后按「活跃玩家」计费 —— 即当月真正玩过你游戏的人；玩的人越多、每位越便宜：")}
+        <div className="faq-tiers">
+          <div><span>{tr(lang,"First 1,000 players","首 1,000 位玩家")}</span><b>S$0.49{tr(lang,"/player","/位")}</b></div>
+          <div><span>1,000–5,000</span><b>S$0.39{tr(lang,"/player","/位")}</b></div>
+          <div><span>5,000–20,000</span><b>S$0.29{tr(lang,"/player","/位")}</b></div>
+          <div><span>{tr(lang,"20,000+","20,000 以上")}</span><b>{tr(lang,"from ","低至 ")}S$0.12{tr(lang,"/player","/位")}</b></div>
+        </div>
+        {tr(lang,"Tiered like tax brackets — only the players above each band get the lower rate. Your bill is capped at 12% of the new business we bring (Groupon-style deals take 30–50%), and we never charge on your existing regulars. A small monthly minimum applies.","按档累进（像个税）—— 只有超出每档的部分才用更低单价。账单最多只占我们带来新生意的 12%（团购通常抽三到五成），且永不碰你原有的老客。另有很低的月度最低消费。")}
+      </>) },
     { q:tr(lang,"I already run a loyalty program — does this replace it?","我已有会员体系 —— 这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，是给它供血。KiX 把新客带进门，你的会员体系把他们留住。两者协同。") },
     { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good — that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger — and your players discover more places to play, right alongside you.","好啊 —— 这正是重点。他们得做自己的、套自己的品牌。每加入一家店，整个 KiX 网络就更大 —— 你的玩家也会发现更多可玩的店，就在你旁边。") },
     { q:tr(lang,"Is my customer data safe?","我的客户数据安全吗？"),                             a:tr(lang,"Yes. Your customers and their data stay with your business. KiX is the invisible engine — we never take your customers away.","安全。你的客户和他们的数据都留在你店里。KiX 是隐形引擎 —— 我们从不把你的客户带走。") },
@@ -416,16 +425,32 @@ function Pricing({ go }) {
   const lang = useLang();
   return (
     <section className="sec">
-      <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只在你增长时才付费。")}</h2>
-      <div className="tiers">
-        <div className="tier"><div className="tname">{tr(lang,"FREE TO START","免费开始")}</div><div className="price">S$0</div><div className="pdesc">{tr(lang,"New to KiX","初次上手")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"Your branded game","你的品牌游戏")}</li><li><span className="ck"><Check/></span>{tr(lang,"Unlimited plays","不限游玩次数")}</li><li><span className="ck"><Check/></span>{tr(lang,"Redemption + dashboard","到店兑奖 + 看板")}</li></ul>
-          <button className="btn ghost" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
-        <div className="tier pop"><div className="pbadge">{tr(lang,"Best value","最超值")}</div><div className="tname">{tr(lang,"GROW WITH KIX","成长版")}</div><div className="price"><span style={{ fontSize:"15px", fontWeight:700, color:"var(--muted)" }}>{tr(lang,"from ","低至 ")}</span>S$29<small>{tr(lang," / mo"," / 月")}</small></div><div className="pdesc">{tr(lang,"Growing shops","成长中的门店")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"Unlimited games & campaigns","不限游戏与活动")}</li><li><span className="ck"><Check/></span>{tr(lang,"Only new business, never your regulars — capped at 12%","只算新生意、永不碰老客 —— 封顶 12%")}</li><li><span className="ck"><Check/></span>{tr(lang,"Cheaper as you grow · all stores, one bill","越做越便宜 · 多店合并一张账单")}</li></ul>
-          <button className="btn primary" onClick={go}>{tr(lang,"Get started","立即开始")}</button></div>
-        <div className="tier"><div className="tname">{tr(lang,"GROW FASTER (optional)","加速拉新（可选）")}</div><div className="price" style={{ fontSize:"27px" }}>{tr(lang,"You set the price","你来定价")}</div><div className="pdesc">{tr(lang,"Want more new customers","想要更多新客")}</div>
-          <ul><li><span className="ck"><Check/></span>{tr(lang,"Only pay for genuinely new faces","只为真正的新客付费")}</li><li><span className="ck"><Check/></span>{tr(lang,"Free until they come back","回头前不收费")}</li><li><span className="ck"><Check/></span>{tr(lang,"Multi-outlet · custom plans","多门店 · 定制方案")}</li></ul>
+      <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</h2>
+      <div className="tiers tiers-2">
+        <div className="tier pop">
+          <div className="pbadge">{tr(lang,"Best choice","最推荐")}</div>
+          <div className="ptimeline">
+            <div className="pt-step on"><span className="pt-cap">{tr(lang,"Now","现在")}</span><b>S$0</b></div>
+            <span className="pt-arrow">→</span>
+            <div className="pt-step"><span className="pt-cap">{tr(lang,"Then","之后")}</span><b>S$0.49</b><small>{tr(lang,"/ active player","/ 活跃玩家")}</small></div>
+          </div>
+          <div className="pt-sub">{tr(lang,"Free until 3 months or your first 1,000 players (whichever first)","免费到 3 个月或首 1,000 位玩家（先到为准）")}</div>
+          <ul>
+            <li><span className="ck"><Check/></span>{tr(lang,"Your own branded game, free to build · cancel anytime","免费定制你的品牌专属游戏 · 随时可取消")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Regulars always free — only new business counts","老客永远免费 —— 只算新生意")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Cheaper per player as more play · capped at 12%","玩的人越多越便宜 · 封顶 12%")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"All your outlets pooled into one bill","多店合并一张账单（按品牌计费）")}</li>
+          </ul>
+          <button className="btn primary" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
+        <div className="tier">
+          <div className="tname">{tr(lang,"WANT MORE, FASTER? (optional)","想更快拉新？（可选）")}</div>
+          <div className="price" style={{ fontSize:"27px" }}>{tr(lang,"You set the price","你来定价")}</div>
+          <ul>
+            <li><span className="ck"><Check/></span>{tr(lang,"Advertise — let more new customers discover you","投广告 —— 让更多新客发现你")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"You decide each new customer's worth · free until they stick","你定每位新客的价值 · 留下前不收费")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Chains / franchises — a plan built for you","连锁 / 加盟 —— 专属定制方案")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Connect your POS / CRM · custom games · priority support","对接 POS / 会员系统 · 定制游戏 · 优先支持")}</li>
+          </ul>
           <button className="btn ghost">{tr(lang,"Talk to us","联系我们")}</button></div>
       </div>
     </section>
@@ -482,7 +507,7 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
         <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。{tr(lang,"Have an account? ","已有账号？")}<a onClick={onSignIn} style={{ cursor:"pointer" }}>{tr(lang,"Sign in","登录")}</a></div>
       </> : <>
         <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
-        <p className="login-sub">{tr(lang,"Free for 3 months, then from S$29/mo.","前 3 个月免费，之后 S$29/月起。")}</p>
+        <p className="login-sub">{tr(lang,"Free for 3 months, then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</p>
         <div className="trust-list">
           <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends — around ${chargeDate}.`,`到期前 7 天提醒你 —— 大约 ${chargeDate}。`)}</span></div>
           <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime.","随时下线或取消。")}</span></div>
@@ -893,7 +918,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
           <button className={"home-cost"+(trialEnding?" ending":"")} onClick={onGoReports}>
             <span className="hc-cell"><b>{M.newCust}</b> {tr(lang,"new customers this month","本月新客")}</span>
             <span className="hc-trial">{trialEnding
-              ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then from S$29/mo`,`试用还剩 ${trialLeft} 天 · 到期后 S$29/月起`)}</>
+              ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then billed as you grow`,`试用还剩 ${trialLeft} 天 · 到期后按增长计费`)}</>
               : <>{<Ic.spark style={{ width:13, height:13 }}/>} {tr(lang,`First 3 months free · ${trialLeft} days left · now S$0`,`首 3 个月免费 · 还剩 ${trialLeft} 天 · 现在 S$0`)}</>}</span>
             <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
           </button>
@@ -1839,11 +1864,10 @@ function OutletPanel({ lang, outRed, omax }) {
 }
 
 /* ===== billing: plans + payment method ===== */
-// 价格 = 落地页 bible MAU 口径：免费版功能门槛；成长版 S$29/品牌/月起(按 MAU 梯度、只算新生意封顶 12%)、前 3 月免费、老客永远免费
+// bible §4.0：软件永久免费、无 freemium 分层。只有一套自助计费(免费窗口→MAU 基础费)+ 连锁定制。没有"永久免费套餐"(免费只是窗口，过了都要付)。
 const PLANS = [
-  { id:"free",   name:{en:"Free forever",zh:"永久免费"},  price:{en:"S$0",zh:"S$0"},              note:{en:"1 game · redemption + dashboard",zh:"1 个游戏 · 兑奖 + 数据看板"} },
-  { id:"result", name:{en:"Grow with KiX",zh:"成长版"}, price:{en:"from S$29/mo",zh:"S$29 / 月起"}, note:{en:"Unlimited games & campaigns · only new business, capped 12% · cheaper as you grow, one bill",zh:"不限游戏与活动 · 只算新生意、封顶 12% · 越做越便宜、多店合一"} },
-  { id:"chain",  name:{en:"Chains",zh:"连锁版"},         price:{en:"Contact us",zh:"联系我们"},    note:{en:"Multi-outlet · custom games & integration",zh:"多门店 · 定制玩法与对接"} },
+  { id:"result", name:{en:"Standard",zh:"标准版"}, price:{en:"free now · then pay as you grow",zh:"现在免费 · 之后按增长付费"}, note:{en:"Free branded game · cheaper as more play, capped 12% · regulars always free",zh:"免费定制品牌游戏 · 越多越便宜、封顶 12% · 老客永远免费"} },
+  { id:"chain",  name:{en:"Chains",zh:"连锁版"},   price:{en:"Contact us",zh:"联系我们"},                 note:{en:"Multi-outlet · custom games · POS/CRM · priority support",zh:"多门店合并账单 · 定制游戏 · 对接 POS/会员 · 专属支持"} },
 ];
 function CardModal({ cardOnFile, onSave, onClose }) {
   const lang = useLang();
@@ -1863,7 +1887,7 @@ function CardModal({ cardOnFile, onSave, onClose }) {
               <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
             </div>
           </div>
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that from S$29/mo — only new business, regulars always free.","前 3 个月免费。之后 S$29/月起 —— 只算新生意、老客永远免费。")}</span></p>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that pay only as you grow — only new business, regulars always free.","前 3 个月免费。之后只按增长付费 —— 只算新生意、老客永远免费。")}</span></p>
         </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -1880,8 +1904,8 @@ function PlanModal({ plan, onPick, onClose }) {
     <div className="pub-scrim" onClick={onClose}>
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        <h3>{tr(lang,"Switch plan","切换套餐")}</h3>
-        <p className="pub-sub">{tr(lang,"Free for the first 3 months, then pay only as you grow. Regulars always free, change anytime.","前 3 个月免费，之后只在你增长时才付费。老客永远免费，随时可改。")}</p>
+        <h3>{tr(lang,"Your plan","我的套餐")}</h3>
+        <p className="pub-sub">{tr(lang,"Free now — billing only starts after 3 months, based on how many play.","现在免费用，3 个月后才开始收费（按玩的人数）。")}</p>
         <div className="plans">
           {PLANS.map(pl => (
             <button key={pl.id} className={"plan-opt"+(plan===pl.id?" on":"")} onClick={()=>{ onPick(pl.id); onClose(); }}>
@@ -1924,10 +1948,10 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Billing & plan","账单与套餐")}</h3>
-        <p className="ph-sub">{tr(lang,"First 3 months free — after that from S$29/mo, only new business, regulars always free. Manage your plan and card here.","前 3 个月免费 —— 之后 S$29/月起，只算新生意、老客永远免费。在这里管理套餐和银行卡。")}</p>
+        <p className="ph-sub">{tr(lang,"Manage your plan and card here.","在这里管理你的套餐和银行卡。")}</p>
         <div className="billrow">
           <div className="bill-l"><span className="bill-ic"><Ic.spark style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Plan","套餐")}</div><div className="bill-v">{P(lang,curPlan.name)} · {P(lang,curPlan.price)}</div></div></div>
-          <button className="btn ghost sm" onClick={()=>setPlanModal(true)}>{tr(lang,"Switch plan","切换套餐")}</button>
+          <button className="btn ghost sm" onClick={()=>setPlanModal(true)}>{tr(lang,"View plan","查看套餐")}</button>
         </div>
         <div className="billrow">
           <div className="bill-l"><span className="bill-ic"><Ic.card style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Payment method","付款方式")}</div><div className="bill-v">{cardOnFile ? <>Visa •••• {cardOnFile.last4}</> : <span style={{ color:"var(--muted)" }}>{tr(lang,"No card yet","尚未绑定银行卡")}</span>}</div></div></div>
