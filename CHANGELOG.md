@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-07-10
+
+### 84. 建游戏流程 UI 重做（按 Joyce 设计稿）+ 定价卡二次重排 + 全平台去 12%
+- **Step 3「我的游戏」(Preview) 重做**：套 Results 的真机边框 + 品牌栏 + 可试玩；右侧品牌面板 = **AI 输入**（配色/Logo/网址改动不即时），点「✨ 用我的品牌生成」跑 AI loading（读取→提取→重绘）才应用；**「上线」始终不被生成阻塞**（绿实心主 CTA）。标题「换成你的品牌，随时可上线」。
+- **Step 1「描述」按设计稿复活（条件入口）**：`今天想做什么游戏？` + 搜索框 + **店型 chips 网格（emoji 图标，12 类）** + 「匹配游戏」。**落地页 hero 输入了店名 → 直接进 Step2（跳过描述、自动打勾）；没输入 → 先进 Step1**（`startBuild`：`nm ? "building" : "describe"`）。stepper 标签改 **描述/选游戏/我的游戏**，顶栏加「Step N of 3」。
+- **落地页定价卡按设计稿重排（2 卡）**：左「GROW WITH KIX / 成长计划」= Free for 3 months / or first 1,000 players / Then just S$0.49 per active player — cheaper the more you grow / 3 要点(Unlimited custom games & dashboard · S$29/mo minimum · cancel anytime · Free software · no setup fee) / Start free；右「GROW FASTER / Custom」= 专属成功经理·API/POS·量价排他·优先支持SLA / Talk to us。去掉 for-you 徽章、底部页脚 strip。
+- **全平台去「12%」对外概念**：落地页卡、FAQ、PlanModal、账单 note 均不再显示 12%（FAQ 保留"远低于团购三到五成"的竞争点、不带数字）；`S$29/mo minimum` 作为要点保留。
+- **PlanModal / 账单 清理**：套餐去 freemium 分层保留（成长计划[当前] + 加速增长/定制）；成长计划去掉冗余价格串「现在免费·之后按增长付费」（弹窗副标题已说）；账单行只留「成长计划」。
+- **影响文件**：`journey.jsx`（Describe / Preview / Pricing / Faq / PLANS / PlanModal / MeView 账单 / startBuild / STEPS / topbar）、`index.html`（`.desc-search`/`.cate-grid`/`.cate-chip`/`.tier-*`/`.tag-pill`/`.feat-list`/`.gp2-editcard`/`.gp2-genbtn` 等）。设计稿依据见 `Desktop/Mozat/kix/[策略] 2026-07-10-KiX付费模型完整总结`。
+
 ## 2026-07-09
 
 ### 83. 定价全平台重构（老板方案 · 多轮真人走查 + bible 映射 + 去 $29 强调）
