@@ -423,6 +423,7 @@ function Stories() {
 }
 function Pricing({ go }) {
   const lang = useLang();
+  const [lead, setLead] = useState(()=> new URLSearchParams(location.search).get("lead")==="1");   // ?lead=1 调试
   return (
     <section className="sec">
       <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</h2>
@@ -435,23 +436,79 @@ function Pricing({ go }) {
           <p className="tier-then">{tr(lang,"Then just S$0.49 per active player — cheaper the more you grow.","之后每位活跃玩家仅 S$0.49，越多越便宜。")}</p>
           <ul>
             <li><span className="ck"><Check/></span>{tr(lang,"Unlimited custom games & dashboard","不限定制游戏与数据看板")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"S$29/mo minimum · cancel anytime","每月最低 S$29 · 随时取消")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"Free software · no setup fee","软件免费 · 无安装费")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"S$29/mo minimum · never for your regulars","每月最低 S$29 · 老客永远免费")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Software always free — only pay for growth","软件永远免费 · 只为增长付费")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"No lock-in · cancel anytime","无绑定 · 随时取消")}</li>
           </ul>
           <button className="btn primary" onClick={go}>{tr(lang,"Start free","免费开始")} <Ic.arrow style={{ width:16, height:16 }}/></button></div>
         <div className="tier">
-          <div className="tier-tags"><span className="tag-pill">{tr(lang,"GROW FASTER","加速增长")}</span></div>
-          <div className="tier-big">{tr(lang,"Custom","定制")}</div>
+          <div className="tier-tags"><span className="tag-pill">{tr(lang,"CUSTOM","定制")}</span></div>
+          <div className="tier-big">{tr(lang,"Need something custom?","需要定制？")}</div>
+          <div className="tier-sub">{tr(lang,"Any size — if the plan doesn't fit, we'll build it with you.","不论规模——标准计划不合适，我们陪你一起定制。")}</div>
           <hr className="tier-hr"/>
-          <ul className="feat-list">
-            <li><span className="fic"><Ic.user style={{ width:16, height:16 }}/></span>{tr(lang,"Dedicated success manager","专属成功经理")}</li>
-            <li><span className="fic"><Ic.card style={{ width:16, height:16 }}/></span>{tr(lang,"API / POS integration","对接 API / POS")}</li>
-            <li><span className="fic"><Ic.chart style={{ width:16, height:16 }}/></span>{tr(lang,"Volume & exclusive pricing","量价与排他保护")}</li>
-            <li><span className="fic"><Ic.shield style={{ width:16, height:16 }}/></span>{tr(lang,"Priority support & SLA","优先支持与 SLA")}</li>
+          <ul>
+            <li><span className="ck"><Check/></span>{tr(lang,"A bespoke game & brand build","定制游戏与品牌搭建")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","对接 API / POS")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Multiple outlets, rolled out together","多门店统一上线")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Exclusive & volume pricing","排他与量价")}</li>
           </ul>
-          <button className="btn ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg> {tr(lang,"Talk to us","联系我们")}</button></div>
+          <button className="btn ghost" onClick={()=>setLead(true)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg> {tr(lang,"Talk to us","联系我们")}</button></div>
       </div>
+      {lead && <CustomLeadModal onClose={()=>setLead(false)}/>}
     </section>
+  );
+}
+/* CHAINS/Custom lead-capture modal (三体 2026-07-10): modal · 5 required + optional msg ·
+   key qualifier = "what do you need" (any size, not gated on outlets) · post-submit WhatsApp instant出口. */
+const WA_LINK = "https://wa.me/6580000000?text=Hi%20KiX%2C%20I%27m%20interested%20in%20a%20custom%20plan"; // TODO: 换 KiX 真实 WhatsApp 号
+function CustomLeadModal({ onClose }) {
+  const lang = useLang();
+  const [done, setDone] = useState(false), [err, setErr] = useState(false);
+  const [f, setF] = useState({ name:"", biz:"", phone:"", email:"", need:"", msg:"", consent:false });
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.type==="checkbox" ? e.target.checked : e.target.value });
+  const submit = () => {
+    if(!f.name||!f.biz||!f.phone||!f.email||!f.need||!f.consent){ setErr(true); return; }
+    setErr(false); setDone(true); /* TODO: POST lead → backend / notify BD */
+  };
+  const NEEDS = [
+    tr(lang,"A bespoke game / brand build","定制游戏 / 品牌搭建"),
+    tr(lang,"Multiple outlets rolled out together","多门店统一上线"),
+    tr(lang,"API / POS integration","对接 API / POS"),
+    tr(lang,"Exclusive / volume pricing","排他 / 量价"),
+    tr(lang,"Something else","其他"),
+  ];
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal lead-modal" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        {done ? (
+          <div className="lead-done">
+            <div className="pub-done-badge"><Ic.check style={{ width:26, height:26 }}/></div>
+            <h3 style={{ textAlign:"center" }}>{tr(lang,"Thanks","收到")}{f.name?", "+f.name.trim().split(" ")[0]:""}!</h3>
+            <p className="pub-sub" style={{ textAlign:"center" }}>{tr(lang,"Our team will reach out within 1 business day. Want to talk sooner?","我们会在 1 个工作日内联系你。想更快聊聊？")}</p>
+            <a className="btn primary lg" style={{ textDecoration:"none", display:"flex", justifyContent:"center", marginTop:14 }} href={WA_LINK} target="_blank" rel="noopener">{tr(lang,"Chat on WhatsApp now","立即用 WhatsApp 联系")} →</a>
+            <button className="lead-back" onClick={onClose}>{tr(lang,"Back to pricing","返回价格")}</button>
+          </div>
+        ) : (
+          <>
+            <h3>{tr(lang,"Tell us what you need","告诉我们你的需求")}</h3>
+            <p className="pub-sub">{tr(lang,"Whatever your size — a KiX specialist will reach out within 1 business day.","不论规模——KiX 专员会在 1 个工作日内联系你。")}</p>
+            <div className="lead-f"><label>{tr(lang,"Your name","你的姓名")} <i>*</i></label><input value={f.name} onChange={set("name")} placeholder={tr(lang,"e.g. Jia Yuan","例：家源")}/></div>
+            <div className="lead-f"><label>{tr(lang,"Business / brand name","品牌 / 公司名")} <i>*</i></label><input value={f.biz} onChange={set("biz")} placeholder={tr(lang,"e.g. Heng Heng Kopi","例：兴兴咖啡")}/></div>
+            <div className="lead-f"><label>{tr(lang,"Phone / WhatsApp","电话 / WhatsApp")} <i>*</i></label><input value={f.phone} onChange={set("phone")} placeholder="+65 …"/></div>
+            <div className="lead-f"><label>{tr(lang,"Work email","邮箱")} <i>*</i></label><input value={f.email} onChange={set("email")} placeholder="you@yourbrand.com"/></div>
+            <div className="lead-f"><label>{tr(lang,"What do you need?","你需要什么？")} <i>*</i></label>
+              <select value={f.need} onChange={set("need")}><option value="">{tr(lang,"Select…","请选择…")}</option>{NEEDS.map((n,i)=><option key={i}>{n}</option>)}</select></div>
+            <div className="lead-f"><label>{tr(lang,"Anything we should know?","还有什么想告诉我们？")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><textarea value={f.msg} onChange={set("msg")} placeholder={tr(lang,"Goals, timeline, current tools…","目标、时间、在用的工具…")}/></div>
+            <label className="lead-consent"><input type="checkbox" checked={f.consent} onChange={set("consent")}/>{tr(lang,"I agree KiX may contact me by WhatsApp, phone or email about my enquiry.","我同意 KiX 就此咨询通过 WhatsApp、电话或邮件与我联系。")}</label>
+            {err && <div className="lead-err">{tr(lang,"Please fill in all required fields and tick the consent box.","请填写所有必填项并勾选同意。")}</div>}
+            <button className="btn primary lg" style={{ width:"100%", justifyContent:"center", marginTop:16 }} onClick={submit}>{tr(lang,"Request a call","预约联系")}</button>
+            <a className="lead-wa" href={WA_LINK} target="_blank" rel="noopener">{tr(lang,"Prefer now? Chat on WhatsApp","想现在就聊？用 WhatsApp 联系")} →</a>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body
   );
 }
 function Landing({ go, onSignIn, lang, setLang }) {
@@ -1971,6 +2028,15 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="ph-sub" style={{ margin:0 }}>{tr(lang,"Your games & activities go live in the KiX app.","你的游戏和活动上线在 KiX App 里。")}</div>
         </div>
         <button className="btn ghost sm" style={{ marginLeft:"auto", flex:"none" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:14, height:14 }}/> {tr(lang,"Get the app","下载 App")}</button>
+      </div>
+      <div className="panel" style={{ marginTop:16 }}>
+        <h3>{tr(lang,"Contact us","联系我们")}</h3>
+        <p className="ph-sub">{tr(lang,"Any question, or a custom / multi-outlet plan — we're here to help.","有任何问题，或想要连锁 / 定制方案 —— 我们随时在。")}</p>
+        <div className="contact-row">
+          <a className="btn ghost sm" href="https://wa.me/6588888888" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg> WhatsApp</a>
+          <a className="btn ghost sm" href="mailto:hello@letskix.com"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> {tr(lang,"Email us","发邮件")}</a>
+          <a className="btn ghost sm" href="mailto:sales@letskix.com?subject=Custom%20plan"><Ic.store style={{ width:15, height:15 }}/> {tr(lang,"Chains / custom — talk to sales","连锁 / 定制 · 联系销售")}</a>
+        </div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Outlets","店铺")}</h3>

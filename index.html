@@ -253,6 +253,8 @@ h1.hero-h .hl::after{content:"";position:absolute;left:-1px;right:-1px;bottom:.0
 .tier .btn{width:100%;margin-top:auto}
 /* 定价 2 卡 + 免费→付费时间线 */
 .tiers-2{grid-template-columns:1fr 1fr;gap:30px;max-width:860px;margin-left:auto;margin-right:auto}
+.contact-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.contact-row .btn{gap:7px}
 .tier-tags{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .tag-pill{display:inline-flex;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;background:var(--line-2);color:var(--muted)}
 .tier.pop .tag-pill{background:var(--green-50);color:var(--green-d)}
@@ -925,6 +927,21 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .pub-actions .btn:disabled{opacity:.45;pointer-events:none}
 /* publish success */
 .pub-done-badge{width:56px;height:56px;border-radius:999px;background:var(--green-50);color:var(--green-d);display:grid;place-items:center;margin:4px auto 14px}
+/* CHAINS/Custom lead form modal */
+.lead-modal{width:460px}
+.lead-f{margin-top:12px}
+.lead-f label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.lead-f label i{color:var(--green-d);font-style:normal}
+.lead-f label .opt{color:var(--muted);font-weight:400}
+.lead-f input,.lead-f select,.lead-f textarea{width:100%;font-family:inherit;font-size:14.5px;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;outline:none}
+.lead-f input:focus,.lead-f select:focus,.lead-f textarea:focus{border-color:var(--green)}
+.lead-f textarea{resize:none;height:54px}
+.lead-consent{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.45}
+.lead-consent input{margin-top:2px;flex:none}
+.lead-err{color:#DC2626;font-size:12px;margin-top:8px}
+.lead-wa{display:block;text-align:center;margin-top:12px;font-size:13.5px;color:var(--green-d);font-weight:700;text-decoration:none;cursor:pointer}
+.lead-wa:hover{text-decoration:underline}
+.lead-back{display:block;margin:12px auto 0;background:none;border:none;color:var(--muted);font-size:13.5px;cursor:pointer;font-family:inherit}
 /* card on file (SetupIntent — no charge) */
 .cardf{border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:18px;background:var(--bg)}
 .cardf-h{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:11px}

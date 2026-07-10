@@ -195,7 +195,8 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 6. **FAQ｜Everything a business owner asks**（`id=questions`）：6 条，**静态全展开**（去掉 + 折叠——已讲完无需展开）。
 7. **结尾 CTA**：「Every business deserves its own playground」（playground 绿）+「Build my game — free」+ 细则（No credit card · first 3 months free · cancel anytime）+ 页脚。
 - **Nav**：The game · Why it works · Pricing · Questions（点击平滑滚动到对应 `id`；EN/中文 + 登录 + 免费开始 保留）。
-- **价格模型（2026-07-07 定：按结果付费）**：FREE FOREVER S$0 ·「PAY PER RESULT」from **S$3 / new customer**（前 3 个月免费 · 价格锁定）· CHAINS 联系我们。⚠️ **与 #58「我的」页 `PLANS`「专业 S$49/月」订阅模型冲突**，后台计费侧待对齐（DRI 待定）。
+- **价格模型（2026-07-10 定稿，以上文 §4.0 CANON 为准）**：落地页 **2 卡** —— ①「GROW WITH KIX / 成长计划」(`.tier.pop`)：Free for 3 months（or first 1,000 players）→ then **S$0.49 / active player**（越多越便宜）；4 要点（不限定制游戏与看板 · S$29/mo minimum · never for your regulars · 软件永远免费只为增长付费 · 无绑定随时取消）；`Start free`。②「CUSTOM / Need something custom?」（**任何规模，非仅连锁**）→ `Talk to us` **弹 `CustomLeadModal` 线索表单**（见 CHANGELOG #85）。**旧「S$3/new customer · PAY PER RESULT · FREE FOREVER」作废。** 币种 = 新币 S$；计费单位 = active player（MAU）。⚠️「我的」页 `PLANS` 旧「专业版 S$49/月」与此仍不一致 = 待对齐。
+- **CustomLeadModal（线索表单，#85）**：`Talk to us` 点击弹出（`?lead=1` 调试）。5 必填（姓名/品牌名/电话·WhatsApp/邮箱/「你需要什么」下拉）+ 选填留言 + PDPA 同意；提交后感谢态含 **WhatsApp 即时出口**。⚠️ `WA_LINK` 占位待换真号；`submit()` 前端 mock 待接后端（存线索 + 通知 BD）。
 - **卡文案去重（#62）**：三卡描述改为"只讲 bullet 不讲的一件事"——FREE=`适合做你的第一个游戏。`；PAY=`前 3 个月免费 · 价格锁定。`（去掉与价格标签重复的"只为新客付费"及"永不收软件费"）；CHAINS=`适合成长中的多门店品牌。`（原描述是下方 bullet 的复述）。**已删**三卡下方 `.pnote` 底注（与卡描述 + 上方 WhyGame「老客免费」段重复）。
 - 原型组件：`Hero/Walkthrough/SeeYourGame/WhyGame/Pricing/Faq` + 结尾 CTA；CSS `.hscene/.hero-tag/.wt-*/.ppp*/.wow-*/.pnote`；新增 `Ic.globe`。**已从落地页移除渲染**：`Steps/Gallery/ThreeThings/Stories/FairDeal`（组件函数仍留在 `journey.jsx`，便于回退）。**已删数据**：`HEADLINE/SUB_LANDING`。
 - ⚠️ 全站中文为占位草稿，待 Joyce 定稿。
