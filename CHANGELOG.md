@@ -6,6 +6,11 @@
 
 ## 2026-07-10
 
+### 86. 后台「联系我们」面板 + 全站 WhatsApp 入口先走邮箱
+- **「我的」页新增「联系我们」面板**（KiX App 面板下方）：说明 + 「发邮件」+「连锁 / 定制 · 联系销售」（均 mailto），支持入口归在设置枢纽、不进侧栏、不镜像到头像菜单（守单一入口）。
+- **全站 WhatsApp 入口统一先走邮箱**（WhatsApp 未就绪）：`CustomLeadModal` 底部「Prefer now? Chat on WhatsApp」+ 提交成功态「Chat on WhatsApp now」→ 均改 `MAIL_LINK`（mailto）；「我的」联系面板去掉 WhatsApp 按钮。**留资输入项「电话/WhatsApp」与授权条款文案保留**（非即时入口）。`WA_LINK` 常量留作 WhatsApp 就绪后的占位。
+- **影响文件**：`journey.jsx`（MeView 联系面板；CustomLeadModal 两处链接；MAIL_LINK 常量）、`index.html`（`.contact-row`）。
+
 ### 85. 定价卡文案定稿 + CHAINS「Talk to us」线索表单弹窗（三体 2026-07-10）
 - **定价卡文案（按 §4.0 + Joyce 定稿）**：左「成长计划」4 要点 = Unlimited custom games & dashboard · **S$29/mo minimum · never for your regulars** · Software always free — only pay for growth · No lock-in · cancel anytime。右卡由「GROW FASTER / Custom（连锁专属）」**重定位为「CUSTOM / Need something custom?」**——**不锁连锁、任何规模**（副标 Any size — if the plan doesn't fit, we'll build it with you；要点 = 定制游戏与品牌 · API/POS · 多门店统一上线 · 排他与量价；bullet 由图标改绿勾）。
 - **新增 `CustomLeadModal`（journey.jsx）**：右卡「Talk to us」→ `ReactDOM.createPortal` 弹线索表单（复用 `.pub-scrim/.pub-modal/.pub-x`）。**5 必填**（姓名 / 品牌名 / 电话·WhatsApp / 邮箱 / 「你需要什么」下拉）+ 选填留言 + PDPA 同意勾选；缺项校验报错。**提交后感谢态** = 「1 个工作日内联系」+ **WhatsApp 即时出口**（三体结论：提交后即时接触 > 表单机制，WhatsApp = SG 版 book-a-call-now）。调试参数 `?lead=1`。

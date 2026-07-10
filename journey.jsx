@@ -461,6 +461,7 @@ function Pricing({ go }) {
 /* CHAINS/Custom lead-capture modal (三体 2026-07-10): modal · 5 required + optional msg ·
    key qualifier = "what do you need" (any size, not gated on outlets) · post-submit WhatsApp instant出口. */
 const WA_LINK = "https://wa.me/6580000000?text=Hi%20KiX%2C%20I%27m%20interested%20in%20a%20custom%20plan"; // TODO: 换 KiX 真实 WhatsApp 号
+const MAIL_LINK = "mailto:hello@letskix.com?subject=KiX%20custom%20plan%20enquiry"; // WhatsApp 未就绪前，快捷联系先走邮箱
 function CustomLeadModal({ onClose }) {
   const lang = useLang();
   const [done, setDone] = useState(false), [err, setErr] = useState(false);
@@ -486,7 +487,7 @@ function CustomLeadModal({ onClose }) {
             <div className="pub-done-badge"><Ic.check style={{ width:26, height:26 }}/></div>
             <h3 style={{ textAlign:"center" }}>{tr(lang,"Thanks","收到")}{f.name?", "+f.name.trim().split(" ")[0]:""}!</h3>
             <p className="pub-sub" style={{ textAlign:"center" }}>{tr(lang,"Our team will reach out within 1 business day. Want to talk sooner?","我们会在 1 个工作日内联系你。想更快聊聊？")}</p>
-            <a className="btn primary lg" style={{ textDecoration:"none", display:"flex", justifyContent:"center", marginTop:14 }} href={WA_LINK} target="_blank" rel="noopener">{tr(lang,"Chat on WhatsApp now","立即用 WhatsApp 联系")} →</a>
+            <a className="btn primary lg" style={{ textDecoration:"none", display:"flex", justifyContent:"center", marginTop:14 }} href={MAIL_LINK}>{tr(lang,"Email us now","立即发邮件给我们")} →</a>
             <button className="lead-back" onClick={onClose}>{tr(lang,"Back to pricing","返回价格")}</button>
           </div>
         ) : (
@@ -503,7 +504,7 @@ function CustomLeadModal({ onClose }) {
             <label className="lead-consent"><input type="checkbox" checked={f.consent} onChange={set("consent")}/>{tr(lang,"I agree KiX may contact me by WhatsApp, phone or email about my enquiry.","我同意 KiX 就此咨询通过 WhatsApp、电话或邮件与我联系。")}</label>
             {err && <div className="lead-err">{tr(lang,"Please fill in all required fields and tick the consent box.","请填写所有必填项并勾选同意。")}</div>}
             <button className="btn primary lg" style={{ width:"100%", justifyContent:"center", marginTop:16 }} onClick={submit}>{tr(lang,"Request a call","预约联系")}</button>
-            <a className="lead-wa" href={WA_LINK} target="_blank" rel="noopener">{tr(lang,"Prefer now? Chat on WhatsApp","想现在就聊？用 WhatsApp 联系")} →</a>
+            <a className="lead-wa" href={MAIL_LINK}>{tr(lang,"Prefer now? Email us","想现在就说？发邮件给我们")} →</a>
           </>
         )}
       </div>
@@ -2033,7 +2034,6 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
         <h3>{tr(lang,"Contact us","联系我们")}</h3>
         <p className="ph-sub">{tr(lang,"Any question, or a custom / multi-outlet plan — we're here to help.","有任何问题，或想要连锁 / 定制方案 —— 我们随时在。")}</p>
         <div className="contact-row">
-          <a className="btn ghost sm" href="https://wa.me/6588888888" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg> WhatsApp</a>
           <a className="btn ghost sm" href="mailto:hello@letskix.com"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> {tr(lang,"Email us","发邮件")}</a>
           <a className="btn ghost sm" href="mailto:sales@letskix.com?subject=Custom%20plan"><Ic.store style={{ width:15, height:15 }}/> {tr(lang,"Chains / custom — talk to sales","连锁 / 定制 · 联系销售")}</a>
         </div>
