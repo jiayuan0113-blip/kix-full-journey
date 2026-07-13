@@ -6,6 +6,12 @@
 
 ## 2026-07-13
 
+### 88. 落地页中文母语化重写 + 全落地页去破折号
+- 按「地道中文、不直译、不用破折号」重写落地页所有营销文案的中文，并去掉中英文里的破折号（—/——，改完整句/短句/冒号）：WhyGame（三卡 + sec-sub）、FairDeal（对比两栏 + sec-sub）、FAQ（5 问，含计费梯度段）、Gallery、Steps、ThreeThings（召回卡）、Pricing（成长/定制两卡）、CustomLeadModal、PPP（PAY/STAY）、底部 CTA。
+- 定位口径对齐线上 portal = playground / play-pay-stay；旧「把路过的人变成回头客」作废（CLAUDE.md 仓库外配置，另行更新）。
+- **影响文件**：`journey.jsx`（Hero 之后各 landing section 的 tr() 中文 + 去破折号）。
+- ⚠️ **进行中（wave 2）**：app 内（建游戏/发布/登录/看板/核销等）约 480 条 tr() 的中文母语化 + 去破折号尚未处理。
+
 ### 87. 落地页「客户旅程」区块重做（图 + 文案 + 品牌统一）+ hero 精简 + 奖池奖品类型改名
 - **五步流程区块（Walkthrough）标题/小字**：段标题 `See the game your customer plays` → **`Turn your business into a playground`**（把 playground 定位从 hero eyebrow 挪来做段标题）；小字重写为 `With your own branded game, customers play, pay and stay.` / `你自己的品牌小游戏，让客人来玩、消费、留下来。`（强调"你自己的品牌游戏"、不强调时长、无破折号）。
 - **每屏大标题重写**（去掉重复的 "They" 前缀，改第三人称动词打头）：Spots your poster / Scans, no app / Plays YOUR game / Wins a voucher / Redeems & returns；**删掉每屏下方小字**（sub 整行移除 + 数据里的 sub 字段清理）。

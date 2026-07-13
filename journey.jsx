@@ -260,8 +260,8 @@ function Walkthrough() {
       </div>
       <div className="ppp">
         <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They play their way in","他们玩着玩着就进店")}</h4><p>{tr(lang,"Your branded game is the hook. No ads to buy.","你的品牌游戏就是钩子，不用买广告。")}</p></div>
-        <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","一张券（不是现金），把一次游戏变成一次到店消费。")}</p></div>
-        <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","再玩、再赢、再消费，变成常客，不是一次性。")}</p></div>
+        <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","发的是券不是现金，一次游戏就换来一次真进店消费。")}</p></div>
+        <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","一次次玩、一次次赢、一次次消费，来的都是常客，不是一次性顾客。")}</p></div>
       </div>
     </section>
   );
@@ -293,14 +293,14 @@ function SeeYourGame({ go }) {
 function WhyGame() {
   const lang = useLang();
   const C = [
-    { ic:Ic.gift,   h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your business — so they walk back in and spend, instead of pocketing a discount and leaving.","赢家拿到的是能在你店里兑奖的券 —— 于是他们走回店里消费，而不是揣着折扣离开。") },
-    { ic:Ic.shield, h:tr(lang,"Every visit is verified","每一次到店都可验证"),       p:tr(lang,"A door scan proves which plays actually brought someone in. You pay only for real new customers — never for your own regulars.","到店一扫，就知道哪次游戏真的把人带进了门。你只为真正的新客付费 —— 永远不为你的老客买单。") },
+    { ic:Ic.gift,   h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your business, so they walk back in and spend instead of pocketing a discount and leaving.","赢家拿到的是能到你店里兑的券，会专门回店消费，而不是拿个折扣就走人。") },
+    { ic:Ic.shield, h:tr(lang,"Every visit is verified","每一次到店都可验证"),       p:tr(lang,"A door scan proves which plays actually brought someone in. You pay only for real new customers, never for your own regulars.","到店扫一下，就知道哪次游戏真把人带进了门。你只为真正的新客付钱，老客永远不算你账上。") },
     { ic:Ic.globe,  h:tr(lang,"Every game feeds the network","每个游戏都在壮大网络"), p:tr(lang,"Your players discover other businesses on KiX; theirs discover you. The more businesses join, the bigger every playground.","你的玩家在 KiX 上发现别家店，别家的玩家也发现你。加入的店越多，每个人的游乐场就越大。") },
   ];
   return (
     <section className="sec" id="why">
       <h2 className="sec-h">{tr(lang,"Why a game beats a discount","为什么游戏比打折更有效")}</h2>
-      <p className="sec-sub">{tr(lang,"Not a one-off coupon — mechanics that make people come back, again and again.","不是一次性优惠券 —— 而是让人一次次回头的机制。")}</p>
+      <p className="sec-sub">{tr(lang,"Not a one-off coupon, but mechanics that bring people back again and again.","不是发一张用完就扔的券，而是让人一次次回头的机制。")}</p>
       <div className="steps">{C.map((c,i)=>(<div key={i} className="stp"><div className="si">{c.ic()}</div><h3>{c.h}</h3><p>{c.p}</p></div>))}</div>
     </section>
   );
@@ -311,10 +311,10 @@ function FairDeal() {
     <section className="sec">
       <div className="sec-eye">{tr(lang,"THE FAIR DEAL","公平的规则")}</div>
       <h2 className="sec-h">{tr(lang,"We never charge you for your own regulars","我们从不为你的老客收费")}</h2>
-      <p className="sec-sub">{tr(lang,"You pay only when we bring a face that wasn't yours before — never for customers already yours.","只有当我们带来一位从前不属于你的新客时，你才付费 —— 本来就是你的客人，永远免费。")}</p>
+      <p className="sec-sub">{tr(lang,"You pay only when we bring you a face that wasn't yours before, never for customers already yours.","只有我们帮你带来一位从没来过的新客时，你才付费；本来就是你的客人，永远免费。")}</p>
       <div className="fair-vs">
-        <div className="fvs bad"><div className="lab"><span className="x">✕</span> {tr(lang,"DISCOUNT DEALS","打折平台")}</div><p>{tr(lang,"Deep cuts for everyone — you subsidise regulars who'd have paid anyway, and attract one-time bargain hunters.","全场砍价 —— 你补贴了本来就会买的老客，还招来一次性薅羊毛的人。")}</p></div>
-        <div className="fvs good"><div className="lab"><Check/> KiX</div><p>{tr(lang,"Pay only for genuinely new customers we send — verified at your door. Regulars are always free.","只为我们带来的真正新客付费 —— 到店验证。老客永远免费。")}</p></div>
+        <div className="fvs bad"><div className="lab"><span className="x">✕</span> {tr(lang,"DISCOUNT DEALS","打折平台")}</div><p>{tr(lang,"Deep cuts for everyone: you subsidise regulars who'd have paid anyway, and pull in one-time bargain hunters.","全场打骨折：本来就会买的老客被你白白补贴，招来的多是薅一次就走的人。")}</p></div>
+        <div className="fvs good"><div className="lab"><Check/> KiX</div><p>{tr(lang,"Pay only for genuinely new customers we send, verified at your door. Regulars are always free.","只为我们带来、并在你门口验证过的真新客付费。老客永远免费。")}</p></div>
       </div>
     </section>
   );
@@ -322,21 +322,21 @@ function FairDeal() {
 function Faq() {
   const lang = useLang();
   const QA = [
-    { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional — it just unlocks more games and rewards for the ones who love it.","不需要。扫码即在浏览器里玩。KiX App 是可选的 —— 只是给爱玩的人解锁更多游戏和奖励。") },
+    { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional; it just unlocks more games and rewards for the fans.","不用。扫码就能在浏览器里玩。KiX App 是可选的，只是给玩上瘾的人多解锁些游戏和奖励。") },
     { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可兑奖。不改 POS、不用开发、不用找代理。") },
     { q:tr(lang,"What does it actually cost?","到底怎么收费？"), a:(<>
-        {tr(lang,"Free for the first 3 months (or your first 1,000 players). After that you're billed by monthly active players — people who actually played your game that month — and the more play, the cheaper each one:","前 3 个月（或首 1,000 位玩家）免费。之后按「活跃玩家」计费 —— 即当月真正玩过你游戏的人；玩的人越多、每位越便宜：")}
+        {tr(lang,"Free for the first 3 months (or your first 1,000 players). After that you're billed by monthly active players, meaning the people who actually played your game that month, and the more they play, the cheaper each one gets:","前 3 个月（或前 1,000 名玩家）免费。之后按「当月活跃玩家」计费，也就是这个月真正玩过你游戏的人；玩的人越多，每位越便宜：")}
         <div className="faq-tiers">
           <div><span>{tr(lang,"First 1,000 players","首 1,000 位玩家")}</span><b>S$0.49{tr(lang,"/player","/位")}</b></div>
           <div><span>1,000–5,000</span><b>S$0.39{tr(lang,"/player","/位")}</b></div>
           <div><span>5,000–20,000</span><b>S$0.29{tr(lang,"/player","/位")}</b></div>
           <div><span>{tr(lang,"20,000+","20,000 以上")}</span><b>{tr(lang,"from ","低至 ")}S$0.12{tr(lang,"/player","/位")}</b></div>
         </div>
-        {tr(lang,"Tiered like tax brackets — only the players above each band get the lower rate, with a S$29/mo minimum. Your bill stays a small slice of the new business we bring — far below Groupon-style deals (30–50%) — and we never charge on your existing regulars.","按档累进（像个税）—— 只有超出每档的部分才用更低单价，每月最低 S$29。账单只占我们带来新生意的一小部分，远低于团购（三到五成），且永不碰你原有的老客。")}
+        {tr(lang,"Tiered like tax brackets: only the players above each band get the lower rate, with a S$29/mo minimum. Your bill stays a small slice of the new business we bring, far below Groupon-style deals at 30% to 50%, and we never charge for your existing regulars.","像个税一样分档累进：只有超过每档的部分才按更低的价算，每月最低 S$29。这笔钱只占我们帮你带来的新生意里的一小块，比团购那种三到五成的抽成低得多，而且从不动你原有的老客。")}
       </>) },
-    { q:tr(lang,"I already run a loyalty program — does this replace it?","我已有会员体系 —— 这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，是给它供血。KiX 把新客带进门，你的会员体系把他们留住。两者协同。") },
-    { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good — that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger — and your players discover more places to play, right alongside you.","好啊 —— 这正是重点。他们得做自己的、套自己的品牌。每加入一家店，整个 KiX 网络就更大 —— 你的玩家也会发现更多可玩的店，就在你旁边。") },
-    { q:tr(lang,"Is my customer data safe?","我的客户数据安全吗？"),                             a:tr(lang,"Yes. Your customers and their data stay with your business. KiX is the invisible engine — we never take your customers away.","安全。你的客户和他们的数据都留在你店里。KiX 是隐形引擎 —— 我们从不把你的客户带走。") },
+    { q:tr(lang,"I already run a loyalty program. Does this replace it?","我已经有会员体系了，这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，反而是给它添柴。KiX 负责把新客带进门，你的会员体系负责把人留住，两边配合。") },
+    { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good, that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger, and your players discover more places to play, right next to you.","好啊，这正是我们想要的。他们得做自己的、打自己的品牌。每多一家店加入，整个 KiX 网络就更大，你的玩家也会顺带发现更多能玩的店，就在你隔壁。") },
+    { q:tr(lang,"Is my customer data safe?","我的客户数据安全吗？"),                             a:tr(lang,"Yes. Your customers and their data stay with your business. KiX is the invisible engine; we never take your customers away.","安全。你的客户和数据都留在你自己店里。KiX 只是背后那台隐形引擎，从不把客户带走。") },
   ];
   return (
     <section className="sec">
@@ -357,7 +357,7 @@ function ThreeThings() {
         <div className="tcard"><div className="tnum">{tr(lang,"01 · ACQUIRE","01 · 拉新客")}</div><h3>{tr(lang,"Passers-by play their way in","路过的人，玩着玩着就进店")}</h3><p>{tr(lang,"Nearby people play your game and win a voucher to walk in.","附近的人扫码玩你的游戏、赢券进店。")}</p>
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.pin/></span>{tr(lang,"Within 300m · office · walked in","300m 内 · 上班族 · 已到店")}</div><div className="vrow"><span className="vp" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.pin/></span>{tr(lang,"Within 500m · student · played","500m 内 · 学生 · 玩了一把")}</div></div></div>
         <div className="tcard"><div className="tnum">{tr(lang,"02 · RETAIN","02 · 召回老客")}</div><h3>{tr(lang,"Bring regulars back automatically","老顾客太久没来，自动请回来")}</h3><p>{tr(lang,"Members who haven't visited in 30 days get an auto voucher to come back.","30 天没到店的会员，自动发一张券请回来。")}</p>
-          <div className="viz"><div className="vrow"><span className="vp" style={{ background:"#EEF1FF", color:"#4F46E5" }}><Ic.bell/></span>{tr(lang,"Miss you — here's a free coffee","想你了，送你一杯免费咖啡")}</div><div className="vbignum"><b>29%</b> <span className="vmini">{tr(lang,"win-back rate","召回复购率")}</span></div></div></div>
+          <div className="viz"><div className="vrow"><span className="vp" style={{ background:"#EEF1FF", color:"#4F46E5" }}><Ic.bell/></span>{tr(lang,"Miss you! Here's a free coffee","想你了，送你一杯免费咖啡")}</div><div className="vbignum"><b>29%</b> <span className="vmini">{tr(lang,"win-back rate","召回复购率")}</span></div></div></div>
         <div className="tcard"><div className="tnum">{tr(lang,"03 · ZERO WASTE","03 · 零浪费")}</div><h3>{tr(lang,"Not like burning cash on ads","不像投广告那样烧钱")}</h3><p>{tr(lang,"No impressions, no clicks, no wasted budget. You only pay when a customer actually walks through your door.","不为曝光付费，不为点击付费。客人真正走进你的店，才算一次。")}</p>
           <div className="viz"><div className="vbignum"><b>S$0</b> <span className="vmini">{tr(lang,"for views & clicks","曝光和点击的花费")}</span></div><div className="vbar"><i style={{ width:"100%" }}></i></div><div className="vmini">{tr(lang,"vs traditional ads: 90% of budget wasted on non-visitors","传统广告：90% 预算花在不会来的人身上")}</div></div></div>
       </div>
@@ -369,17 +369,17 @@ function Gallery({ go }) {
   return (
     <section className="sec" id="gallery-sec">
       <div className="sec-eye">{tr(lang,"THE GAMEPLAY ENGINE","玩法引擎")}</div>
-      <h2 className="sec-h">{tr(lang,"One gameplay engine — AI picks the mechanic that fits your shop","一套玩法引擎，AI 挑一个适合你店的玩法")}</h2>
-      <p className="sec-sub">{tr(lang,"Spin, scratch, stack, catch — 1,000+ play mechanics, each wrapped in your brand.","转盘、刮刮乐、叠叠乐、接一接…上千种玩法，每个都能套上你的品牌。")}</p>
+      <h2 className="sec-h">{tr(lang,"One gameplay engine, AI picks the mechanic that fits your shop","一套玩法引擎，AI 帮你挑一个最搭你店的玩法")}</h2>
+      <p className="sec-sub">{tr(lang,"Spin, scratch, stack, catch: 1,000+ play mechanics, each wrapped in your brand.","转盘、刮刮乐、叠叠乐、接一接，上千种玩法，每一种都能套上你的品牌。")}</p>
       <div className="gallery">{GAMES.map((g, i) => (
         <div key={i} className="gtile" onClick={go}><div className="art"><GamePreview kind={g.kind} colors={g.g} /></div><div className="cap">{P(lang,g.n)}<div className="sm">{P(lang,g.t)}</div></div></div>))}</div>
-      <div className="gallery-foot">{tr(lang,"Plus ","还有 ")}<b style={{ color:"var(--ink)" }}>1,000+</b>{tr(lang," templates — make any of them your own","个模板 · 每个都能换成你的品牌")}</div>
+      <div className="gallery-foot">{tr(lang,"Plus ","还有 ")}<b style={{ color:"var(--ink)" }}>1,000+</b>{tr(lang," templates, make any of them your own","个模板，每个都能换成你的品牌")}</div>
     </section>
   );
 }
 function Steps() {
   const lang = useLang();
-  const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos — AI auto-colors and builds it.","传 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店兑奖"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动兑奖即可。") }];
+  const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos; AI auto-colours and builds it.","传上 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店兑奖"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动兑奖即可。") }];
   return (
     <section className="sec">
       <div className="sec-eye">{tr(lang,"HOW IT WORKS","三步上线")}</div><h2 className="sec-h">{tr(lang,"Three steps to open for business","三步做好，开门收客")}</h2>
@@ -429,18 +429,18 @@ function Pricing({ go }) {
           <div className="tier-big">{tr(lang,"Free for 3 months","免费 3 个月")}</div>
           <div className="tier-sub">{tr(lang,"or your first 1,000 players","或首 1,000 名玩家（先到为准）")}</div>
           <hr className="tier-hr"/>
-          <p className="tier-then">{tr(lang,"Then just S$0.49 per active player — cheaper the more you grow.","之后每位活跃玩家仅 S$0.49，越多越便宜。")}</p>
+          <p className="tier-then">{tr(lang,"Then just S$0.49 per active player, cheaper the more you grow.","之后每位活跃玩家只要 S$0.49，玩的人越多越便宜。")}</p>
           <ul>
             <li><span className="ck"><Check/></span>{tr(lang,"Unlimited custom games & dashboard","不限定制游戏与数据看板")}</li>
             <li><span className="ck"><Check/></span>{tr(lang,"S$29/mo minimum · never for your regulars","每月最低 S$29 · 老客永远免费")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"Software always free — only pay for growth","软件永远免费 · 只为增长付费")}</li>
+            <li><span className="ck"><Check/></span>{tr(lang,"Software always free, only pay for growth","软件永远免费，只为增长付费")}</li>
             <li><span className="ck"><Check/></span>{tr(lang,"No lock-in · cancel anytime","无绑定 · 随时取消")}</li>
           </ul>
           <button className="btn primary" onClick={go}>{tr(lang,"Start free","免费开始")} <Ic.arrow style={{ width:16, height:16 }}/></button></div>
         <div className="tier">
           <div className="tier-tags"><span className="tag-pill">{tr(lang,"CUSTOM","定制")}</span></div>
           <div className="tier-big">{tr(lang,"Need something custom?","需要定制？")}</div>
-          <div className="tier-sub">{tr(lang,"Any size — if the plan doesn't fit, we'll build it with you.","不论规模——标准计划不合适，我们陪你一起定制。")}</div>
+          <div className="tier-sub">{tr(lang,"Any size. If the standard plan doesn't fit, we'll build one with you.","不论规模。标准计划不合适，我们就陪你一起定制。")}</div>
           <hr className="tier-hr"/>
           <ul>
             <li><span className="ck"><Check/></span>{tr(lang,"A bespoke game & brand build","定制游戏与品牌搭建")}</li>
@@ -489,7 +489,7 @@ function CustomLeadModal({ onClose }) {
         ) : (
           <>
             <h3>{tr(lang,"Tell us what you need","告诉我们你的需求")}</h3>
-            <p className="pub-sub">{tr(lang,"Whatever your size — a KiX specialist will reach out within 1 business day.","不论规模——KiX 专员会在 1 个工作日内联系你。")}</p>
+            <p className="pub-sub">{tr(lang,"Whatever your size, a KiX specialist will reach out within one business day.","不论规模，KiX 专员都会在 1 个工作日内联系你。")}</p>
             <div className="lead-f"><label>{tr(lang,"Your name","你的姓名")} <i>*</i></label><input value={f.name} onChange={set("name")} placeholder={tr(lang,"e.g. Jia Yuan","例：家源")}/></div>
             <div className="lead-f"><label>{tr(lang,"Business / brand name","品牌 / 公司名")} <i>*</i></label><input value={f.biz} onChange={set("biz")} placeholder={tr(lang,"e.g. Heng Heng Kopi","例：兴兴咖啡")}/></div>
             <div className="lead-f"><label>{tr(lang,"Phone / WhatsApp","电话 / WhatsApp")} <i>*</i></label><input value={f.phone} onChange={set("phone")} placeholder="+65 …"/></div>
@@ -524,8 +524,8 @@ function Landing({ go, onSignIn, lang, setLang }) {
       <Faq/>
       <section className="sec final-sec">
         <h2 className="final-h">{tr(lang,"Every business deserves its own ","每家店都值得拥有自己的 ")}<span className="hl">{tr(lang,"playground.","游乐场。")}</span></h2>
-        <p className="final-sub">{tr(lang,"Go live today — and give every visit a reason to come back.","今天就上线 —— 让每一次到店都有回头的理由。")}</p>
-        <button className="btn primary final-cta" onClick={go}>{tr(lang,"Build my game — free →","免费搭建我的游戏 →")}</button>
+        <p className="final-sub">{tr(lang,"Go live today and give every visit a reason to come back.","今天就上线，让每一次到店都成为下次回头的理由。")}</p>
+        <button className="btn primary final-cta" onClick={go}>{tr(lang,"Build my game for free →","免费搭建我的游戏 →")}</button>
         <div className="final-fine">{tr(lang,"First 3 months free · regulars always free · cancel anytime","前 3 个月免费 · 老客永远免费 · 随时取消")}</div>
       </section>
       <footer><div>{tr(lang,"KiX · built for neighbourhood shops","KiX · 为街边小店而做")}</div><div>Mozat Pte Ltd · Singapore</div></footer>
