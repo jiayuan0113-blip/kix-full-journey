@@ -6,6 +6,14 @@
 
 ## 2026-07-13
 
+### 92. 多账号团队席位（Team Seats）——「我的」新增团队面板 + 邀请弹窗
+- **需求**：不同的人（合伙人/夫妻档/店长/记账）都想登录同一后台、**共同看到全部数据、能一起干活**。现状账号被单一登录凭证（国内手机号/海外邮箱）唯一标识，第二个人进不去。
+- **角色 2 个**：`Owner`（全部 + 账单 + 增删成员）/ `Member`（看全部数据 + 能操作 + 能上线花钱，仅不碰账单和成员管理）。**不做"只核销受限角色"（无需求证据）**；席位免费不限数。
+- **身份模型（给研发的契约）**：`User(login_type=email|phone, region)` + `Membership(role=owner|member)` + `InviteToken`；Account 去掉直接挂登录凭证；登录 verify 后按 membership 数量决定 新号/直接进/账号选择页；渠道按区域（国内短信码 / 海外邮件码 + SSO）。详见 `SPEC.md §13` + `PRD-team-seats.md`。
+- **原型改动**：`journey.jsx` 新增 `InviteModal`（QR + 复制链接 + 区域验证码说明 + 重新生成）；`MeView` 新增团队面板（members 列表 + 移除 + 「+ 邀请成员」，Owner 行不可移除、邀请中显示待加入）；账户菜单加「团队管理」入口。`icons.jsx` 加 `users` 图标。`index.html` 加 `.team-*` / `.invite-*` CSS。调试参数 `?screen=app&sec=me&invite=1`。
+- **原型为 mock**（成员写死、token 随机）；身份模型/鉴权/账号选择页是给研发的契约，原型未演示。
+- **影响文件**：`journey.jsx`、`icons.jsx`、`index.html`、`SPEC.md`（§13）、`PRD-team-seats.md`（新增）。
+
 ### 91. 英文文案校对（去破折号后遗留 + 术语一致）
 - 全站审 696 条 EN，修 10 处：去破折号后的 comma splice 改分号/重组（`run indefinitely; take it offline anytime` 等 3 处）；游戏结果漏网 `—`（`So close, try again!` 2 处）；拼写统一美式（`auto-colours`→`auto-colors`）；地道化（`scanning paused`、`Now live. Customers can play.`、`Got a question…`、Oxford comma）。
 - 术语一致性确认无误：walk-in(名)/walk in(动)、redeem、voucher、outlet、active player、verified walk-ins、KiX app、Since launch。tr() 内破折号中英均已归零。仅改 EN，ZH/代码未动。

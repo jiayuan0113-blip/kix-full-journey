@@ -2027,6 +2027,32 @@ function PlanModal({ plan, onPick, onClose }) {
     document.body
   );
 }
+// 邀请成员弹窗：二维码 + 可复制链接。对方用自己的手机号(国内)/邮箱(海外)收验证码登录后，以「成员」身份加入。
+function InviteModal({ shopName, onClose }) {
+  const lang = useLang();
+  const [token, setToken] = useState("k7f2a9");
+  const link = `https://app.letskix.com/join/${token}`;
+  const [copied, setCopied] = useState(false);
+  const copy = () => { navigator.clipboard?.writeText(link).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false), 1800); };
+  const regen = () => { setToken(Math.random().toString(36).slice(2,8)); setCopied(false); };
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal" style={{ width:460 }} onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <h3>{tr(lang,"Invite a teammate","邀请成员")}</h3>
+        <p className="pub-sub">{tr(lang,`They'll see all your data and can run the day-to-day. Only you can manage billing and the team.`,"对方能看到你全部的数据、也能打理日常经营。只有你能管理账单和成员。")}</p>
+        <div className="invite-qr"><QRGlyph size={128}/></div>
+        <div className="invite-linkrow">
+          <input readOnly value={link} onFocus={e=>e.target.select()}/>
+          <button className="btn primary sm" onClick={copy}>{copied ? tr(lang,"Copied","已复制") : tr(lang,"Copy link","复制链接")}</button>
+        </div>
+        <p className="invite-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"They scan or open the link, then sign in with a code sent to their own phone (local) or email (overseas). Link valid 7 days.","对方扫码或打开链接，用发到自己手机号（国内）或邮箱（海外）的验证码登录即可加入。链接 7 天有效。")}</span></p>
+        <button className="invite-regen" onClick={regen}>{tr(lang,"Generate a new link (invalidates the old one)","重新生成链接（旧链接立即失效）")}</button>
+      </div>
+    </div>,
+    document.body
+  );
+}
 function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFile }) {
   const lang = useLang();
   const fileRef = useRef(null), [busy, setBusy] = useState(false);
@@ -2039,6 +2065,13 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
   const [cardModal, setCardModal] = useState(_bill==="card"), [planModal, setPlanModal] = useState(_bill==="plan");
   const curPlan = PLANS.find(p=>p.id===plan) || PLANS[1];
   const [saved, setSaved] = useState(""), [appQr, setAppQr] = useState(false);
+  const [invite, setInvite] = useState(new URLSearchParams(location.search).get("invite")==="1"); // ?invite=1 调试直开
+  const [members, setMembers] = useState([
+    { id:"m1", name:"Joyce", cred:"9123 4567", role:"owner",  status:"active"  },
+    { id:"m2", name:"Wei Ling", cred:"9876 5432", role:"member", status:"active"  },
+    { id:"m3", name:"—", cred:"manager@kopicorner.sg", role:"member", status:"invited" },
+  ]);
+  const removeM = (id) => setMembers(ms => ms.filter(m => m.id!==id));
   const save = (k) => { setSaved(k); setTimeout(()=>setSaved(s=>s===k?"":s), 2000); };
   const updO = (i, k, v) => setOutlets(os => os.map((o,j)=> j===i ? {...o,[k]:v} : o));
   const addO = () => setOutlets(os => [...os, { id:"o"+(os.length+1)+Date.now(), name:{en:"New outlet",zh:"新店铺"}, line1:"", city:"Singapore", region:"", postal:"", country:0, primary:false }]);
@@ -2053,6 +2086,31 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="field"><label>{tr(lang,"Mobile (WhatsApp)","手机号（WhatsApp）")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input value={phone} onChange={e=>setPhone(e.target.value)}/></div>
         </div>
         <div className="me-save">{saved==="acct" && <span className="me-saved"><Ic.check style={{ width:14, height:14 }}/> {tr(lang,"Saved","已保存")}</span>}<button className="btn primary sm" onClick={()=>save("acct")}>{tr(lang,"Save changes","保存修改")}</button></div>
+      </div>
+      <div className="panel" style={{ marginTop:16 }}>
+        <div className="team-head">
+          <div>
+            <h3 style={{ margin:0 }}>{tr(lang,"Team","团队")}</h3>
+            <p className="ph-sub" style={{ margin:"4px 0 0" }}>{tr(lang,"Add the people who run this business with you. Everyone sees all data and can operate; only you handle billing and the team.","把和你一起管这门生意的人加进来。所有人都能看全部数据、能操作；只有你管账单和成员。")}</p>
+          </div>
+          <button className="btn primary sm" style={{ flex:"none" }} onClick={()=>setInvite(true)}>+ {tr(lang,"Invite member","邀请成员")}</button>
+        </div>
+        <div className="team-list">
+          {members.map(m => (
+            <div className="team-row" key={m.id}>
+              <div className={"team-av" + (m.role==="owner" ? " owner" : "")}>{m.status==="invited" ? "…" : (m.name.slice(0,1) || "?")}</div>
+              <div className="team-info">
+                <div className="team-name">{m.status==="invited" ? tr(lang,"Invitation pending","邀请中") : m.name}</div>
+                <div className="team-cred">{m.cred}</div>
+              </div>
+              <span className={"team-tag " + (m.role==="owner" ? "owner" : "member")}>{m.role==="owner" ? tr(lang,"Owner","老板") : tr(lang,"Member","成员")}</span>
+              {m.status==="invited" && <span className="team-pending">{tr(lang,"Pending","待加入")}</span>}
+              {m.role==="owner"
+                ? <span className="team-you">{tr(lang,"You","你")}</span>
+                : <button className="team-rm" onClick={()=>removeM(m.id)}>{tr(lang,"Remove","移除")}</button>}
+            </div>
+          ))}
+        </div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Billing & plan","账单与套餐")}</h3>
@@ -2126,6 +2184,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           </div>
         </div>
       </div>
+      {invite && <InviteModal shopName={name} onClose={()=>setInvite(false)}/>}
       {cardModal && <CardModal cardOnFile={cardOnFile} onSave={setCardOnFile} onClose={()=>setCardModal(false)}/>}
       {planModal && <PlanModal plan={plan} onPick={setPlan} onClose={()=>setPlanModal(false)}/>}
       {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
@@ -2214,6 +2273,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
                   <div className="am-head">{avatar}<div><div className="sb-name">{shopName}</div><div className="sb-outlet">{P(lang, primary.name||{en:"",zh:""})}</div></div></div>
                   <button className="am-item" onClick={goMe}><Ic.user style={{ width:17, height:17 }}/>{tr(lang,"Account settings","账户设置")}</button>
                   <button className="am-item" onClick={goMe}><Ic.store style={{ width:17, height:17 }}/>{tr(lang,"Outlets","店铺管理")}</button>
+                  <button className="am-item" onClick={goMe}><Ic.users style={{ width:17, height:17 }}/>{tr(lang,"Team","团队管理")}</button>
                   <button className="am-item" onClick={goMe}><Ic.card style={{ width:17, height:17 }}/>{tr(lang,"Billing & plan","账单与套餐")}</button>
                   <button className="am-item danger" onClick={onExit}><Ic.logout style={{ width:17, height:17 }}/>{tr(lang,"Log out","退出登录")}</button>
                 </div></>}

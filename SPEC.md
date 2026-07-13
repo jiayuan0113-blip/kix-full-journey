@@ -664,4 +664,57 @@ Player（客人，端侧最小化）
 
 ---
 
+## 13. 多账号团队席位（Team Seats，2026-07-13）⭐
+
+> 完整 PRD 见仓库 `PRD-team-seats.md`。需求：**和店主一起管生意的人（合伙人/夫妻档/店长/记账）都能各自登录、共同看到全部数据、能一起干活**。现状账号被单一登录凭证锁死，第二个人进不去。
+
+### 13.1 角色（2 个）
+| 角色 | 能力 | 唯一不能 |
+|---|---|---|
+| **Owner**（创建者） | 全部 | — |
+| **Member**（受邀全权成员） | 看全部数据 · 核销 · 建/改/**上线**/下线 活动与游戏（含按到店计费花钱）· 召回老客 · 门店/品牌 | **账单/换卡** · **增删成员** |
+
+- v1 **不做** "只核销的收银员" 受限角色（无需求证据，且与"共同看全部数据"冲突）；留待第三角色 `Cashier`。
+- v1 不做角色升降 / 转让 Owner。**席位免费、不限数**（软件永久免费，计费只按 MAU/walk-in）。
+
+### 13.2 身份模型（改造 §10.1）
+```
+User        id, login_type(email|phone), login_id, region
+            # 登录凭证 = 海外邮箱 / 国内手机号（二选一，按区域）；login_id 唯一标识“一个人”
+Membership  id, user_id, account_id, role(owner|member),
+            status(invited|active|removed), default_outlet_id?, joined_at
+Account     去掉直接挂登录凭证 → owner 关系变成一条 role=owner 的 Membership
+InviteToken id, account_id, role=member, token, expires_at, one_time(bool), used_count, created_by, revoked
+```
+- **登录渠道按区域**：国内=手机号+短信码；海外=邮箱+邮件码（+ 现有 Google/Apple SSO）。`auth/start` 依 region 选渠道。
+- **迁移**：现有每个 Account 登录凭证 → 建 1 个 User + 1 条 owner Membership，行为不变。
+- **verify 后**：user 的 active memberships → 0=新号走注册；1=直接进；**≥2=出轻量账号选择页**（仅多归属才出现，不做常驻切换器）。
+
+### 13.3 邀请与加入
+1. Owner「我的 → 团队 → + 邀请成员」→ **邀请二维码 + 可复制链接**（默认 7 天有效、可重新生成使旧的失效、可选一次性/常驻）。
+2. 受邀人扫码/开链接 → 「加入 {店名}」→ 按其区域走邮箱码/手机验证码 → 以 `member` 加入。
+3. 已是别账号成员的凭证 → 追加一条 membership，下次登录出账号选择页。
+
+### 13.4 接口（建议）
+| 动作 | 方法 路径 | 返回 |
+|---|---|---|
+| 成员列表 | `GET /api/members` | `member[]{ user, role, status, default_outlet_id }` |
+| 生成邀请 | `POST /api/invites` `{role:member, one_time?}` | `{ token, url, expires_at }` |
+| 撤销邀请 | `POST /api/invites/:token/revoke` | `{ ok }` |
+| 加入 | `POST /api/invites/:token/accept`（登录态） | `{ account, membership }` |
+| 移除成员 | `DELETE /api/members/:user_id` | `{ ok }`（即时吊销其 token/session） |
+| 我的归属 | `GET /api/memberships`（登录 verify 后） | `membership[]`（≥2 出账号选择页） |
+
+### 13.5 后端安全红线
+- **按 `membership.role` 鉴权，不能只靠前端隐藏**：member token 调【账单】【成员管理】接口一律 **403**。
+- 邀请 token：有效期 + 可撤销 + 用量上限；移除成员即时吊销 session/token。
+- **最后一个 Owner 不可被移除/降级**。
+- 登录渠道防滥用沿用 §12（限流 / 防 SMS pumping）。
+
+### 13.6 原型现状（journey.jsx）
+- 「我的」新增**团队面板**（`MeView`：members 列表 + 移除 + 「+ 邀请成员」）；**InviteModal**（QR + 复制链接 + 区域验证码说明 + 重新生成）；账户菜单加「团队管理」入口；`icons.jsx` 加 `users`。调试 `?screen=app&sec=me&invite=1`。
+- 原型为前端 mock（成员写死、token 随机）；身份模型/鉴权/账号选择页为**给研发的契约**，原型未演示。
+
+---
+
 _本规格随原型演进同步更新；如与最新 HTML 冲突，以双方确认的最新版为准。_

@@ -976,6 +976,32 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .me-saved{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--green-d);animation:rise .25s both}
 .me-approw{display:flex;align-items:center;gap:13px}
 .me-app-ic{flex:none;width:40px;height:40px;border-radius:11px;background:var(--green-50);color:var(--green-d);display:grid;place-items:center}
+/* 团队 / 成员共享 */
+.team-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.team-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.team-row{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:13px;background:#FCFEFD}
+.team-av{flex:none;width:38px;height:38px;border-radius:50%;background:#EAF1EE;color:var(--green-d);display:grid;place-items:center;font-weight:800;font-size:15px}
+.team-av.owner{background:var(--green-d);color:#fff}
+.team-info{min-width:0;flex:1}
+.team-name{font-weight:700;font-size:14px;color:var(--ink)}
+.team-cred{font-size:12.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-tag{flex:none;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;letter-spacing:.02em}
+.team-tag.owner{background:var(--green-d);color:#fff}
+.team-tag.member{background:var(--green-50);color:var(--green-d)}
+.team-pending{flex:none;font-size:11.5px;font-weight:700;color:#B7791F;background:#FEF3C7;padding:3px 9px;border-radius:999px}
+.team-you{flex:none;font-size:12px;color:var(--muted);font-weight:600}
+.team-rm{flex:none;background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);padding:4px 6px;border-radius:8px}
+.team-rm:hover{color:#DC2626;background:#FEF2F2}
+/* 邀请弹窗 */
+.invite-qr{display:grid;place-items:center;margin:6px 0 16px}
+.invite-qr .qr-glyph{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+.invite-linkrow{display:flex;gap:8px}
+.invite-linkrow input{flex:1;min-width:0;height:40px;border:1px solid var(--line);border-radius:11px;padding:0 12px;font-size:13px;color:var(--ink);background:#F7FAF9}
+.invite-linkrow .btn{flex:none}
+.invite-note{display:flex;gap:7px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--muted);margin:13px 2px 0}
+.invite-note svg{margin-top:1px;color:var(--green-d)}
+.invite-regen{display:block;width:100%;margin-top:14px;background:none;border:none;cursor:pointer;font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.invite-regen:hover{color:var(--ink)}
 /* 下线撤销 toast */
 .undo-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:16px;background:var(--ink);color:#fff;border-radius:14px;padding:13px 16px 13px 18px;box-shadow:0 18px 40px -10px rgba(0,0,0,.4);animation:rise .28s cubic-bezier(.2,.8,.2,1) both}
 .undo-toast .ut-txt{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
