@@ -6,6 +6,11 @@
 
 ## 2026-07-13
 
+### 91. 英文文案校对（去破折号后遗留 + 术语一致）
+- 全站审 696 条 EN，修 10 处：去破折号后的 comma splice 改分号/重组（`run indefinitely; take it offline anytime` 等 3 处）；游戏结果漏网 `—`（`So close, try again!` 2 处）；拼写统一美式（`auto-colours`→`auto-colors`）；地道化（`scanning paused`、`Now live. Customers can play.`、`Got a question…`、Oxford comma）。
+- 术语一致性确认无误：walk-in(名)/walk in(动)、redeem、voucher、outlet、active player、verified walk-ins、KiX app、Since launch。tr() 内破折号中英均已归零。仅改 EN，ZH/代码未动。
+- **影响文件**：`journey.jsx`（多处 tr() 的 EN）。
+
 ### 90. 数据页(Reports)日期范围改「上线以来」+ 稀疏/小样本规则（三体）
 - **日期范围**：预设改为 **上线以来(默认) / 今天 / 近 7 天 / 近 30 天**；活动看板以"活动上线"为锚点累计（Mailchimp/Klaviyo/HubSpot 惯例），默认「上线以来」、**不设 All-time/全部**。（`ranges` + `ri` 默认 0）
 - **稀疏 / 小样本规则（精确阈值，可调）**：① 逐日到店柱状图仅当 `nonZeroDays ≥ 7` 才画柱，否则换 mini sparkline + 提示「到店还太少，暂时画不出每日趋势」；② `smallSample = 本期 walk-ins < 10`（"多小叫小"=<10）→ Hero 隐藏"vs 上期"百分比、只显绝对数；各门店到店比例条收掉、只留「门店名 + N 人到店」；③ 范围=「上线以来」(lifetime 无上期) 也不显百分比。

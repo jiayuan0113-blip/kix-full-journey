@@ -67,7 +67,7 @@ function MiniWheel() {
         <div className="mw-hub"><Ic.cup/></div>
       </div>
       <button className="mw-spin" onClick={spin} disabled={spinning}>{spinning ? tr(lang,"Spinning…","转动中…") : tr(lang,"Spin to win","转一下赢咖啡")}</button>
-      <div className="gameresult">{result ? (result.lose ? <span style={{ color:"var(--muted)" }}>{tr(lang,"So close — try again!","差一点，再来一次！")}</span> : <span><Ic.spark style={{ verticalAlign:"-2px", marginRight:2 }}/> {tr(lang,"You won","你赢了")} <b>{P(lang,result)}</b></span>) : <span style={{ color:"var(--muted)", fontWeight:500 }}>　</span>}</div>
+      <div className="gameresult">{result ? (result.lose ? <span style={{ color:"var(--muted)" }}>{tr(lang,"So close, try again!","差一点，再来一次！")}</span> : <span><Ic.spark style={{ verticalAlign:"-2px", marginRight:2 }}/> {tr(lang,"You won","你赢了")} <b>{P(lang,result)}</b></span>) : <span style={{ color:"var(--muted)", fontWeight:500 }}>　</span>}</div>
     </>
   );
 }
@@ -122,7 +122,7 @@ function PlayableWheel({ colors, plist, logo, logoMark, hubColor }) {
       </div>
       <div className="wheel-cta">
         <button className="spinbtn" onClick={spin} disabled={spinning}>{spinning ? tr(lang,"Spinning…","转动中…") : tr(lang,"Spin to win","转一下试试")}</button>
-        <div className="prizebanner">{result ? (result.lose ? <span>{tr(lang,"So close — ","差一点点，")}<b>{tr(lang,"try again","再来一次")}</b>！</span> : <span><Ic.spark style={{ verticalAlign:"-2px", marginRight:2 }}/> {tr(lang,"You won","你赢了")} <b>{result.label}</b></span>) : <span style={{ color:"var(--muted)", fontWeight:500 }}>{tr(lang,"Tap the button to try it","点上面的按钮，试玩一下")}</span>}</div>
+        <div className="prizebanner">{result ? (result.lose ? <span>{tr(lang,"So close, ","差一点点，")}<b>{tr(lang,"try again","再来一次")}</b>！</span> : <span><Ic.spark style={{ verticalAlign:"-2px", marginRight:2 }}/> {tr(lang,"You won","你赢了")} <b>{result.label}</b></span>) : <span style={{ color:"var(--muted)", fontWeight:500 }}>{tr(lang,"Tap the button to try it","点上面的按钮，试玩一下")}</span>}</div>
       </div>
     </div>
   );
@@ -379,7 +379,7 @@ function Gallery({ go }) {
 }
 function Steps() {
   const lang = useLang();
-  const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos; AI auto-colours and builds it.","传上 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店兑奖"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动兑奖即可。") }];
+  const S = [{ i:Ic.gamepad, h:tr(lang,"Pick a game","挑一个游戏"), p:tr(lang,"Choose a format that fits your shop from 1,000+ templates.","从上千个模板里选一个适合你店的玩法。") },{ i:Ic.palette, h:tr(lang,"Add your brand","套上你的品牌"), p:tr(lang,"Drop in your logo and photos; AI auto-colors and builds it.","传上 logo 和商品图，AI 自动配色、生成游戏。") },{ i:Ic.store, h:tr(lang,"Redeem in store","客人到店兑奖"), p:tr(lang,"Winners walk in; you scan their QR or swipe to redeem.","赢家凭二维码到店，你一扫或滑动兑奖即可。") }];
   return (
     <section className="sec">
       <div className="sec-eye">{tr(lang,"HOW IT WORKS","三步上线")}</div><h2 className="sec-h">{tr(lang,"Three steps to open for business","三步做好，开门收客")}</h2>
@@ -1686,7 +1686,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
   const dlQR = (label) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 22px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,88); ctx.font="12px sans-serif"; ctx.fillText(label,100,116); const a=document.createElement("a"); a.download="qr-"+label+".png"; a.href=c.toDataURL(); a.click(); };
   return (
     <div className="app-body" style={{ maxWidth:820 }}>
-      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live, customers can play now.","已上线，客人现在就能扫码玩。")}</span><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button></div>}
+      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Now live. Customers can play.","已上线，客人现在就能扫码玩。")}</span><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button></div>}
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
         <div className="act-idrow">
@@ -1696,12 +1696,12 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
             <input type="file" accept="image/*" hidden onChange={onLogo}/>
           </label>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{isChal ? tr(lang,"Brand logo shows on the poster, app card and the leaderboard. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报、App 卡片和排行榜上。留空则沿用所选游戏的品牌。") : tr(lang,"Brand logo shows on the poster and app card. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报和 App 卡片上。留空则沿用所选游戏的品牌。")}</p>
+        <p className="ph-sub" style={{ marginTop:8 }}>{isChal ? tr(lang,"Brand logo shows on the poster, app card, and leaderboard. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报、App 卡片和排行榜上。留空则沿用所选游戏的品牌。") : tr(lang,"Brand logo shows on the poster and app card. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报和 App 卡片上。留空则沿用所选游戏的品牌。")}</p>
         {!isChal && <><div style={{ display:"flex", gap:12, marginTop:14 }}>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={activity.startDate||""} onChange={e=>upd("startDate",e.target.value)}/></div>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely, take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely; take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
       </div>
       {isChal
         ? <><ScheduleEditor schedule={activity.schedule} setSchedule={s => upd("schedule", s)} />
@@ -1740,7 +1740,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
             ))}
           </div>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win, vouchers last longer; easier = more win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p></>}
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win and vouchers last longer; easier = more people win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p></>}
         {isChal && <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Players race for a high score in this game, and ranking decides the prizes above.","玩家在这个游戏里冲高分，排名决定上面的奖池。")}</p>}
       </div>
       {isChal && <div className="panel" style={{ marginTop:16 }}>
@@ -2065,7 +2065,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="bill-l"><span className="bill-ic"><Ic.card style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Payment method","付款方式")}</div><div className="bill-v">{cardOnFile ? <>Visa •••• {cardOnFile.last4}</> : <span style={{ color:"var(--muted)" }}>{tr(lang,"No card yet","尚未绑定银行卡")}</span>}</div></div></div>
           <button className="btn ghost sm" onClick={()=>setCardModal(true)}>{cardOnFile ? tr(lang,"Change","更换") : tr(lang,"Add card","添加银行卡")}</button>
         </div>
-        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Only new business counts, regulars always free, take activities offline anytime.","前 3 个月不扣款。只算新生意、老客永远免费，活动随时可下线。")}</span></p>
+        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Only new business counts; regulars are always free; take activities offline anytime.","前 3 个月不扣款。只算新生意、老客永远免费，活动随时可下线。")}</span></p>
       </div>
       <div className="panel me-approw" style={{ marginTop:16 }}>
         <span className="me-app-ic"><Ic.phone style={{ width:20, height:20 }}/></span>
@@ -2077,7 +2077,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Contact us","联系我们")}</h3>
-        <p className="ph-sub">{tr(lang,"Any question, or a custom / multi-outlet plan? We're here to help.","有任何问题，或想要连锁 / 定制方案，随时找我们。")}</p>
+        <p className="ph-sub">{tr(lang,"Got a question, or need a custom / multi-outlet plan? We're here to help.","有任何问题，或想要连锁 / 定制方案，随时找我们。")}</p>
         <div className="contact-row">
           <a className="btn ghost sm" href="mailto:hello@letskix.com"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> {tr(lang,"Email us","发邮件")}</a>
           <a className="btn ghost sm" href="mailto:sales@letskix.com?subject=Custom%20plan"><Ic.store style={{ width:15, height:15 }}/> {tr(lang,"Chains / custom, talk to sales","连锁 / 定制 · 联系销售")}</a>
@@ -2138,7 +2138,7 @@ function UndoToast({ onUndo, onClose, lang }) {
   useEffect(() => { const t = setTimeout(onClose, 6000); return () => clearTimeout(t); }, []);
   return ReactDOM.createPortal(
     <div className="undo-toast">
-      <span className="ut-txt"><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Taken offline · customer scans paused","已下线 · 客人扫码已暂停")}</span>
+      <span className="ut-txt"><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Taken offline · scanning paused","已下线 · 客人扫码已暂停")}</span>
       <button className="ut-undo" onClick={onUndo}>{tr(lang,"Undo","撤销")}</button>
     </div>,
     document.body
