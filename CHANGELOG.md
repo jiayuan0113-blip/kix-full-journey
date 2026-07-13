@@ -6,6 +6,13 @@
 
 ## 2026-07-13
 
+### 89. app 文案母语化去破折号 + 注册邮箱验证码 + 数据页收敛 + 游戏/活动页多选删除
+- **app 段文案（journey.jsx 536+）**：59 条含破折号的 tr() 去破折号 + 中文母语化（注册/登录/建游戏/发布/看板/活动/兑奖/数据/我的）；用户可见破折号归零（仅剩代码注释）。
+- **注册账号步新增邮箱 + 邮箱验证码**：邮箱字段 +「发送验证码」→ 6 位码（60s 重发倒计时 + 已验证 ✓），验证通过前「继续」不可点。原型 mock（满 6 位即过）；研发接真实 OTP。本地原注册无邮箱字段，此处补齐（`Register` 组件，state：email/code/sent/left + emailOk/verified/sendCode + acctOk 加 verified）。
+- **数据页（Reports）收敛**：删 4 条冗余副标题（VERIFIED WALK-INS / From scan to walk-in / New vs returning / Walk-ins per day）；Games tab「完成率 68%」→「玩的时长 / 平均每局玩多久 / 38s」（`GAME_METRICS.avgPlaySec`）；Games hero 副标题删「不收到店费（免费）」句。三体调研结论：两 tab IA（参与度 Games / 转化 Activities）分层已对，ROI 成本因「免费期不展示预估总价」铁律未加。见 `Desktop/Mozat/kix/[决策] 2026-07-13-KiX数据页IA与指标-三体.md`。
+- **游戏页 + 活动页 多选删除（业界标准式）**：新增「选择」→ 选择态顶部**上下文操作栏**（取消 / 已选 N / 全选 / 红色删除 N），卡片选中 = 绿框 + 右上角 ✓、卡内操作隐藏；`window.confirm` 二次确认后删除。对齐 Gmail/Drive/Photos 范式（初版做成飘在中间的浮层，Joyce 指出不合业界标准后改为顶部上下文栏）。父组件 `setMyGames/setActivities` 过滤。
+- **影响文件**：`journey.jsx`（Register / MyGamesView / ActivitiesView / ReportsView / 父组件 props / app tr()）、`index.html`（`.selbar/.selbar-n/.selbar-del`）、`data.jsx`（`GAME_METRICS.avgPlaySec`）。
+
 ### 88. 落地页中文母语化重写 + 全落地页去破折号
 - 按「地道中文、不直译、不用破折号」重写落地页所有营销文案的中文，并去掉中英文里的破折号（—/——，改完整句/短句/冒号）：WhyGame（三卡 + sec-sub）、FairDeal（对比两栏 + sec-sub）、FAQ（5 问，含计费梯度段）、Gallery、Steps、ThreeThings（召回卡）、Pricing（成长/定制两卡）、CustomLeadModal、PPP（PAY/STAY）、底部 CTA。
 - 定位口径对齐线上 portal = playground / play-pay-stay；旧「把路过的人变成回头客」作废（CLAUDE.md 仓库外配置，另行更新）。

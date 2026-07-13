@@ -538,8 +538,13 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
   const lang = useLang();
   const [rstep, setRstep] = useState(new URLSearchParams(location.search).get("rstep")==="card" ? "card" : "account");   // account → card（收卡放最后一步，Stripe）
   const [name, setName] = useState(""), [phone, setPhone] = useState(""), [country, setCountry] = useState(0);
+  const [email, setEmail] = useState(""), [code, setCode] = useState(""), [sent, setSent] = useState(false), [left, setLeft] = useState(0);
   const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
-  const acctOk = name.trim() && phone.trim();
+  React.useEffect(()=>{ if(left<=0) return; const t=setTimeout(()=>setLeft(left-1),1000); return ()=>clearTimeout(t); },[left]);
+  const emailOk = /^\S+@\S+\.\S+$/.test(email.trim());
+  const verified = sent && code.replace(/\D/g,"").length===6;
+  const sendCode = ()=>{ if(!emailOk||(sent&&left>0)) return; setSent(true); setCode(""); setLeft(60); };
+  const acctOk = name.trim() && verified && phone.trim();
   const cardOk = num.replace(/\s/g,"").length >= 12 && exp.trim().length >= 4 && cvc.trim().length >= 3;
   const chargeDate = (() => { const d = new Date(); d.setMonth(d.getMonth()+3); return d.toLocaleDateString(lang==="zh"?"zh-CN":"en-GB",{ year:"numeric", month:"short", day:"numeric" }); })();
   const finish = () => { onSaveCard && onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" }); onDone(); };
@@ -553,6 +558,17 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
         <h1>{tr(lang,"Last step: create your account","最后一步：创建你的账号")}</h1>
         <div className="field"><label>{tr(lang,"Shop name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)} placeholder={tr(lang,"e.g. Kopi Corner","例如：Kopi Corner")}/></div>
         <div className="field"><label>{tr(lang,"Country / region","国家 / 地区")} <span className="req">*</span></label><select value={country} onChange={e=>setCountry(+e.target.value)}>{COUNTRIES.map((c,i)=><option key={i} value={i}>{c.flag} {P(lang,c)}</option>)}</select></div>
+        <div className="field"><label>{tr(lang,"Email","邮箱")} <span className="req">*</span></label>
+          <div style={{ display:"flex", gap:8 }}>
+            <input style={{ flex:1 }} type="email" value={email} onChange={e=>{ setEmail(e.target.value); setSent(false); setCode(""); }} placeholder="you@shop.com"/>
+            <button type="button" className="btn" style={{ flex:"none", width:"auto", padding:"0 16px", whiteSpace:"nowrap", background:"#fff", border:"1.5px solid var(--line)", color:"var(--ink-2)", fontWeight:600, opacity:(!emailOk||(sent&&left>0))?0.5:1 }} disabled={!emailOk||(sent&&left>0)} onClick={sendCode}>{sent ? (left>0 ? tr(lang,`Resend ${left}s`,`重发 ${left}s`) : tr(lang,"Resend","重新发送")) : tr(lang,"Send code","发送验证码")}</button>
+          </div></div>
+        {sent && <div className="field"><label>{tr(lang,"Email code","邮箱验证码")} <span className="req">*</span></label>
+          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+            <input style={{ flex:1, letterSpacing:"0.28em" }} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder={tr(lang,"6-digit code","6 位验证码")} inputMode="numeric" maxLength={6}/>
+            {verified && <span style={{ color:"var(--green-d)", fontWeight:700, fontSize:13, display:"inline-flex", alignItems:"center", gap:4, flex:"none" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Verified","已验证")}</span>}
+          </div>
+          <div className="reg-fine" style={{ marginTop:6 }}>{tr(lang,"Code sent to ","验证码已发送至 ")}{email}</div></div>}
         <div className="field"><label>{tr(lang,"Mobile","手机号")} <span className="opt">{tr(lang,"(for WhatsApp)","（用于 WhatsApp 联系）")}</span> <span className="req">*</span></label>
           <div className="phonewrap"><input className="cc" value="+65" readOnly/><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9123 4567" onKeyDown={e=>{ if(e.key==="Enter"&&acctOk) setRstep("card"); }}/></div></div>
         <button className="btn primary" disabled={!acctOk} onClick={()=>setRstep("card")}>{tr(lang,"Continue","继续")}</button>
@@ -561,9 +577,9 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
         <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
         <p className="login-sub">{tr(lang,"Free for 3 months, then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</p>
         <div className="trust-list">
-          <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends — around ${chargeDate}.`,`到期前 7 天提醒你 —— 大约 ${chargeDate}。`)}</span></div>
+          <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends, around ${chargeDate}.`,`快到期时提前 7 天提醒你，大约在 ${chargeDate}。`)}</span></div>
           <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime.","随时下线或取消。")}</span></div>
-          <div className="trust-row"><Ic.shield/><span>{tr(lang,"Stripe-encrypted — we never see your card number.","卡号由 Stripe 加密 —— 我们看不到。")}</span></div>
+          <div className="trust-row"><Ic.shield/><span>{tr(lang,"Stripe-encrypted, we never see your card number.","卡号交给 Stripe 加密，我们看不到。")}</span></div>
         </div>
         <div className="cardf">
           <div className="cardf-input">
@@ -592,7 +608,7 @@ function Login({ onDone }) {
     <div className="reg-wrap"><div className="reg-card">
       {step === "phone" ? <>
         <h1>{tr(lang,"Sign in to KiX","登录 KiX")}</h1>
-        <p className="login-sub">{tr(lang,"Enter your phone — we'll text you a code. New here? It creates your account.","输入手机号，我们发条验证码。第一次来？会自动帮你建账号。")}</p>
+        <p className="login-sub">{tr(lang,"Enter your phone and we'll text you a code. New here? It creates your account.","输入手机号，我们发条验证码。第一次来？会自动帮你建账号。")}</p>
         <div className="field"><label>{tr(lang,"Mobile","手机号")}</label><div className="phonewrap"><input className="cc" value="+65" readOnly/><input autoFocus value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9123 4567" onKeyDown={e=>{ if(e.key==="Enter") sendCode(); }}/></div></div>
         <button className="btn primary" disabled={phone.trim().length<6} onClick={sendCode}>{tr(lang,"Continue","继续")}</button>
       </> : <>
@@ -618,7 +634,7 @@ function Describe({ need, setNeed, onNext }) {
     <div className="canvas narrow describe-wrap">
       <div className="center" style={{ marginBottom:26 }}>
         <h1 className="big" style={{ fontSize:"clamp(28px,3.6vw,40px)" }}>{tr(lang,"What game do you want to make today?","今天想做什么游戏？")}</h1>
-        <p className="sub">{tr(lang,"Pick a shop type, or type a brand — AI matches the best game.","选一个店型，或输入一个品牌，AI 帮你搭最适合的玩法。")}</p>
+        <p className="sub">{tr(lang,"Pick a shop type, or type a brand, and AI matches the best game.","选一个店型，或输入一个品牌，AI 帮你搭最适合的玩法。")}</p>
       </div>
       <div className="desc-search">
         <svg className="ds-ic" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
@@ -692,7 +708,7 @@ function BrandControls({ brand, setBrand, noProducts }) {
   const sets = [brand.color, ...COLOR_SETS.filter(c => c[0] !== brand.color[0])];
   return (
     <div className="editrow">
-      <div className="k">{tr(lang,"Brand — logo, colors & product photos","品牌 —— Logo、配色与商品图")}</div>
+      <div className="k">{tr(lang,"Brand: logo, colors & product photos","品牌资料：Logo、配色和商品图")}</div>
       <div className="bc-line">
         {brand.logo ? <img src={brand.logo} alt="" style={{ width:40, height:40, borderRadius:10, objectFit:"cover" }}/> : <div style={{ width:40, height:40, borderRadius:10, background:brand.color[0], display:"grid", placeItems:"center", color:"#fff" }}><Ic.store style={{ width:20, height:20 }}/></div>}
         <div className="swatches" style={{ margin:0, justifyContent:"flex-start" }}>{sets.map((c, i) => (<span key={i} className={"swatch " + (c[0]===brand.color[0]?"sel":"")} style={{ background:`linear-gradient(135deg,${c[0]},${c[1]})` }} onClick={()=>setBrand(b=>({...b,color:c}))}></span>))}</div>
@@ -703,7 +719,7 @@ function BrandControls({ brand, setBrand, noProducts }) {
         </div>
       </div>
       {brand.logo && <div className="autocolor"><Ic.spark style={{ width:14, height:14 }}/> {tr(lang,"Colors picked from your logo","已从你的 logo 取色")}</div>}
-      <div className="bc-site"><Ic.spark style={{ width:14, height:14, flex:"none", color:"var(--green-d)" }}/><input value={brand.site||""} onChange={e=>setBrand(b=>({...b,site:e.target.value}))} placeholder={tr(lang,"Website or social (optional) — we'll pull your logo & colors","网站或社媒（选填）—— 自动取 logo 和配色")}/></div>
+      <div className="bc-site"><Ic.spark style={{ width:14, height:14, flex:"none", color:"var(--green-d)" }}/><input value={brand.site||""} onChange={e=>setBrand(b=>({...b,site:e.target.value}))} placeholder={tr(lang,"Website or social (optional), we'll pull your logo & colors","网站或社媒（选填），我们自动抓取你的 logo 和配色")}/></div>
       {!noProducts && <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
         <div style={{ fontSize:13.5, fontWeight:600, color:"var(--ink-2)" }}>{tr(lang,"Product photos","商品图")}</div>
         <input ref={prodRef} type="file" accept="image/*" multiple hidden onChange={onProducts}/>
@@ -753,7 +769,7 @@ function VoucherEditor({ vouchers, setVouchers, showStock }) {
       </div>
       <p className="vnote">{csrc==="custom"
         ? tr(lang,"We hand out your uploaded codes in order until they run out; redemption verifies against your codes.","按你上传的券码依次发放、发完即停；兑奖时校验你的券码/二维码。")
-        : tr(lang,"Given out until the quantity runs out — no win-rate to set. One voucher per activity for now.","按张数自然发放，发完即停 —— 不用设中奖率。目前一个活动发一种券。")}</p>
+        : tr(lang,"Given out until the quantity runs out; no win-rate to set. One voucher per activity for now.","按张数自然发，发完即停，不用设中奖率。目前一个活动只发一种券。")}</p>
     </div>
   );
 }
@@ -813,7 +829,7 @@ function Preview({ game, brand, setBrand, onLaunch, onBack, need }) {
     <div className="canvas gp2">
       {onBack && <button className="canvas-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
       <div className="center" style={{ marginBottom:20 }}>
-        <h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,"Make it yours — publish anytime","换成你的品牌，随时可上线")}</h1>
+        <h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,"Make it yours, publish anytime","换成你的品牌，随时可上线")}</h1>
       </div>
       <div className="gp2-grid">
         <div className="gp2-r">
@@ -822,14 +838,14 @@ function Preview({ game, brand, setBrand, onLaunch, onBack, need }) {
             <Demo game={game} brand={applied}/>
             {gen && <div className="gen-overlay"><div className="gen-spin"></div><div className="gen-title">{tr(lang,"Building your custom game","正在生成你的定制游戏")}</div><div className="gen-tasks">{genTasks.map((t,i)=><div key={i} className="gt" style={{ animationDelay:(i*0.5)+"s" }}>{t}</div>)}</div></div>}
           </div></div>
-          <div className="gp2-hint-line">{gen ? "" : changed ? tr(lang,"↑ Preview shows the last generated look","↑ 左侧是上次生成的样子") : tr(lang,"↑ Playable — try it","↑ 可点着试玩")}</div>
+          <div className="gp2-hint-line">{gen ? "" : changed ? tr(lang,"↑ Preview shows the last generated look","↑ 左侧是上次生成的样子") : tr(lang,"↑ Playable, try it","↑ 可点着试玩")}</div>
         </div>
         <div className="gp2-l">
           <div className="gp2-editcard">
             <BrandControls brand={draft} setBrand={setDraft} noProducts />
             <button className="btn ghost lg gp2-genbtn" onClick={generate} disabled={gen}><Ic.spark style={{ width:17, height:17 }}/> {gen ? tr(lang,"Generating…","生成中…") : tr(lang,"Generate with my brand","用我的品牌生成")}</button>
           </div>
-          <p className="ph-sub" style={{ margin:"14px 2px 0" }}>{tr(lang,"Set your brand, generate to preview — publish whenever you're happy. Vouchers & outlets come next, in your Activity.","设好品牌、点生成看效果 —— 满意随时上线。奖品券和门店在下一步「活动」里设。")}</p>
+          <p className="ph-sub" style={{ margin:"14px 2px 0" }}>{tr(lang,"Set your brand and generate to preview, then publish whenever you're happy. Vouchers & outlets come next, in your Activity.","设好品牌、点生成看效果，满意就随时上线。奖品券和门店在下一步「活动」里设。")}</p>
           <div className="gp2-actions">
             <button className="btn primary lg" onClick={onLaunch}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Publish","上线")}</button>
           </div>
@@ -840,7 +856,7 @@ function Preview({ game, brand, setBrand, onLaunch, onBack, need }) {
 }
 function Workspace({ game, brand, setBrand, setName }) {
   const lang = useLang();
-  const [msgs, setMsgs] = useState([{ who:"ai", text: tr(lang,"Hi! Tell me what to change — colors, style, difficulty. Or tap a suggestion below.","嗨！想改什么直接说——配色、风格、难度都行，也可以点下面的建议。") }]);
+  const [msgs, setMsgs] = useState([{ who:"ai", text: tr(lang,"Hi! Tell me what to change: colors, style, difficulty. Or tap a suggestion below.","嗨！想改什么直接说，配色、风格、难度都行，也可以点下面的建议。") }]);
   const [input, setInput] = useState("");
   const endRef = useRef(null);
   useEffect(()=>{ endRef.current && endRef.current.scrollIntoView({behavior:"smooth"}); }, [msgs]);
@@ -850,10 +866,10 @@ function Workspace({ game, brand, setBrand, setName }) {
     const t = (txt||"").toLowerCase();
     push("user", txt);
     setTimeout(() => {
-      if (/festive|festival|节日|圣诞|新年/.test(t)) { setBrand(b=>({...b,color:["#B91C1C","#F59E0B"]})); push("ai", tr(lang,"Done — switched to a red & gold festive theme. Tap Undo up top to revert.","好了——换成红金节日配色。想还原点上方撤销。")); }
+      if (/festive|festival|节日|圣诞|新年/.test(t)) { setBrand(b=>({...b,color:["#B91C1C","#F59E0B"]})); push("ai", tr(lang,"Done! Switched to a red & gold festive theme. Tap Undo up top to revert.","好了，换成红金节日配色。想还原就点上方的撤销。")); }
       else if (/blue|蓝/.test(t)) { setBrand(b=>({...b,color:["#0EA5E9","#38BDF8"]})); push("ai", tr(lang,"Changed the game to blue.","已把游戏改成蓝色。")); }
       else if (/brand|品牌|green|绿/.test(t)) { setBrand(b=>({...b,color:["#16A34A","#22C55E"]})); push("ai", tr(lang,"Applied your brand colors.","已套用你的品牌色。")); }
-      else if (/voucher|coupon|券|买一送一|1-for-1|prize|奖/.test(t)) { push("ai", tr(lang,"Vouchers are managed in your Activity — head to Activities in the sidebar to add or change prizes.","奖品券在「活动」里管理 —— 去左侧栏的「活动」添加或修改奖品。")); }
+      else if (/voucher|coupon|券|买一送一|1-for-1|prize|奖/.test(t)) { push("ai", tr(lang,"Vouchers are managed in your Activity; head to Activities in the sidebar to add or change prizes.","奖品券在「活动」里管理，去左侧栏的「活动」加或改奖品就行。")); }
       else { setBrand(b=>({...b,color: COLOR_SETS[Math.floor(Math.random()*COLOR_SETS.length)]})); push("ai", tr(lang,"Tweaked the look. Anything else?","调了下样式。还要改什么？")); }
     }, 480);
   };
@@ -950,8 +966,8 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
     : liveGame
     ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
     : hasActs
-    ? { badge:tr(lang,"Draft","修改中"), dark:false, title:tr(lang,"Finish and publish your activity","完善并上线你的活动"), sub:tr(lang,"Set a voucher, pick outlets, then go live — customers scan to play.","设一张券、选门店，点上线 —— 客人扫码就能玩。"), cta:tr(lang,"Finish activity","去完善"), on:onGoActivity }
-    : { badge:tr(lang,"No activity yet","暂时还没有活动"), dark:false, title:tr(lang,"Create an activity to open for business","建个活动，就能开门营业"), sub:tr(lang,"Pick outlets, set a voucher, link your game — customers scan to play.","选门店、设一张券、绑上你的游戏 —— 客人扫码就能玩。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct };
+    ? { badge:tr(lang,"Draft","修改中"), dark:false, title:tr(lang,"Finish and publish your activity","完善并上线你的活动"), sub:tr(lang,"Set a voucher, pick outlets, then go live, and customers scan to play.","设一张券、选门店、点上线，客人扫码就能玩。"), cta:tr(lang,"Finish activity","去完善"), on:onGoActivity }
+    : { badge:tr(lang,"No activity yet","暂时还没有活动"), dark:false, title:tr(lang,"Create an activity to open for business","建个活动，就能开门营业"), sub:tr(lang,"Pick outlets, set a voucher, link your game, and customers scan to play.","选门店、设一张券、绑上你的游戏，客人扫码就能玩。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct };
   return (
     <div className="app-body">
       {hasWalkins ? (
@@ -984,8 +1000,8 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
           {lowStock.length>0 && <button className={"lowstock"+(lowStock[0].rem===0?" out":"")} onClick={onGoActivities}>
             <span className="ls-ic"><Ic.bell style={{ width:17, height:17 }}/></span>
             <span className="ls-t">{lowStock[0].rem===0
-              ? tr(lang,`"${P(lang,lowStock[0].a.name)}" is all out of vouchers — players can't win`,`「${P(lang,lowStock[0].a.name)}」券已发完 —— 客人现在赢不到奖了`)
-              : tr(lang,`"${P(lang,lowStock[0].a.name)}" has only ${lowStock[0].rem} vouchers left — runs out then stops`,`「${P(lang,lowStock[0].a.name)}」只剩 ${lowStock[0].rem} 张券 —— 发完就停`)}</span>
+              ? tr(lang,`"${P(lang,lowStock[0].a.name)}" is all out of vouchers, players can't win`,`「${P(lang,lowStock[0].a.name)}」的券已经发完了，客人现在赢不到奖`)
+              : tr(lang,`"${P(lang,lowStock[0].a.name)}" has only ${lowStock[0].rem} vouchers left, runs out then stops`,`「${P(lang,lowStock[0].a.name)}」只剩 ${lowStock[0].rem} 张券，发完就停`)}</span>
             <span className="ls-cta">{tr(lang,"Top up","去加券")} <Ic.arrow style={{ width:13, height:13 }}/></span>
           </button>}
           <div className="panel" style={{ marginTop:16 }}>
@@ -995,8 +1011,8 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
           <div className={"recall" + (recalled ? " ok" : "")}>
             <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
             {recalled
-              ? <div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back — you'll see them walk in soon.","已提醒他们回店 —— 等他们回头来玩、来兑奖就行。")}</p></div>
-              : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder — your easiest repeat business.","一键发送召回通知，把他们请回来 —— 这是你最容易赢回的复购。")}</p></div>
+              ? <div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back; you'll see them walk in soon.","已经提醒他们回店了，等他们回来玩、来兑奖就行。")}</p></div>
+              : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder; it's your easiest repeat business.","一键发个召回通知把他们请回来，这是最容易赢回的复购。")}</p></div>
                 <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
           </div>
         </>
@@ -1057,7 +1073,7 @@ function QRDownload({ lang }) {
       <div className="qrdl-code"><QRGlyph size={128}/></div>
       <div className="qrdl-r">
         <div className="qrdl-t">{tr(lang,"Scan to get the KiX app","扫码下载 KiX App")}</div>
-        <p className="qrdl-p">{tr(lang,"Your published games & activities live in the KiX app — see them just like your customers do.","你上线的游戏和活动都在 KiX App 里 —— 像客人一样看到真实效果。")}</p>
+        <p className="qrdl-p">{tr(lang,"Your published games & activities live in the KiX app; see them just like your customers do.","你上线的游戏和活动都在 KiX App 里，像客人那样看看真实效果。")}</p>
         <div className="qrdl-badges"><span className="storebadge">App Store</span><span className="storebadge">Google Play</span></div>
       </div>
     </div>
@@ -1102,7 +1118,7 @@ function PublishGameModal({ game, onClose, onConfirm }) {
       <div className="pub-modal" onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Publish game","上线游戏")}</h3>
-        <p className="pub-sub">{tr(lang,"Check the cover & name, then confirm. Covers are AI-generated — replace anytime.","确认封面和名字即可上线。封面 AI 已自动生成，可随时替换。")}</p>
+        <p className="pub-sub">{tr(lang,"Check the cover & name, then confirm. Covers are AI-generated and you can replace them anytime.","确认封面和名字即可上线。封面 AI 已自动生成，可随时替换。")}</p>
         <div className="pub-covers">
           <Cover url={sq} onPick={()=>pick(setSq)} ratio="1/1" label={tr(lang,"Square","方形")} colors={game.g} name={name} lang={lang}/>
           <Cover url={rc} onPick={()=>pick(setRc)} ratio="16/9" label={tr(lang,"Landscape","长方形")} colors={game.g} name={name} lang={lang}/>
@@ -1121,9 +1137,14 @@ const GAME_STA = {
   draft:   { en:"Draft",   zh:"草稿",   cls:"st-draft" },
   live:    { en:"Live",    zh:"已上线", cls:"st-live" },
 };
-function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
+function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline, onDelete }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
+  const [selMode, setSelMode] = useState(false);
+  const [sel, setSel] = useState(()=>new Set());
+  const toggleSel = (id)=>setSel(s=>{ const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; });
+  const exitSel = ()=>{ setSelMode(false); setSel(new Set()); };
+  const doDelete = ()=>{ if(!sel.size) return; if(window.confirm(tr(lang,`Delete ${sel.size} game(s)? This can't be undone.`,`确定删除选中的 ${sel.size} 个游戏？删除后无法恢复。`))){ onDelete && onDelete([...sel]); exitSel(); } };
   const [pubGame, setPubGame] = useState(()=> new URLSearchParams(location.search).get("pub")==="1" ? (myGames[0]||null) : null);
   const [appQr, setAppQr] = useState(false);
   // 游戏只有 草稿/已上线 两态（无"已下线"——游戏无时限无奖品，下线即回草稿，与草稿同义）
@@ -1133,23 +1154,31 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline }) {
   const shown = myGames.filter(g => filt==="all" ? true : (g.status||"draft")===filt);
   return (
     <div className="app-body">
-      <p className="ph-sub" style={{ margin:"0 0 16px" }}>{tr(lang,"Games are your branded mini-games — customers scan and play. To hand out prizes and bring them in, add an ","游戏 = 你的品牌小游戏，客人扫码就能玩。想送奖品、把人带到店 → 去")}<b>{tr(lang,"Activity","「活动」")}</b>{tr(lang,".","加奖品和时限。")}</p>
-      {myGames.length > 0 && tabs.length > 1 && <div className="act-filters">
-        {tabs.map(([k,en,zh]) => (<button key={k} className={"afilt"+(filt===k?" on":"")} onClick={()=>setFilt(k)}>{tr(lang,en,zh)} <em>{cnt(k)}</em></button>))}
-      </div>}
+      <p className="ph-sub" style={{ margin:"0 0 16px" }}>{tr(lang,"Games are your branded mini-games that customers scan and play. To hand out prizes and bring them in, add an ","游戏 = 你的品牌小游戏，客人扫码就能玩。想送奖品、把人带到店 → 去")}<b>{tr(lang,"Activity","「活动」")}</b>{tr(lang,".","加奖品和时限。")}</p>
+      {myGames.length > 0 && (selMode ? <div className="selbar">
+          <button className="btn ghost sm" onClick={exitSel}>{tr(lang,"Cancel","取消")}</button>
+          <span className="selbar-n">{tr(lang,`${sel.size} selected`,`已选 ${sel.size}`)}</span>
+          <button className="linkbtn" onClick={()=> setSel(sel.size===shown.length ? new Set() : new Set(shown.map(g=>g.id)))}>{sel.size===shown.length ? tr(lang,"Clear","取消全选") : tr(lang,"Select all","全选")}</button>
+          <button className="btn sm selbar-del" disabled={!sel.size} onClick={doDelete}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> {tr(lang,"Delete","删除")}{sel.size?` (${sel.size})`:""}</button>
+        </div> : <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+          {tabs.length > 1 && <div className="act-filters" style={{ margin:0 }}>
+            {tabs.map(([k,en,zh]) => (<button key={k} className={"afilt"+(filt===k?" on":"")} onClick={()=>setFilt(k)}>{tr(lang,en,zh)} <em>{cnt(k)}</em></button>))}
+          </div>}
+          <button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setSelMode(true)}>{tr(lang,"Select","选择")}</button>
+        </div>)}
       <div className="mygames">
         {shown.map(g => {
           const status = g.status || "draft"; const stt = GAME_STA[status];
           return (
-            <div key={g.id} className="mgcard clickable" onClick={()=>onOpen(g)}>
-              <div className="mgart"><GamePreview kind={g.kind} colors={g.g} /><span className={"mgstatus act-badge " + stt.cls}>{status==="live" && <span className="b"></span>}{tr(lang, stt.en, stt.zh)}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
+            <div key={g.id} className="mgcard clickable" style={sel.has(g.id)?{ outline:"2.5px solid var(--green)", outlineOffset:2 }:undefined} onClick={()=> selMode ? toggleSel(g.id) : onOpen(g)}>
+              <div className="mgart"><GamePreview kind={g.kind} colors={g.g} /><span className={"mgstatus act-badge " + stt.cls}>{status==="live" && <span className="b"></span>}{tr(lang, stt.en, stt.zh)}</span>{selMode && <span style={{ position:"absolute", top:10, right:10, zIndex:5, width:26, height:26, borderRadius:"50%", background: sel.has(g.id)?"var(--green)":"rgba(255,255,255,.92)", border: sel.has(g.id)?"none":"2px solid #fff", display:"grid", placeItems:"center", color:"#fff", fontWeight:800, fontSize:15, boxShadow:"0 2px 6px rgba(0,0,0,.25)" }}>{sel.has(g.id)?"✓":""}</span>}{!selMode && <div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div>}</div>
               <div className="mgmeta">
                 <div className="nm">{P(lang,g.name)}</div>
                 <div className="st">{status==="live" ? tr(lang,"Live · scan to play (no prizes)","已上线 · 可扫码玩（纯玩、无奖品）") : tr(lang,"Not live yet","未上线")}</div>
-                {status==="live"
+                {!selMode && (status==="live"
                   ? <><button className="btn ghost sm inapp" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setAppQr(true); }}><Ic.phone style={{ width:14, height:14 }}/> {tr(lang,"View in app","在 App 查看")}</button>
                       <button className="btn ghost sm" style={{ width:"100%", marginTop:8 }} onClick={(e)=>{ e.stopPropagation(); onOffline(g); }}>{tr(lang,"Take offline","下线")}</button></>
-                  : <button className="btn primary sm" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setPubGame(g); }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Publish","上线")}</button>}
+                  : <button className="btn primary sm" style={{ width:"100%", marginTop:10 }} onClick={(e)=>{ e.stopPropagation(); setPubGame(g); }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Publish","上线")}</button>)}
               </div>
             </div>
           );
@@ -1178,8 +1207,8 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
       icon={<Ic.target/>}
       title={hasActs ? tr(lang,"Your activity isn't live yet","活动还没上线") : tr(lang,"Nothing to redeem yet","还没有可兑奖的奖品")}
       sub={hasActs
-        ? tr(lang,"It's still being edited. Once it's live, customers play, win vouchers — then you scan to redeem here.","活动还在修改中。上线后客人才能玩、赢券，你才能在这里扫码兑奖。")
-        : tr(lang,"Create an activity and publish it. Customers play, win a voucher, walk in — you scan it here, and that counts as a real walk-in.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次真实到店。")}
+        ? tr(lang,"It's still being edited. Once it's live, customers play and win vouchers, then you scan to redeem here.","活动还在修改中。上线后客人才能玩、赢券，你才能在这里扫码兑奖。")
+        : tr(lang,"Create an activity and publish it. Customers play, win a voucher and walk in; you scan it here, and that counts as a real walk-in.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次真实到店。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
     /></div>
@@ -1201,13 +1230,13 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
         <div className="redeem-card">
           <div className="ic-big"><Ic.target/></div>
           <h3>{tr(lang,"Redeem at the counter","到店兑奖")}</h3>
-          <p>{tr(lang,"Scan the customer's prize QR — or type their code.","扫客人的奖品二维码 —— 或输入奖品码。")}</p>
+          <p>{tr(lang,"Scan the customer's prize QR, or type their code.","扫客人的奖品二维码，或手动输入奖品码。")}</p>
           {scanning
             ? <div className="scanbox"><div className="scanline"></div><Ic.qr style={{ width:56, height:56, color:"#fff", opacity:.55 }}/><div className="scan-t">{tr(lang,"Point at the customer's QR…","对准客人的二维码…")}</div></div>
             : <button className="btn primary lg scanbtn" onClick={scan}><Ic.qr style={{ width:20, height:20 }}/> {tr(lang,"Scan QR to redeem","扫码兑奖")}</button>}
           <div className="redeem-or"><span>{tr(lang,"or enter the code","或 输入奖品码")}</span></div>
           <div className="redeem-input"><input value={code} onChange={e=>setCode(e.target.value)} placeholder={tr(lang,"prize code","奖品码")} onKeyDown={e=>{ if(e.key==="Enter") submit(); }}/><button className="btn primary" onClick={submit}>{tr(lang,"Redeem","兑奖")}</button></div>
-          {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed — counted as a real walk-in","兑奖成功 —— 已计入真实到店")}</div>}
+          {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed, counted as a real walk-in","兑奖成功，已计入真实到店")}</div>}
         </div>
         {reds.length > 0 && <div className="panel">
           <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent redemptions","最近兑奖")}</h4>
@@ -1272,7 +1301,7 @@ function ActivityQRSheet({ act, outlets, lang, onDownload, onClose }) {
       <div className="pub-modal" style={{ width:430 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Outlet QR codes","门店二维码")}</h3>
-        <p className="pub-sub">{tr(lang,"One QR per outlet — walk-ins are attributed to the right shop. Fixed since first publish, safe to print.","每家门店各一个 —— 到店才能归因到对应店。首次上线即固定，可放心打印。")}</p>
+        <p className="pub-sub">{tr(lang,"One QR per outlet, so walk-ins are attributed to the right shop. Fixed since first publish, safe to print.","每家门店各一个，到店才能算到对应门店头上。首次上线即固定，可放心打印。")}</p>
         <div className="qr-list">
           {list.map(o => (
             <div className="qr-card" key={o.id}>
@@ -1290,9 +1319,14 @@ function ActivityQRSheet({ act, outlets, lang, onDownload, onClose }) {
     document.body
   );
 }
-function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, onSetStatus }) {
+function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, onSetStatus, onDelete }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
+  const [selMode, setSelMode] = useState(false);
+  const [sel, setSel] = useState(()=>new Set());
+  const toggleSel = (id)=>setSel(s=>{ const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; });
+  const exitSel = ()=>{ setSelMode(false); setSel(new Set()); };
+  const doDelete = ()=>{ if(!sel.size) return; if(window.confirm(tr(lang,`Delete ${sel.size} activity(ies)? This can't be undone.`,`确定删除选中的 ${sel.size} 个活动？删除后无法恢复。`))){ onDelete && onDelete([...sel]); exitSel(); } };
   const [appQr, setAppQr] = useState(false);
   const [qrFor, setQrFor] = useState(null);   // 多店活动二维码弹层
   const dlQR = (name) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(name,100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
@@ -1314,18 +1348,26 @@ function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, 
   useEffect(() => { if (filt !== "all" && !tabs.some(f => f.k === filt)) setFilt("all"); }, [filt, tabs.length]);
   return (
     <div className="app-body">
-      {activities.length > 0 && tabs.length > 1 && <div className="act-filters">
-        {tabs.map(f => (
-          <button key={f.k} className={"afilt"+(filt===f.k?" on":"")} onClick={()=>setFilt(f.k)}>
-            {tr(lang,f.en,f.zh)} <em>{cnt(f)}</em>
-          </button>
-        ))}
-      </div>}
+      {activities.length > 0 && (selMode ? <div className="selbar">
+          <button className="btn ghost sm" onClick={exitSel}>{tr(lang,"Cancel","取消")}</button>
+          <span className="selbar-n">{tr(lang,`${sel.size} selected`,`已选 ${sel.size}`)}</span>
+          <button className="linkbtn" onClick={()=> setSel(sel.size===shown.length ? new Set() : new Set(shown.map(a=>a.id)))}>{sel.size===shown.length ? tr(lang,"Clear","取消全选") : tr(lang,"Select all","全选")}</button>
+          <button className="btn sm selbar-del" disabled={!sel.size} onClick={doDelete}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> {tr(lang,"Delete","删除")}{sel.size?` (${sel.size})`:""}</button>
+        </div> : <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+          {tabs.length > 1 && <div className="act-filters" style={{ margin:0 }}>
+            {tabs.map(f => (
+              <button key={f.k} className={"afilt"+(filt===f.k?" on":"")} onClick={()=>setFilt(f.k)}>
+                {tr(lang,f.en,f.zh)} <em>{cnt(f)}</em>
+              </button>
+            ))}
+          </div>}
+          <button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setSelMode(true)}>{tr(lang,"Select","选择")}</button>
+        </div>)}
       {activities.length === 0
         ? <EmptyState
             icon={<Ic.clipboard/>}
             title={tr(lang,"No activities yet","还没有活动")}
-            sub={tr(lang,"An activity is a promotion that gets customers scanning, playing and coming in. Pick outlets, add a prize, link your game — then go live.","活动就是一场让客人扫码玩、赢奖进店的促销。选门店、放个奖、绑上游戏，就能上线。")}
+            sub={tr(lang,"An activity is a promotion that gets customers scanning, playing and coming in. Pick outlets, add a prize, link your game, then go live.","活动就是一场让客人扫码玩、赢奖进店的促销。选门店、放个奖、绑上游戏，就能上线。")}
             actLabel={"+ " + tr(lang,"New activity","新建活动")}
             onAct={onNew}
           />
@@ -1336,8 +1378,8 @@ function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, 
               const ls = isChal ? ladderStats(act.prizeLadder) : null;
               const ran = act.status==="live" || act.status==="offline";
               return (
-                <div key={act.id} className="mgcard clickable" onClick={() => onOpen(act)}>
-                  <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span><div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div></div>
+                <div key={act.id} className="mgcard clickable" style={sel.has(act.id)?{ outline:"2.5px solid var(--green)", outlineOffset:2 }:undefined} onClick={()=> selMode ? toggleSel(act.id) : onOpen(act)}>
+                  <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span>{selMode && <span style={{ position:"absolute", top:10, right:10, zIndex:5, width:26, height:26, borderRadius:"50%", background: sel.has(act.id)?"var(--green)":"rgba(255,255,255,.92)", border: sel.has(act.id)?"none":"2px solid #fff", display:"grid", placeItems:"center", color:"#fff", fontWeight:800, fontSize:15, boxShadow:"0 2px 6px rgba(0,0,0,.25)" }}>{sel.has(act.id)?"✓":""}</span>}{!selMode && <div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div>}</div>
                   <div className="mgmeta">
                     <div className="nm">{isChal && <span className="chal-badge"><Ic.trophy style={{ width:11, height:11 }}/>{tr(lang,"Challenge","限时赛")}</span>}{P(lang, act.name)}</div>
                     {isChal
@@ -1353,10 +1395,10 @@ function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, 
                           {act.status==="live" && (()=>{ const v=act.vouchers&&act.vouchers[0]; const qty=(v&&+v.qty)||0, issued=(v&&+v.awarded)||0, rem=Math.max(0,qty-issued), pct=qty?rem/qty:1; if(!qty) return null; return (
                             <div className={"stockrow"+(rem===0?" out":pct<=0.15?" low":"")}>
                               <div className="stock-bar"><i style={{ width:(pct*100)+"%" }}></i></div>
-                              <span className="stock-t">{rem===0 ? tr(lang,"All vouchers given out — open to top up","券已发完 —— 打开可补券") : tr(lang,`${issued} given · ${rem} left`,`送 ${issued} · 剩 ${rem}`)}</span>
+                              <span className="stock-t">{rem===0 ? tr(lang,"All vouchers given out, open to top up","券已发完，点开可补券") : tr(lang,`${issued} given · ${rem} left`,`送 ${issued} · 剩 ${rem}`)}</span>
                             </div>); })()}
                         </>}
-                    <div className="mgfoot">
+                    <div className="mgfoot" style={selMode?{ pointerEvents:"none", opacity:.4 }:undefined}>
                       {act.status === "live" && <button className="btn primary sm" onClick={(e)=>{ e.stopPropagation(); openQR(act); }} style={{ padding:"7px 14px", fontSize:12.5 }}><Ic.qr style={{ width:14, height:14 }}/> {tr(lang,"QR code","门店二维码")}</button>}
                       {act.status === "offline" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onSetStatus(act,"live"); }} style={{ padding:"7px 14px", fontSize:12.5 }}><span className="b-dot"></span>{tr(lang,"Go live","上线")}</button>}
                       {act.status === "draft" && <button className="btn ghost sm" onClick={(e)=>{ e.stopPropagation(); onDuplicate(act); }} style={{ padding:"7px 14px", fontSize:12.5 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> {tr(lang,"Copy","复制")}</button>}
@@ -1513,7 +1555,7 @@ function NewActivityPicker({ onPick, onClose }) {
       fit:{en:"Daily traffic · clear stock · new-item trials",zh:"日常引流 · 清库存 · 新品试吃"},
       eg:{en:"Play within 2 weeks, win a voucher, redeem in store",zh:"两周内玩游戏得券，到店兑"} },
     { k:"challenge", ic:<Ic.trophy/>, tag:{en:"One big push",zh:"冲一波"}, nm:{en:"Timed challenge",zh:"限时挑战赛"},
-      line:{en:"Everyone competes at a set time — top ranks win the big prizes.",zh:"约定某晚同时开赛，比分数排名，名次高赢大奖。"},
+      line:{en:"Everyone competes at a set time, and top ranks win the big prizes.",zh:"约定某晚同时开赛，比分数排名，名次高赢大奖。"},
       fit:{en:"Buzz & hype · festival peaks · headline prizes",zh:"造话题 · 节日冲人气 · 大奖吸睛"},
       eg:{en:"Fri 21:00, 3-min score race, top 100 win",zh:"本周五 21:00，3 分钟冲分，前 100 名赢奖"} },
   ];
@@ -1522,7 +1564,7 @@ function NewActivityPicker({ onPick, onClose }) {
       <div className="na-pick" onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"New activity","新建活动")}</h3>
-        <p className="pub-sub">{tr(lang,"Two ways to bring customers in — pick one.","两种把客人带进店的方式，选一种。")}</p>
+        <p className="pub-sub">{tr(lang,"Two ways to bring customers in, pick one.","两种把客人带进店的方式，选一种。")}</p>
         <div className="na-cards">
           {forms.map(f => (
             <button key={f.k} className={"na-card na-"+f.k} onClick={()=>onPick(f.k)}>
@@ -1593,7 +1635,7 @@ function PrizeLadderEditor({ ladder, setLadder }) {
       <div className="cost-bar">
         <span className="cost-slots"><b>{slots}</b> {tr(lang,"prizes","个奖")}</span>
         {cash>0 && <span className="cost-cash">· {tr(lang,"cash total","现金奖合计")} <b>S${cash}</b>{cashVouchers>0 && tr(lang,` (${cashVouchers} vouchers)`,`（${cashVouchers} 张）`)}</span>}
-        <div className="cost-note">{tr(lang,"Awarded by actual rank — empty ranks pay nothing. Split cash into several vouchers to drive repeat visits.","按实际排名发 —— 没人到的名次不发奖、不产生费用。现金奖可拆成多张小券（每次到店用一张 → 多次到店）。")}</div>
+        <div className="cost-note">{tr(lang,"Awarded by actual rank; empty ranks pay nothing. Split cash into several vouchers to drive repeat visits.","按实际排名发奖，没人拿到的名次不发、也不花钱。现金奖可以拆成好几张小券（每次到店用一张，多来几次）。")}</div>
       </div>
       <div className="ladder-rows">
         {rows.map((r,i) => { const total = cashTotal(r.prize); return (
@@ -1644,7 +1686,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
   const dlQR = (label) => { const c=document.createElement("canvas"); c.width=200; c.height=200; const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,200,200); ctx.fillStyle="#0B1220"; ctx.font="bold 22px sans-serif"; ctx.textAlign="center"; ctx.fillText("QR CODE",100,88); ctx.font="12px sans-serif"; ctx.fillText(label,100,116); const a=document.createElement("a"); a.download="qr-"+label+".png"; a.href=c.toDataURL(); a.click(); };
   return (
     <div className="app-body" style={{ maxWidth:820 }}>
-      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live — customers can play now.","已上线 —— 客人现在就能扫码玩。")}</span><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button></div>}
+      {live && <div className="act-statusbar"><span className="act-note" style={{ color:"var(--green-d)" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Live, customers can play now.","已上线，客人现在就能扫码玩。")}</span><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>setAppQr(true)}><Ic.phone style={{ width:13, height:13 }}/> {tr(lang,"View in app","在 App 查看")}</button></div>}
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
         <div className="act-idrow">
@@ -1659,7 +1701,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={activity.startDate||""} onChange={e=>upd("startDate",e.target.value)}/></div>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely — take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
+        <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely, take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
       </div>
       {isChal
         ? <><ScheduleEditor schedule={activity.schedule} setSchedule={s => upd("schedule", s)} />
@@ -1669,7 +1711,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
           </div>}
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Game","游戏")}</h3>
-        <p className="ph-sub">{myGames.length ? tr(lang,"Pick which game to use for this activity.","选一个游戏用在这个活动上。") : tr(lang,"You don't have a game yet — create one first.","你还没有游戏 —— 先新建一个。")}</p>
+        <p className="ph-sub">{myGames.length ? tr(lang,"Pick which game to use for this activity.","选一个游戏用在这个活动上。") : tr(lang,"You don't have a game yet, create one first.","你还没有游戏，先建一个。")}</p>
         <div className="mygames" style={{ marginTop:16 }}>
           {myGames.map(g => {
             const sel = activity.gameId === g.id;
@@ -1699,26 +1741,26 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
           </div>
         </div>
         <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win, vouchers last longer; easier = more win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p></>}
-        {isChal && <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Players race for a high score in this game — ranking decides the prizes above.","玩家在这个游戏里冲高分，排名决定上面的奖池。")}</p>}
+        {isChal && <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Players race for a high score in this game, and ranking decides the prizes above.","玩家在这个游戏里冲高分，排名决定上面的奖池。")}</p>}
       </div>
       {isChal && <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Race rules","赛制")}</h3>
         <p className="ph-sub" style={{ marginTop:2 }}><Ic.check style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5, color:"var(--green-d)" }}/>{tr(lang,"Tie-break: same score, earlier submission ranks higher.","同分裁决：分数相同，先提交者排名靠前。")}</p>
-        <p className="ph-sub" style={{ marginTop:6 }}><Ic.shield style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5 }}/>{tr(lang,"One play per person per round — enforced in the KiX app.","每人每场限一局 —— 由 KiX App 保证。")}</p>
-        <p className="ph-sub" style={{ marginTop:6 }}><Ic.trophy style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5, color:"#C2410C" }}/>{tr(lang,"Prizes are awarded by actual final rank — no minimum turnout needed.","按实际最终排名发奖 —— 不设最低人数门槛，来多少人都照常开赛。")}</p>
+        <p className="ph-sub" style={{ marginTop:6 }}><Ic.shield style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5 }}/>{tr(lang,"One play per person per round, enforced in the KiX app.","每人每场限玩一局，由 KiX App 保证。")}</p>
+        <p className="ph-sub" style={{ marginTop:6 }}><Ic.trophy style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5, color:"#C2410C" }}/>{tr(lang,"Prizes are awarded by actual final rank, with no minimum turnout needed.","按最终实际排名发奖，不设最低人数门槛，来多少人都照常开赛。")}</p>
       </div>}
       <div className="panel" style={{ marginTop:16 }}>
         <OutletScope outlets={outlets} gameOutlets={activity.outletIds} setGameOutlets={ids => upd("outletIds", ids)} setOutlets={setOutlets} locked={live} />
         {live && <p className="ph-sub" style={{ marginTop:10 }}>{tr(lang,"To change outlets, take the activity offline first.","要改门店，请先把活动下线。")}</p>}
       </div>
       <div className="panel" style={{ marginTop:16 }}>
-        <h3>{tr(lang,"Activity QR codes — one per outlet","活动二维码 —— 每家门店一个")}</h3>
+        <h3>{tr(lang,"Activity QR codes, one per outlet","活动二维码，每家门店一个")}</h3>
         <p className="ph-sub">{tr(lang,"Each outlet gets its own QR, so walk-ins are attributed to the right shop.","每家门店各一个二维码，到店才能归因到对应门店。")}</p>
         {st === "draft"
-          ? <p className="ph-sub" style={{ marginTop:8, color:"var(--muted-2)" }}><Ic.qr style={{ width:14, height:14, verticalAlign:"-2px", marginRight:4 }}/>{tr(lang,"Published once you go live: each outlet gets a fixed QR you can print — it never changes on later edits.","上线后每家门店各生成一个固定二维码，可放心打印 —— 后续编辑也不会变。")}</p>
+          ? <p className="ph-sub" style={{ marginTop:8, color:"var(--muted-2)" }}><Ic.qr style={{ width:14, height:14, verticalAlign:"-2px", marginRight:4 }}/>{tr(lang,"Published once you go live: each outlet gets a fixed QR you can print, and it never changes on later edits.","上线后每家门店各生成一个固定二维码，可放心打印，后续编辑也不会变。")}</p>
           : actOutlets.length === 0
           ? <div className="ph-sub">{tr(lang,"Select at least one outlet above.","请先在上面选择至少一家门店。")}</div>
-          : <><p className="ph-sub" style={{ marginTop:2, color:"var(--muted-2)" }}>{tr(lang,"Fixed since first publish — safe to print. Later edits won't change it.","首次上线时已固定 —— 可放心打印，后续编辑也不会变。")}</p>
+          : <><p className="ph-sub" style={{ marginTop:2, color:"var(--muted-2)" }}>{tr(lang,"Fixed since first publish, safe to print. Later edits won't change it.","首次上线时就固定了，可放心打印，后续编辑也不会变。")}</p>
             <div className="qr-list">
               {actOutlets.map(o => (
                 <div className="qr-card" key={o.id}>
@@ -1778,7 +1820,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   ) : totRed === 0 ? (
     <EmptyState
       icon={<Ic.chart/>}
-      title={tr(lang,"Live — waiting for the first walk-in","已上线，等第一位到店")}
+      title={tr(lang,"Live, waiting for the first walk-in","已上线，等第一位到店")}
       sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your walk-in numbers and trends will appear here.","只要有客人扫码玩、赢券、到店兑奖，到店数据和趋势就会出现在这里。")}
       actLabel={tr(lang,"Download activity QR","下载活动二维码")}
       onAct={dlQR}
@@ -1792,7 +1834,6 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         <div className="rh-l">
           <span className="rh-eye"><span className="b"></span>{tr(lang,`Verified walk-ins · ${P(lang,ranges[ri])}`,`真实到店兑奖 · ${P(lang,ranges[ri])}`)}</span>
           <div className="rh-num">{M.walkins}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{M.delta.walkins} {note}</span></div>
-          <p className="rh-sub">{tr(lang,"Only customers who actually walked in and were redeemed — the only thing you pay for.","只算真正走进门、被兑奖的客人 —— 也是你唯一付费的对象。")}</p>
         </div>
         <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
       </div>
@@ -1800,7 +1841,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       <div className="billmeter">
         <div className="bm-cost">
           <div className="bm-trial"><Ic.spark style={{ width:14, height:14 }}/> {tr(lang,`First 3 months free · ${freeDaysLeft} days left · now `,`首 3 个月免费 · 还剩 ${freeDaysLeft} 天 · 现在 `)}<b>S$0</b></div>
-          <div className="bm-proj">{tr(lang,"Regulars always free — you only ever pay for new customers.","老客永远免费 —— 只为新客付费。")}</div>
+          <div className="bm-proj">{tr(lang,"Regulars always free; you only ever pay for new customers.","老客永远免费，你只为新客付费。")}</div>
         </div>
         <button className="panel-link bm-link" onClick={onBilling}>{tr(lang,"Billing","账单管理")} <Ic.arrow style={{ width:14, height:14 }}/></button>
       </div>
@@ -1808,7 +1849,6 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         {/* 转化漏斗：吸收"玩了游戏"作为分母，证明全链路通 */}
         <div className="panel">
           <h3>{tr(lang,"From scan to walk-in","从扫码到到店")}</h3>
-          <p className="ph-sub">{tr(lang,"Every step of the funnel — play, win, walk in","扫码玩 → 赢到券 → 真实到店，每一步的转化")}</p>
           <div className="funnel">
             <div className="fstep"><div className="fn">{M.plays}</div><div className="fl">{tr(lang,"Played","扫码玩")}</div></div>
             <div className="farrow"><b>{wonRate}%</b><span>{tr(lang,"won","赢券")}</span></div>
@@ -1820,7 +1860,6 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         {/* 新客 vs 回头：证明"把路过变回头客" */}
         <div className="panel">
           <h3>{tr(lang,"New vs returning","新客 vs 回头客")}</h3>
-          <p className="ph-sub">{tr(lang,"New faces are what you pay for — returning regulars are always free","新客才是你付费的对象 —— 老客回头永远免费")}</p>
           <div className="nvr">
             <div className="nvr-bar"><i className="nv-new" style={{ width:newPct+"%" }}></i><i className="nv-ret" style={{ width:retPct+"%" }}></i></div>
             <div className="nvr-legend">
@@ -1833,21 +1872,20 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       {/* 每日到店趋势 */}
       <div className="panel">
         <h3>{tr(lang,"Walk-ins per day","每天有多少人到店")}</h3>
-        <p className="ph-sub">{tr(lang,"Played, then walked in and redeemed","扫码玩过、再走进门兑奖的人数")}</p>
         <div className="bars7">{M.trend.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
       </div>
       {/* 条件区：多活动才有"排名"意义；多门店才有"分店"意义 */}
       {(multiAct && outlets.length>=2) ? <div className="panels">
         <div className="panel">
           <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Ranked by walk-ins — back the one that works","按到店人数排序 —— 把预算押在最有效的")}</p>
+          <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
         <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
       </div>
       : multiAct ? <div className="panel">
           <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Ranked by walk-ins — back the one that works","按到店人数排序 —— 把预算押在最有效的")}</p>
+          <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
       : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
@@ -1862,7 +1900,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     <EmptyState
       icon={<Ic.gamepad/>}
       title={tr(lang,"No game is live yet","还没有已上线的游戏")}
-      sub={tr(lang,"Publish a game (no prizes needed) and its plays, players and completion rate will show up here.","上线一个游戏（无需奖品），它的游玩次数、玩家数、完成率会显示在这里。")}
+      sub={tr(lang,"Publish a game (no prizes needed) and its plays, players and play time will show up here.","上线一个游戏（无需奖品），它的游玩次数、玩家数、平均时长会显示在这里。")}
       actLabel={tr(lang,"Go to My games","去我的游戏")}
       onAct={onGoGames}
     />
@@ -1872,7 +1910,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         <div className="rh-l">
           <span className="rh-eye"><span className="b"></span>{tr(lang,`Game plays · ${P(lang,ranges[ri])}`,`游玩次数 · ${P(lang,ranges[ri])}`)}</span>
           <div className="rh-num">{GM.plays}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{GM.delta.plays} {note}</span></div>
-          <p className="rh-sub">{tr(lang,"How many times customers played — games go live on their own, no prizes, no walk-in charge.","客人玩你游戏的总次数 —— 游戏可独立上线，无奖品、不产生到店费用（免费）。")}</p>
+          <p className="rh-sub">{tr(lang,"How many times customers played; games go live on their own, no prizes.","客人玩你游戏的总次数。游戏可以单独上线，没有奖品。")}</p>
         </div>
         <div className="rh-r">{GM.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/gtmax*100)+"%" }}></span>))}</div>
       </div>
@@ -1883,9 +1921,9 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
           <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.players}<span className="rh-delta up" style={{ position:"static", marginLeft:10 }}>{GM.delta.players} {note}</span></div>
         </div>
         <div className="panel">
-          <h3>{tr(lang,"Completion rate","完成率")}</h3>
-          <p className="ph-sub">{tr(lang,"Played through to the end","玩到结束的比例")}</p>
-          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.completion}%</div>
+          <h3>{tr(lang,"Avg play time","玩的时长")}</h3>
+          <p className="ph-sub">{tr(lang,"Average time per play","平均每局玩多久")}</p>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.avgPlaySec}s</div>
         </div>
       </div>
       <div className="panel">
@@ -1917,7 +1955,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
 function OutletPanel({ lang, outRed, omax }) {
   return (<>
     <h3>{tr(lang,"Walk-ins by outlet","各门店到店")}</h3>
-    <p className="ph-sub">{tr(lang,"Which shop pulls the most — voucher stock is shared across outlets","哪家店带客最多 —— 库存为活动全门店共享")}</p>
+    <p className="ph-sub">{tr(lang,"Which shop pulls the most; voucher stock is shared across outlets","哪家店带客最多。券的库存整个活动全门店共用。")}</p>
     {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div></div>))}
   </>);
 }
@@ -1937,7 +1975,7 @@ function CardModal({ cardOnFile, onSave, onClose }) {
       <div className="pub-modal" style={{ width:420 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{cardOnFile ? tr(lang,"Change card","更换银行卡") : tr(lang,"Add a card","添加银行卡")}</h3>
-        <p className="pub-sub">{tr(lang,"Authorization only — we don't charge your card now.","仅预授权绑定 —— 现在不会扣款。")}</p>
+        <p className="pub-sub">{tr(lang,"Authorization only, we don't charge your card now.","只是预授权绑定，现在不会扣你钱。")}</p>
         <div className="cardf" style={{ marginBottom:16 }}>
           <div className="cardf-input">
             <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
@@ -1946,7 +1984,7 @@ function CardModal({ cardOnFile, onSave, onClose }) {
               <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
             </div>
           </div>
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that pay only as you grow — only new business, regulars always free.","前 3 个月免费。之后只按增长付费 —— 只算新生意、老客永远免费。")}</span></p>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that you pay only as you grow: only new business, regulars always free.","前 3 个月免费。之后只按增长付费，只算新生意，老客永远免费。")}</span></p>
         </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -1964,7 +2002,7 @@ function PlanModal({ plan, onPick, onClose }) {
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Your plan","我的套餐")}</h3>
-        <p className="pub-sub">{tr(lang,"Free now — billing only starts after 3 months, based on how many play.","现在免费用，3 个月后才开始收费（按玩的人数）。")}</p>
+        <p className="pub-sub">{tr(lang,"Free now; billing only starts after 3 months, based on how many play.","现在免费用，3 个月后才开始收费（按玩的人数）。")}</p>
         <div className="plans">
           {PLANS.map(pl => (
             <button key={pl.id} className={"plan-opt"+(plan===pl.id?" on":"")} onClick={()=>{ onPick(pl.id); onClose(); }}>
@@ -1998,7 +2036,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
     <div className="app-body" style={{ maxWidth:820 }}>
       <div className="panel">
         <h3>{tr(lang,"Account","账户")}</h3>
-        <p className="ph-sub">{tr(lang,"Your business name and contact — used across games and receipts.","商家名称与联系方式 —— 用在游戏与凭证上。")}</p>
+        <p className="ph-sub">{tr(lang,"Your business name and contact, used across games and receipts.","商家名称和联系方式，会用在游戏和凭证上。")}</p>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
           <div className="field"><label>{tr(lang,"Business name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)}/></div>
           <div className="field"><label>{tr(lang,"Mobile (WhatsApp)","手机号（WhatsApp）")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input value={phone} onChange={e=>setPhone(e.target.value)}/></div>
@@ -2028,15 +2066,15 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Contact us","联系我们")}</h3>
-        <p className="ph-sub">{tr(lang,"Any question, or a custom / multi-outlet plan — we're here to help.","有任何问题，或想要连锁 / 定制方案 —— 我们随时在。")}</p>
+        <p className="ph-sub">{tr(lang,"Any question, or a custom / multi-outlet plan? We're here to help.","有任何问题，或想要连锁 / 定制方案，随时找我们。")}</p>
         <div className="contact-row">
           <a className="btn ghost sm" href="mailto:hello@letskix.com"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> {tr(lang,"Email us","发邮件")}</a>
-          <a className="btn ghost sm" href="mailto:sales@letskix.com?subject=Custom%20plan"><Ic.store style={{ width:15, height:15 }}/> {tr(lang,"Chains / custom — talk to sales","连锁 / 定制 · 联系销售")}</a>
+          <a className="btn ghost sm" href="mailto:sales@letskix.com?subject=Custom%20plan"><Ic.store style={{ width:15, height:15 }}/> {tr(lang,"Chains / custom, talk to sales","连锁 / 定制 · 联系销售")}</a>
         </div>
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Outlets","店铺")}</h3>
-        <p className="ph-sub">{tr(lang,"Your physical shops — name & address required, phone optional. A game can run at one, some, or all of them.","你的实体门店 —— 店名与地址必填、电话选填。一个游戏可对一家 / 多家 / 全部门店生效。")}</p>
+        <p className="ph-sub">{tr(lang,"Your physical shops. Name & address required, phone optional. A game can run at one, some, or all of them.","你的实体门店。店名和地址必填，电话选填。一个游戏可以在一家、几家或全部门店生效。")}</p>
         {outlets.map((o,i)=>(
           <div className="outlet-card" key={o.id}>
             <div className="oc-head">
@@ -2059,7 +2097,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Brand kit","品牌素材库")}</h3>
-        <p className="ph-sub">{tr(lang,"Your logo, colors and product photos — auto-applied when you build a game.","你的 logo、品牌色和商品图 —— 建游戏时自动套用。")}</p>
+        <p className="ph-sub">{tr(lang,"Your logo, colors and product photos, auto-applied when you build a game.","你的 logo、品牌色和商品图，建游戏时会自动套上。")}</p>
         <div style={{ display:"flex", gap:16, alignItems:"center", flexWrap:"wrap" }}>
           {brand.logo ? <img className="preview-logo" src={brand.logo} alt="" style={{ margin:0 }}/> : <div style={{ width:54, height:54, borderRadius:14, background:hasBrand?brand.color[0]:"#EAF1EE", color:"#fff", display:"grid", placeItems:"center", fontSize:24 }}>{brand.logoMark || <Ic.store style={{ width:26, height:26 }}/>}</div>}
           <div>
@@ -2073,7 +2111,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div style={{ display:"flex", alignItems:"center", gap:10 }}><div style={{ fontWeight:700, fontSize:15 }}>{tr(lang,"Product photos","商品图")}</div><input id="me-prod" type="file" accept="image/*" multiple hidden onChange={onProducts}/><button className="btn ghost sm" style={{ marginLeft:"auto" }} onClick={()=>document.getElementById("me-prod").click()}>{tr(lang,"Add photos","添加图片")}</button></div>
           <div className="thumbs-mini" style={{ justifyContent:"flex-start", marginTop:12 }}>
             {(brand.products||[]).map((u,i)=><img key={i} src={u} alt="" style={{ width:60, height:60 }}/>)}
-            {(!brand.products || !brand.products.length) && <div className="vmini">{tr(lang,"No photos yet — add a few so games look like your shop.","还没有商品图 —— 加几张，游戏更像你的店。")}</div>}
+            {(!brand.products || !brand.products.length) && <div className="vmini">{tr(lang,"No photos yet; add a few so games look like your shop.","还没有商品图，加几张，游戏更像你的店。")}</div>}
           </div>
         </div>
       </div>
@@ -2175,8 +2213,8 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={openNewActPicker} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} />
-          : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} />
+          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} onDelete={(ids)=>setActivities(list=>list.filter(a=>!ids.includes(a.id)))} />
+          : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} onDelete={(ids)=>setMyGames(gs=>gs.filter(g=>!ids.includes(g.id)))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}

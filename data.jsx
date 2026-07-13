@@ -131,7 +131,7 @@ const DEMO_METRICS = {
 /* 游戏（独立上线）纯玩数据 —— 无奖品/无到店；只统计游玩、玩家、完成率。
    自洽：byGame 720+340+180 = 1240 = plays；trend 7 天求和 = 1240；players 890 < plays；完成率 68%。 */
 const GAME_METRICS = {
-  plays: 1240, players: 890, completion: 68,
+  plays: 1240, players: 890, completion: 68, avgPlaySec: 38,
   delta: { plays:"+22%", players:"+15%" },
   trend: [{d:{en:"Mon",zh:"一"},v:150},{d:{en:"Tue",zh:"二"},v:160},{d:{en:"Wed",zh:"三"},v:170},{d:{en:"Thu",zh:"四"},v:180},{d:{en:"Fri",zh:"五"},v:190},{d:{en:"Sat",zh:"六"},v:190},{d:{en:"Sun",zh:"日"},v:200}],
   byGame: [ {n:{en:"Lucky Spin",zh:"幸运大转盘"}, v:720, c:"#16A34A"}, {n:{en:"Scratch Card",zh:"刮刮乐"}, v:340, c:"#0EA5E9"}, {n:{en:"Fruit Merge",zh:"合成水果"}, v:180, c:"#EF4444"} ],
