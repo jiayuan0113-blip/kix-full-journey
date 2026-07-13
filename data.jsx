@@ -127,6 +127,16 @@ const DEMO_METRICS = {
   byOutlet: { o1: 50, o2: 36 },
   spark: { plays:[20,28,24,32,30,40,44], walkins:[5,7,6,9,8,11,13], newCust:[3,5,4,7,6,9,11], returning:[2,3,3,4,3,5,5] },
 };
+/* 冷启动/稀疏数据集(?sparse=1 演示)：新活动上线没几天、只有 1 个到店。用于验证「上线以来累计 + 稀疏不画空柱 + 小样本隐百分比」。 */
+const SPARSE_METRICS = {
+  plays: 27, awarded: 2, walkins: 1, newCust: 1, returning: 0,
+  delta: { plays:"+27", walkins:"+1", newCust:"+1", returning:"0" },
+  today: { plays: 4, walkins: 1, redeemed: 1 },
+  trend: [{d:{en:"Mon",zh:"一"},v:0},{d:{en:"Tue",zh:"二"},v:0},{d:{en:"Wed",zh:"三"},v:0},{d:{en:"Thu",zh:"四"},v:0},{d:{en:"Fri",zh:"五"},v:0},{d:{en:"Sat",zh:"六"},v:0},{d:{en:"Sun",zh:"日"},v:1}],
+  byOutlet: { o1: 1, o2: 0 },
+  spark: { plays:[0,0,2,3,5,8,9], walkins:[0,0,0,0,0,0,1], newCust:[0,0,0,0,0,0,1], returning:[0,0,0,0,0,0,0] },
+  daysLive: 3,
+};
 
 /* 游戏（独立上线）纯玩数据 —— 无奖品/无到店；只统计游玩、玩家、完成率。
    自洽：byGame 720+340+180 = 1240 = plays；trend 7 天求和 = 1240；players 890 < plays；完成率 68%。 */
@@ -193,4 +203,4 @@ const DEFAULT_ACTIVITIES = [
     stat:{ players:184, walkins:63, newCust:47 } },
 ];
 
-Object.assign(window, { P, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });
+Object.assign(window, { P, PRIZES, GAMES, COUNTRIES, EXAMPLES, GOALS, TEMPLATES, SAMPLE_LOGOS, COLOR_SETS, TREND, GAME_PERF, FEED, DEMO_METRICS, SPARSE_METRICS, GAME_METRICS, DEFAULT_VOUCHERS, STARTER_VOUCHERS, OUTLETS, DEFAULT_ACTIVITIES });

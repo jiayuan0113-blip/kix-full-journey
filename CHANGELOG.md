@@ -6,6 +6,13 @@
 
 ## 2026-07-13
 
+### 90. 数据页(Reports)日期范围改「上线以来」+ 稀疏/小样本规则（三体）
+- **日期范围**：预设改为 **上线以来(默认) / 今天 / 近 7 天 / 近 30 天**；活动看板以"活动上线"为锚点累计（Mailchimp/Klaviyo/HubSpot 惯例），默认「上线以来」、**不设 All-time/全部**。（`ranges` + `ri` 默认 0）
+- **稀疏 / 小样本规则（精确阈值，可调）**：① 逐日到店柱状图仅当 `nonZeroDays ≥ 7` 才画柱，否则换 mini sparkline + 提示「到店还太少，暂时画不出每日趋势」；② `smallSample = 本期 walk-ins < 10`（"多小叫小"=<10）→ Hero 隐藏"vs 上期"百分比、只显绝对数；各门店到店比例条收掉、只留「门店名 + N 人到店」；③ 范围=「上线以来」(lifetime 无上期) 也不显百分比。
+- **数据源**：新增 `SPARSE_METRICS`（`?sparse=1` 冷启动演示：1 到店 / 27 玩）。
+- 三体调研见 `Desktop/Mozat/kix/[决策] 2026-07-13-KiX数据页日期范围与稀疏数据-三体.md`。
+- **影响文件**：`journey.jsx`（ReportsView：ranges/ri/smallSample/nonZeroDays/showTrendBars + Hero delta 条件 + 每日到店条件 + OutletPanel smallSample 参数）、`data.jsx`（SPARSE_METRICS + 导出）、`SPEC.md`（§4.8 精确规则）。
+
 ### 89. app 文案母语化去破折号 + 注册邮箱验证码 + 数据页收敛 + 游戏/活动页多选删除
 - **app 段文案（journey.jsx 536+）**：59 条含破折号的 tr() 去破折号 + 中文母语化（注册/登录/建游戏/发布/看板/活动/兑奖/数据/我的）；用户可见破折号归零（仅剩代码注释）。
 - **注册账号步新增邮箱 + 邮箱验证码**：邮箱字段 +「发送验证码」→ 6 位码（60s 重发倒计时 + 已验证 ✓），验证通过前「继续」不可点。原型 mock（满 6 位即过）；研发接真实 OTP。本地原注册无邮箱字段，此处补齐（`Register` 组件，state：email/code/sent/left + emailOk/verified/sendCode + acctOk 加 verified）。

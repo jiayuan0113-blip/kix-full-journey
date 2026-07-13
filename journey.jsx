@@ -1787,12 +1787,14 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
 
 function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, hasLive, hasActs, hasLiveGame, multiAct, onNewAct, onGoActivities, onGoGames, onBilling, liveName }) {
   const lang = useLang();
-  const M = DEMO_METRICS;
+  const _sparse = new URLSearchParams(location.search).get("sparse")==="1";   // 冷启动/稀疏演示
+  const M = _sparse ? SPARSE_METRICS : DEMO_METRICS;
   const GM = GAME_METRICS;
   // 计费（落地页口径）：新客=计费单位、首 3 月免费、老客永远免费。免费期不展示"试用后总价"（避免提前吓退，见弹卡三体）
   const freeDaysLeft = 47;
-  const ranges = [{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
-  const [ri, setRi] = useState(1);
+  // 活动看板惯例=以"活动上线"为锚点累计(Mailchimp/Klaviyo/HubSpot/Voucherify)，默认"上线以来"、不设 All-time（三体 2026-07-13）
+  const ranges = [{en:"Since launch",zh:"上线以来"},{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
+  const [ri, setRi] = useState(0);
   const [tab, setTab] = useState(new URLSearchParams(location.search).get("tab") || (hasLive ? "activity" : (hasLiveGame ? "game" : "activity")));
   const note = tr(lang,"vs last week","比上周");
   const totRed = vouchers.reduce((s,v)=>s+(v.redeemed||0),0);
@@ -1801,6 +1803,10 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   const redRate = Math.round(M.walkins / M.awarded * 100);  // 赢券→到店
   const newPct = Math.round(M.newCust / M.walkins * 100), retPct = 100 - newPct;
   const tmax = Math.max(...M.trend.map(t => t.v));
+  // 稀疏/小样本规则（三体 2026-07-13）：非零天 <7 不画逐日空柱；小样本(<10)/上线以来 不显百分比比较
+  const nonZeroDays = M.trend.filter(t => t.v > 0).length;
+  const showTrendBars = nonZeroDays >= 7;
+  const smallSample = M.walkins < 10;
   // 各门店到店（来自统一 demo 口径，自洽求和=walkins）
   const outRed = outlets.map(o => ({ o, v: M.byOutlet[o.id] || 0 }));
   const omax = Math.max(1, ...outRed.map(x=>x.v));
@@ -1833,7 +1839,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       <div className="rep-hero">
         <div className="rh-l">
           <span className="rh-eye"><span className="b"></span>{tr(lang,`Verified walk-ins · ${P(lang,ranges[ri])}`,`真实到店兑奖 · ${P(lang,ranges[ri])}`)}</span>
-          <div className="rh-num">{M.walkins}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{M.delta.walkins} {note}</span></div>
+          <div className="rh-num">{M.walkins}{ri!==0 && <span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{M.delta.walkins}{smallSample ? "" : " "+note}</span>}</div>
         </div>
         <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
       </div>
@@ -1872,7 +1878,12 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       {/* 每日到店趋势 */}
       <div className="panel">
         <h3>{tr(lang,"Walk-ins per day","每天有多少人到店")}</h3>
-        <div className="bars7">{M.trend.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
+        {showTrendBars
+          ? <div className="bars7">{M.trend.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
+          : <div style={{ display:"flex", alignItems:"center", gap:18, padding:"6px 2px 2px" }}>
+              <div style={{ display:"flex", alignItems:"flex-end", gap:5, height:46, flex:"none" }}>{M.trend.map((t,i)=>(<span key={i} style={{ width:9, borderRadius:3, height:Math.max(7,(t.v/Math.max(1,tmax))*46)+"px", background:t.v>0?"var(--green)":"var(--line-2)" }}></span>))}</div>
+              <p className="ph-sub" style={{ margin:0 }}>{tr(lang,"Too few walk-ins to chart yet. The daily trend appears once more customers come in.","到店还太少，暂时画不出每日趋势。等客人多起来，这里会显示每日走势。")}</p>
+            </div>}
       </div>
       {/* 条件区：多活动才有"排名"意义；多门店才有"分店"意义 */}
       {(multiAct && outlets.length>=2) ? <div className="panels">
@@ -1881,14 +1892,14 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
           <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
-        <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
+        <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample}/></div>
       </div>
       : multiAct ? <div className="panel">
           <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
           <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
-      : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax}/></div>
+      : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample}/></div>
       : null}
     </>
   );
@@ -1952,11 +1963,11 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     </div>
   );
 }
-function OutletPanel({ lang, outRed, omax }) {
+function OutletPanel({ lang, outRed, omax, smallSample }) {
   return (<>
     <h3>{tr(lang,"Walk-ins by outlet","各门店到店")}</h3>
     <p className="ph-sub">{tr(lang,"Which shop pulls the most; voucher stock is shared across outlets","哪家店带客最多。券的库存整个活动全门店共用。")}</p>
-    {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div></div>))}
+    {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"walk-ins","人到店")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div>}</div>))}
   </>);
 }
 
