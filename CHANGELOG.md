@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-07-13
+
+### 87. 落地页「客户旅程」区块重做（图 + 文案 + 品牌统一）+ hero 精简 + 奖池奖品类型改名
+- **五步流程区块（Walkthrough）标题/小字**：段标题 `See the game your customer plays` → **`Turn your business into a playground`**（把 playground 定位从 hero eyebrow 挪来做段标题）；小字重写为 `With your own branded game, customers play, pay and stay.` / `你自己的品牌小游戏，让客人来玩、消费、留下来。`（强调"你自己的品牌游戏"、不强调时长、无破折号）。
+- **每屏大标题重写**（去掉重复的 "They" 前缀，改第三人称动词打头）：Spots your poster / Scans, no app / Plays YOUR game / Wins a voucher / Redeems & returns；**删掉每屏下方小字**（sub 整行移除 + 数据里的 sub 字段清理）。
+- **四张手机图统一到 Pocket Coffee / Cheerful Goat**（原为一芳，品牌不一致）：`walkthrough/poster.png`（Today's Offer 海报）、`play.png`（Spin for Pocket Coffee 转盘）、`win.png`（You earned it 中奖券）、`redeem.png`（Redeemed 屏 + what's next 复访奖励）。
+- **Hero 精简**：删 eyebrow「TURN YOUR BUSINESS INTO A PLAYGROUND」；删右侧场景下与本区块重复的 flow-cap「plays → wins → walks in → becomes a regular」；删「No hardware」chip（hero chips 剩 3）。
+- **PLAY/PAY/STAY 三卡文案去破折号**（改完整句/逗号）。
+- **奖池奖品类型改名**：`Menu item / 菜单商品` → **`Free item / 免费商品`**（与"现金券/折扣券"对仗、更直观）；输入占位 `Menu item name / 菜单商品名` → `Item name / 商品名称`。
+- **影响文件**：`journey.jsx`（HeroSection / Walkthrough 的 S 数组 + 段标题 + PPP 卡 / PRIZE_TYPES / 奖池占位符）、`walkthrough/{poster,play,win,redeem}.png`。
+- ⚠️ **未尽**：全站仍有约 89 处破折号待清（本次只清了 walkthrough + PPP 区块）；CLAUDE.md 定位口径待更新为 portal（playground / play-pay-stay）。
+
 ## 2026-07-10
 
 ### 86. 后台「联系我们」面板 + 全站 WhatsApp 入口先走邮箱

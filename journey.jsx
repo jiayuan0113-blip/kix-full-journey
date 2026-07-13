@@ -205,13 +205,11 @@ function Hero({ go }) {
   return (
     <section className="hero">
       <div>
-        <span className="hero-tag">{tr(lang,"TURN YOUR BUSINESS INTO A PLAYGROUND","把你的店变成游乐场")}</span>
         <h1 className="hero-h">{tr(lang,"They play.","他们来玩。")}<br/>{tr(lang,"They pay.","他们消费。")}<br/>{tr(lang,"They ","他们")}<span className="hl">{tr(lang,"stay.","留下来。")}</span></h1>
         <div className="hero-chips">
           <span className="hchip"><b>{tr(lang,"3 min","3 分钟")}</b>{tr(lang," to launch"," 上线")}</span>
           <span className="hchip"><b>S$0</b>{tr(lang," to start"," 起步")}</span>
           <span className="hchip">{tr(lang,"First 3 months free","前 3 个月免费")}</span>
-          <span className="hchip">{tr(lang,"No hardware","不用装设备")}</span>
         </div>
         <div className="wow-form">
           <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
@@ -229,7 +227,6 @@ function Hero({ go }) {
             <div className="counter"></div>
             <div className="person"></div>
           </div>
-          <p className="flow-cap">{tr(lang,"A customer ","顾客 ")}<b>{tr(lang,"plays","玩一玩")}</b> → <b>{tr(lang,"wins a voucher","赢一张券")}</b> → <b>{tr(lang,"walks in & redeems","到店兑奖")}</b> → {tr(lang,"becomes a ","变成")}<b>{tr(lang,"regular","常客")}</b></p>
         </div>
       </div>
     </section>
@@ -238,16 +235,16 @@ function Hero({ go }) {
 function Walkthrough() {
   const lang = useLang();
   const S = [
-    { img:"walkthrough/poster.png", pos:"top",    label:tr(lang,"Poster on your door","门口的海报"),        sub:tr(lang,"A passer-by sees it","路过的人看到") },
-    { scan:true,                                    label:tr(lang,"Scan — no app","扫码，免下载"),            sub:tr(lang,"Plays right in the browser","浏览器里直接玩") },
-    { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Plays YOUR game","玩你的专属游戏"),         sub:tr(lang,"A 30-second branded game","30 秒品牌小游戏") },
-    { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Wins a voucher","赢一张券"),               sub:tr(lang,"A reason to come in now","现在就进店的理由") },
-    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Walks in & redeems (QR)","到店兑奖（扫码）"), sub:tr(lang,"You scan → they're a regular","你一扫 → 成常客") },
+    { img:"walkthrough/poster.png", pos:"top",    label:tr(lang,"Spots your poster","看到你的海报") },
+    { scan:true,                                    label:tr(lang,"Scans, no app","扫码，免下载") },
+    { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Plays YOUR game","玩你的专属游戏") },
+    { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Wins a voucher","赢到一张券") },
+    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Redeems & returns","兑奖，成常客") },
   ];
   return (
     <section className="sec" id="the-game">
-      <h2 className="sec-h">{tr(lang,"See the game your customer plays","看看你的客人玩的游戏")}</h2>
-      <p className="sec-sub">{tr(lang,"A 30-second branded game — scan, play, win a voucher, walk in. No app, nothing to install, on either side.","30 秒品牌小游戏 —— 扫码、玩、赢券、进店。两边都不用下载 App。")}</p>
+      <h2 className="sec-h">{tr(lang,"Turn your business into a playground","把你的店变成游乐场")}</h2>
+      <p className="sec-sub">{tr(lang,"With your own branded game, customers play, pay and stay.","你自己的品牌小游戏，让客人来玩、消费、留下来。")}</p>
       <div className="wt-row">
         {S.map((s,i)=>(
           <React.Fragment key={i}>
@@ -256,16 +253,15 @@ function Walkthrough() {
                 {s.scan ? <div className="wt-scan"><i></i></div> : <img src={s.img} alt="" style={{ objectPosition:s.pos }}/>}
               </div></div>
               <div className="wt-label">{s.label}</div>
-              <div className="wt-sub">{s.sub}</div>
             </div>
             {i < S.length-1 && <div className="wt-arrow">→</div>}
           </React.Fragment>
         ))}
       </div>
       <div className="ppp">
-        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They play their way in","他们玩着玩着就进店")}</h4><p>{tr(lang,"Your branded game is the hook — no ads to buy.","你的品牌游戏就是钩子 —— 不用买广告。")}</p></div>
-        <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher — never cash — turns a play into a paying visit.","一张券（不是现金）把一次游戏变成一次到店消费。")}</p></div>
-        <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again — regulars, not one-offs.","再玩、再赢、再消费 —— 变成常客，而非一次性。")}</p></div>
+        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They play their way in","他们玩着玩着就进店")}</h4><p>{tr(lang,"Your branded game is the hook. No ads to buy.","你的品牌游戏就是钩子，不用买广告。")}</p></div>
+        <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","一张券（不是现金），把一次游戏变成一次到店消费。")}</p></div>
+        <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","再玩、再赢、再消费，变成常客，不是一次性。")}</p></div>
       </div>
     </section>
   );
@@ -1496,7 +1492,7 @@ function topPrizeShort(ladder, lang) {
 }
 const PRIZE_TYPES = [
   { k:"cash",     en:"Cash voucher", zh:"现金券" },
-  { k:"item",     en:"Menu item",    zh:"菜单商品" },
+  { k:"item",     en:"Free item",    zh:"免费商品" },
   { k:"discount", en:"% discount",   zh:"折扣券" },
   { k:"custom",   en:"Custom",       zh:"自定义" },
 ];
@@ -1615,7 +1611,7 @@ function PrizeLadderEditor({ ladder, setLadder }) {
               </div>
             </div>
             <div className="lrow-detail">
-              <input className="pname" placeholder={r.prize.type==="item"?tr(lang,"Menu item name","菜单商品名") : r.prize.type==="custom"?tr(lang,"Prize name","奖品名称") : tr(lang,"Prize name (optional)","奖品名称（选填）")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>
+              <input className="pname" placeholder={r.prize.type==="item"?tr(lang,"Item name","商品名称") : r.prize.type==="custom"?tr(lang,"Prize name","奖品名称") : tr(lang,"Prize name (optional)","奖品名称（选填）")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>
               <label className="pimg" title={tr(lang,"Prize photo","奖品配图")}>{r.prize.img ? <img src={r.prize.img} alt=""/> : <><Ic.image style={{ width:15, height:15 }}/><span>{tr(lang,"Photo","图")}</span></>}<input type="file" accept="image/*" hidden onChange={e=>onImg(i,e)}/></label>
               <div className="pcode">
                 <select value={r.prize.codeSource||"auto"} onChange={e=>updPrize(i,{ codeSource:e.target.value, ...(e.target.value==="auto"?{codeFile:null}:{}) })}>

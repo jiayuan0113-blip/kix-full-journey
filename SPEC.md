@@ -152,7 +152,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 ### 3.9a 限时挑战赛（`form:'challenge'`，2026-07-09）⭐
 第二种活动形态，与长期活动并列。品牌**自营**（用自己的品牌游戏、自己的排行榜、自己的档期），非赞助平台夜赛。
 - **建活动第一步**：形态选择弹窗 `NewActivityPicker`（长期活动 vs 限时挑战赛对比卡，含"适合/例"）。选完进对应编辑器。
-- **挑战赛编辑器**（`ActivityEditor` 内按 `form` 分支）：活动名+Logo → **档期 `ScheduleEditor`**（一次性/循环 段选、循环选星期 chips、开赛时间、单局时长、循环截止）→ **阶梯奖池 `PrizeLadderEditor`**（逐档 `名次区间 from–to → 奖品`；奖品四类可配 `cash`(填 S$)/`item`(菜单商品名+图)/`discount`(填%)/`custom`(自填名+图)；「套用示例奖池」`SAMPLE_LADDER` 一键铺 + 「复制上一档」+ 删；**成本条** = 名额合计 + 现金奖合计 + "按实际排名发、空名次不发不花钱"，**不折现/不加总折扣与商品**，避免臆测总价与损失厌恶）→ **赛制**（同分裁决=先提交者靠前 + 每人每场限一局，均 app 侧保证；**不设最低人数门槛**，来多少人都照常开赛）→ 游戏/门店/二维码/上线复用长期活动那套。
+- **挑战赛编辑器**（`ActivityEditor` 内按 `form` 分支）：活动名+Logo → **档期 `ScheduleEditor`**（一次性/循环 段选、循环选星期 chips、开赛时间、单局时长、循环截止）→ **阶梯奖池 `PrizeLadderEditor`**（逐档 `名次区间 from–to → 奖品`；奖品四类可配 `cash`(填 S$)/`item`(商品名+图，UI 名「免费商品 / Free item」)/`discount`(填%)/`custom`(自填名+图)；「套用示例奖池」`SAMPLE_LADDER` 一键铺 + 「复制上一档」+ 删；**成本条** = 名额合计 + 现金奖合计 + "按实际排名发、空名次不发不花钱"，**不折现/不加总折扣与商品**，避免臆测总价与损失厌恶）→ **赛制**（同分裁决=先提交者靠前 + 每人每场限一局，均 app 侧保证；**不设最低人数门槛**，来多少人都照常开赛）→ 游戏/门店/二维码/上线复用长期活动那套。
 - **不设人数上限/中奖上限**：开赛前人数不可知、人已参赛无法回头取消；成本由 card-on-file + 按真到店新客计费兜底，无需封顶。
 - **App 侧契约**（Portal 只配置）：倒计时卡 + 开赛推送 → 限时玩一局 → 赛后排行榜 → 名次出券 → 到店兑（= verified walk-in 计费，同长期活动）。排行榜结算/名次出券/推送 = 后端职责。
 - **helper**：`ladderStats(ladder)`→{slots,cash}；`schedSummary`/`nextSession`/`nextLabel`（`nextSession` 对过期一次性返 null → 卡显「已跑完」）。
@@ -187,8 +187,8 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 ### 4.1 落地页 Landing（重做 2026-07-07：并入老板设计稿 boss LEAN；叙事 = 是什么→怎么用→看你的游戏→为什么有效→价格→FAQ→CTA）
 **IA 顺序**：
-1. **Hero｜是什么**：眉标 `TURN YOUR BUSINESS INTO A PLAYGROUND` + 三行大标题「They play. / They pay. / They stay.」（stay 绿高亮）+ 价值 chips（3 min to launch · S$0 to start · No credit card · No hardware）+ CTA = **输入框「Your business name」+「See my game →」按钮**（点击 → 建游戏流 `go`）+ 右侧「空店场景」插画（"Another slow day… same empty seats"，纯 CSS `.hscene`）+ 其下**闭环 flow-cap**（A customer plays → wins a voucher → walks in & redeems → becomes a regular）。
-2. **走查 Walkthrough｜See the game your customer plays**（`id=the-game`）：5 屏真机截图（`walkthrough/poster|play|win|redeem.png`，一芳素材；②「扫码」为 CSS 占位、无真图）+ 箭头 + PLAY/PAY/STAY 三卡（无 emoji）。
+1. **Hero｜是什么**：三行大标题「They play. / They pay. / They stay.」（stay 绿高亮）+ 价值 chips（3 min to launch · S$0 to start · First 3 months free）+ CTA = **输入框「Your business name」+「See my game →」按钮**（点击 → 建游戏流 `go`）+ 右侧「空店场景」插画（"Another slow day… same empty seats"，纯 CSS `.hscene`）。（2026-07-13：删眉标 `TURN YOUR BUSINESS INTO A PLAYGROUND`、删场景下的 flow-cap、删「No hardware」chip。）
+2. **走查 Walkthrough｜Turn your business into a playground**（`id=the-game`；小字 `With your own branded game, customers play, pay and stay.`）：5 屏真机截图（`walkthrough/poster|play|win|redeem.png`，**Pocket Coffee / Cheerful Goat 素材**；②「扫码」为 CSS 占位、无真图）+ 每屏大标题（Spots your poster / Scans, no app / Plays YOUR game / Wins a voucher / Redeems & returns，**无小字**）+ 箭头 + PLAY/PAY/STAY 三卡（无 emoji）。
 3. **See your game（WOW）**：两行标题「Type your business name / See your game in 3 min」（第二行绿）+ 副标（AI matches 1,000+ formats… your logo & colors）+ 输入框按钮 + note（Free · no credit card）+ 右侧游戏图（`walkthrough/play.png`）。
 4. **为什么有效 WhyGame｜Why a game beats a discount**（`id=why`）：3 卡（Rewards never cash / Every visit is verified / Every game feeds the network），**真实 icon**（gift/shield/globe），复用 `.steps/.stp/.si`。
 5. **价格 Pricing**（`id=pricing`）：见下。
