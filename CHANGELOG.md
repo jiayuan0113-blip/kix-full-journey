@@ -18,7 +18,7 @@
 - **原型改动**：`journey.jsx` 新增 `AuthEntry`（IP 分区 + SSO + OTP，可传 title）/`Welcome`/`AccountPicker`，重写 `Login`（用 AuthEntry）与 `Register`（auth→card→welcome，删旧 4 栏表单）；App 加 `choose` 屏 + loginDone 按 `?accounts=multi` 分流。`index.html` 加 auth v3 样式（sso/divider/region-note/welcome-badge/acct-*）+ 禁用态置灰。
 - **调试参数**：`?screen=login`（海外）·`&region=cn`（国内）·`?screen=register`(验证→绑卡)·`&rstep=card`·`?welcome=1`（主页遮罩恭喜弹窗，配 `&fresh=1` 空态更真）·`?screen=choose`（账号选择）·`&accounts=multi`（登录后进选择页）·`&need=<店名>`（恭喜预填）。登录卡底部 `demo·切换视图` 翻两种 IP 视图。
 - **原型为 mock**：验证即建号 / is_new_account / **后端身份归并** 是后端行为，原型只演示前端形态；真效果需前端 TS portal（`src/pages/auth/*`，不在本机）+ 后端联合上。
-- **影响文件**：`journey.jsx`、`index.html`、`SPEC.md`（§11/§13）、`CHANGELOG.md`。
+- **影响文件**：`journey.jsx`、`index.html`、`SPEC.md`（§0/§3.1/§4.3/§11）、`README.md`（调试参数）、`CHANGELOG.md`、`PRD-auth-unify.md`（新增·研发版 PRD）。
 
 ---
 
