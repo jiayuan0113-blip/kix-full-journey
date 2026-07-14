@@ -533,47 +533,125 @@ function Landing({ go, onSignIn, lang, setLang }) {
   );
 }
 
-/* ===================== register (publish gate) ===================== */
-function Register({ onDone, onSignIn, onSaveCard, onBack }) {
+/* ===================== auth v3 · 统一认证（按 IP 分区 + 验证即建号 + 恭喜补资料 + 账号选择） =====================
+   海外 IP → 邮箱 + Google/Apple SSO；国内 IP → 手机号。原型用 ?region=cn 或卡片底部 demo 链接模拟 IP。
+   分裂靠后端身份归并防（email/kix_user_id 归一账号）——原型只演示前端形态。 */
+function AuthEntry({ onVerified, footer, title }) {
   const lang = useLang();
-  const [rstep, setRstep] = useState(new URLSearchParams(location.search).get("rstep")==="card" ? "card" : "account");   // account → card（收卡放最后一步，Stripe）
-  const [name, setName] = useState(""), [phone, setPhone] = useState(""), [country, setCountry] = useState(0);
-  const [email, setEmail] = useState(""), [code, setCode] = useState(""), [sent, setSent] = useState(false), [left, setLeft] = useState(0);
-  const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
+  const _p = new URLSearchParams(location.search);
+  const [region, setRegion] = useState(_p.get("region")==="cn" ? "cn" : "intl");
+  const [step, setStep] = useState("id");
+  const [val, setVal] = useState("");                                   // intl=邮箱 / cn=手机号
+  const [otp, setOtp] = useState(""), [left, setLeft] = useState(0);
   React.useEffect(()=>{ if(left<=0) return; const t=setTimeout(()=>setLeft(left-1),1000); return ()=>clearTimeout(t); },[left]);
-  const emailOk = /^\S+@\S+\.\S+$/.test(email.trim());
-  const verified = sent && code.replace(/\D/g,"").length===6;
-  const sendCode = ()=>{ if(!emailOk||(sent&&left>0)) return; setSent(true); setCode(""); setLeft(60); };
-  const acctOk = name.trim() && verified && phone.trim();
+  const emailOk = /^\S+@\S+\.\S+$/.test(val.trim());
+  const phoneOk = val.replace(/\D/g,"").length >= 6;
+  const idOk = region==="cn" ? phoneOk : emailOk;
+  const sendCode = () => { if(!idOk) return; setStep("otp"); setOtp(""); setLeft(54); };
+  const verify = () => { if(otp.replace(/\D/g,"").length>=4) onVerified(); };
+  const sentTo = region==="cn" ? `+86 ${val}` : val;
+  return (<>
+    {step === "id" ? <>
+      <h1>{title || tr(lang,"Sign in or sign up","登录或注册 KiX")}</h1>
+      {region === "cn" ? <>
+        <p className="login-sub">{tr(lang,"Enter your phone. New here? We'll create your account.","输入手机号，第一次来会自动建账号。")}</p>
+        <div className="region-note">{tr(lang,"In Mainland China? Sign in with your phone.","你在中国大陆，用手机号登录")}</div>
+        <div className="field"><label>{tr(lang,"Mobile","手机号")}</label><div className="phonewrap"><input className="cc" value="+86" readOnly/><input autoFocus value={val} onChange={e=>setVal(e.target.value)} placeholder="138 0000 0000" onKeyDown={e=>{ if(e.key==="Enter") sendCode(); }}/></div></div>
+        <button className="btn primary" disabled={!phoneOk} onClick={sendCode}>{tr(lang,"Send code","发送验证码")}</button>
+      </> : <>
+        <p className="login-sub">{tr(lang,"Enter your email. New here? We'll create your account.","输入邮箱，第一次来会自动建账号。")}</p>
+        <div className="field"><label>{tr(lang,"Email","邮箱")}</label><input autoFocus type="email" value={val} onChange={e=>setVal(e.target.value)} placeholder="you@shop.com" onKeyDown={e=>{ if(e.key==="Enter") sendCode(); }}/></div>
+        <button className="btn primary" disabled={!emailOk} onClick={sendCode}>{tr(lang,"Continue","继续")}</button>
+        <div className="auth-divider">{tr(lang,"or","或")}</div>
+        <button className="sso-btn" onClick={onVerified}><span className="glogo"></span> {tr(lang,"Continue with Google","用 Google 继续")}</button>
+        <button className="sso-btn" onClick={onVerified}> {tr(lang,"Continue with Apple","用 Apple 继续")}</button>
+      </>}
+      {footer}
+      <div className="demo-flip">demo · <a onClick={()=>{ setRegion(region==="cn"?"intl":"cn"); setVal(""); }}>{region==="cn" ? tr(lang,"switch to overseas view","切换到海外视图") : tr(lang,"switch to China view","切换到国内视图")}</a></div>
+    </> : <>
+      <h1>{tr(lang,"Enter the code","输入验证码")}</h1>
+      <p className="login-sub">{tr(lang,`We sent a 6-digit code to ${sentTo}`,`6 位验证码已发送至 ${sentTo}`)}</p>
+      <div className="field"><input className="otp-input" autoFocus value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder="––––––" maxLength="6" onKeyDown={e=>{ if(e.key==="Enter") verify(); }}/></div>
+      <button className="btn primary" disabled={otp.replace(/\D/g,"").length<4} onClick={verify}>{tr(lang,"Verify & continue","验证并进入")}</button>
+      <div className="reg-fine">{left>0 ? tr(lang,`Resend in ${left}s`,`${left} 秒后可重新发送`) : <a onClick={()=>setLeft(54)} style={{ cursor:"pointer" }}>{tr(lang,"Resend code","重新发送")}</a>} · <a onClick={()=>{ setStep("id"); setOtp(""); }} style={{ cursor:"pointer" }}>{tr(lang,"Change","换一个")}</a></div>
+    </>}
+  </>);
+}
+
+/* 新用户首次进入：恭喜 + 可跳过补资料 —— 浮在主页上的遮罩弹窗（用户已进主页，非独立整页；守 canon「注册后置 / 加法伤留存」） */
+function Welcome({ need, onDone }) {
+  const lang = useLang();
+  const [name, setName] = useState((need||"").trim());
+  const [phone, setPhone] = useState("");
+  return (
+    <div className="welcome-overlay" onClick={(e)=>{ if(e.target===e.currentTarget) onDone(); }}><div className="reg-card welcome-modal">
+      <div className="welcome-hero">
+        <svg className="welcome-badge" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+          <circle cx="36" cy="36" r="24" fill="#16A34A"/>
+          <path d="M27 36.5l6 6 12-13" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="11" cy="18" r="3" fill="#22C55E"/>
+          <circle cx="61" cy="21" r="2.5" fill="#F5BE4F"/>
+          <circle cx="14" cy="55" r="2.5" fill="#6B8BD4"/>
+          <circle cx="60" cy="52" r="3" fill="#E39A4B"/>
+          <path d="M7 36l2.5-1.6L12 36" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M64 38l-2.5-1.6L59 38" stroke="#F5BE4F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <h1 style={{ marginBottom:8 }}>{tr(lang,"Welcome to KiX!","欢迎加入 KiX！")}</h1>
+        <p className="login-sub" style={{ margin:"0 0 22px" }}>{tr(lang,"Your account is ready. Add a few details to finish.","账号建好了！花几秒完善商家信息。")}</p></div>
+      <div className="field"><label>{tr(lang,"Shop name","店名")} <span className="pre">{tr(lang,"pre-filled","已预填")}</span></label><input value={name} onChange={e=>setName(e.target.value)} placeholder={tr(lang,"e.g. Kopi Corner","例如 Kopi Corner")}/></div>
+      <div className="field"><label>{tr(lang,"WhatsApp mobile","WhatsApp 手机号")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><div className="phonewrap"><input className="cc" value="+65" readOnly/><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder={tr(lang,"So our team can reach you","方便我们工作人员联系你")}/></div></div>
+      <div className="field"><label>{tr(lang,"Country / region","国家 / 地区")} <span className="pre">{tr(lang,"pre-filled","已预填")}</span></label><select defaultValue={0}>{COUNTRIES.map((c,i)=><option key={i} value={i}>{c.flag} {P(lang,c)}</option>)}</select></div>
+      <button className="btn primary" onClick={onDone}>{tr(lang,"Save & continue","保存并进入")}</button>
+      <button className="btn ghost" style={{ width:"100%", justifyContent:"center", marginTop:10 }} onClick={onDone}>{tr(lang,"Skip for now","稍后再说，先逛逛")}</button>
+    </div></div>
+  );
+}
+
+/* 账号选择页：membership ≥2（名下多商家 / 受邀团队席位）才出 */
+function AccountPicker({ onPick }) {
+  const lang = useLang();
+  const accts = [
+    { nm:"May's Cafe · Bugis",  ad:"Bugis St 12, Singapore",       role:"owner", c:"#16A34A", last:true },
+    { nm:"May's Cafe · Jurong", ad:"Jurong East Ave 3, Singapore", role:"owner", c:"#E39A4B" },
+    { nm:"Lim BBQ House",       ad:"Tampines Central 5",           role:"staff", c:"#6B8BD4" },
+  ];
+  return (
+    <div className="reg-wrap"><div className="reg-card">
+      <h1 style={{ marginBottom:8 }}>{tr(lang,"Choose a business","选择要进入的商家")}</h1>
+      <p className="login-sub" style={{ margin:"0 0 10px" }}>{tr(lang,"Pick one to continue.","你有多个商家，选一个进入。")}</p>
+      {accts.map((a,i)=>(
+        <button key={i} className={"acct-row"+(a.last?" on":"")} onClick={onPick}>
+          <div className="acct-av" style={{ background:a.c }}>{a.nm[0]}</div>
+          <div style={{ flex:1 }}><div className="acct-nm">{a.nm}</div><div className="acct-ad">{a.ad}</div><span className={"acct-role "+a.role}>{a.role==="owner"?tr(lang,"Owner","店主"):tr(lang,"Staff","员工")}</span></div>
+          {a.last && <span className="acct-last">{tr(lang,"Last used","上次进入")}</span>}
+        </button>
+      ))}
+      <div className="acct-new" onClick={onPick}>＋ {tr(lang,"Create a new business","创建新商家")}</div>
+    </div></div>
+  );
+}
+
+/* ===================== register (publish gate) · 验证即建号 → 绑卡 → 恭喜补资料 ===================== */
+function Register({ onDone, onSignIn, onSaveCard, onBack, need }) {
+  const lang = useLang();
+  const _p = new URLSearchParams(location.search);
+  const [rstep, setRstep] = useState(_p.get("rstep")==="card" ? "card" : "auth");
+  const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
   const cardOk = num.replace(/\s/g,"").length >= 12 && exp.trim().length >= 4 && cvc.trim().length >= 3;
   const chargeDate = (() => { const d = new Date(); d.setMonth(d.getMonth()+3); return d.toLocaleDateString(lang==="zh"?"zh-CN":"en-GB",{ year:"numeric", month:"short", day:"numeric" }); })();
-  const finish = () => { onSaveCard && onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" }); onDone(); };
+  // 绑卡完成即进主页；「恭喜+补资料」由 App 在主页上叠加遮罩弹窗（首次商家）
+  const saveCard = () => { onSaveCard && onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" }); onDone(); };
   return (
     <div className="reg-wrap">
-      {/* 返回只在"账号"步(回预览)；绑卡步不给返回——卡要绑定刚建的账户，不可回退 */}
-      {rstep === "account" && <button className="canvas-back reg-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
+      {/* 返回只在验证步(回预览)；绑卡步不给返回——卡要绑定刚建的账户，不可回退 */}
+      {rstep === "auth" && <button className="canvas-back reg-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
       <div className="reg-card">
-      <div className="reg-steps"><span className={rstep==="account"?"on":"done"}>1 · {tr(lang,"Account","账号")}</span><i></i><span className={rstep==="card"?"on":""}>2 · {tr(lang,"Card","绑卡")}</span></div>
-      {rstep === "account" ? <>
-        <h1>{tr(lang,"Last step: create your account","最后一步：创建你的账号")}</h1>
-        <div className="field"><label>{tr(lang,"Shop name","商家名称")} <span className="req">*</span></label><input value={name} onChange={e=>setName(e.target.value)} placeholder={tr(lang,"e.g. Kopi Corner","例如：Kopi Corner")}/></div>
-        <div className="field"><label>{tr(lang,"Country / region","国家 / 地区")} <span className="req">*</span></label><select value={country} onChange={e=>setCountry(+e.target.value)}>{COUNTRIES.map((c,i)=><option key={i} value={i}>{c.flag} {P(lang,c)}</option>)}</select></div>
-        <div className="field"><label>{tr(lang,"Email","邮箱")} <span className="req">*</span></label>
-          <div style={{ display:"flex", gap:8 }}>
-            <input style={{ flex:1 }} type="email" value={email} onChange={e=>{ setEmail(e.target.value); setSent(false); setCode(""); }} placeholder="you@shop.com"/>
-            <button type="button" className="btn" style={{ flex:"none", width:"auto", padding:"0 16px", whiteSpace:"nowrap", background:"#fff", border:"1.5px solid var(--line)", color:"var(--ink-2)", fontWeight:600, opacity:(!emailOk||(sent&&left>0))?0.5:1 }} disabled={!emailOk||(sent&&left>0)} onClick={sendCode}>{sent ? (left>0 ? tr(lang,`Resend ${left}s`,`重发 ${left}s`) : tr(lang,"Resend","重新发送")) : tr(lang,"Send code","发送验证码")}</button>
-          </div></div>
-        {sent && <div className="field"><label>{tr(lang,"Email code","邮箱验证码")} <span className="req">*</span></label>
-          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-            <input style={{ flex:1, letterSpacing:"0.28em" }} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder={tr(lang,"6-digit code","6 位验证码")} inputMode="numeric" maxLength={6}/>
-            {verified && <span style={{ color:"var(--green-d)", fontWeight:700, fontSize:13, display:"inline-flex", alignItems:"center", gap:4, flex:"none" }}><Ic.check style={{ width:15, height:15 }}/> {tr(lang,"Verified","已验证")}</span>}
-          </div>
-          <div className="reg-fine" style={{ marginTop:6 }}>{tr(lang,"Code sent to ","验证码已发送至 ")}{email}</div></div>}
-        <div className="field"><label>{tr(lang,"Mobile","手机号")} <span className="opt">{tr(lang,"(for WhatsApp)","（用于 WhatsApp 联系）")}</span> <span className="req">*</span></label>
-          <div className="phonewrap"><input className="cc" value="+65" readOnly/><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9123 4567" onKeyDown={e=>{ if(e.key==="Enter"&&acctOk) setRstep("card"); }}/></div></div>
-        <button className="btn primary" disabled={!acctOk} onClick={()=>setRstep("card")}>{tr(lang,"Continue","继续")}</button>
-        <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。{tr(lang,"Have an account? ","已有账号？")}<a onClick={onSignIn} style={{ cursor:"pointer" }}>{tr(lang,"Sign in","登录")}</a></div>
-      </> : <>
+      <div className="reg-steps"><span className={rstep==="auth"?"on":"done"}>1 · {tr(lang,"Verify","验证")}</span><i></i><span className={rstep==="card"?"on":""}>2 · {tr(lang,"Card","绑卡")}</span></div>
+      {rstep === "auth" ?
+        <AuthEntry title={tr(lang,"Last step: verify to go live","最后一步，验证一下就上线")} onVerified={()=>setRstep("card")} footer={
+          <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。</div>
+        } />
+      : <>
         <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
         <p className="login-sub">{tr(lang,"Free for 3 months, then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</p>
         <div className="trust-list">
@@ -590,36 +668,18 @@ function Register({ onDone, onSignIn, onSaveCard, onBack }) {
             </div>
           </div>
         </div>
-        <button className="btn primary" disabled={!cardOk} onClick={finish}>{tr(lang,"Add card & go live","绑卡并上线")}</button>
+        <button className="btn primary" disabled={!cardOk} onClick={saveCard}>{tr(lang,"Add card & go live","绑卡并上线")}</button>
         <div className="charge-note">{tr(lang,"You won't be charged today.","今天不会扣款。")}</div>
       </>}
     </div></div>
   );
 }
 
-/* ===================== login (returning merchant · unified phone-OTP) ===================== */
+/* ===================== login (统一认证入口 · 按 IP 分区) ===================== */
 function Login({ onDone }) {
   const lang = useLang();
-  const [step, setStep] = useState("phone");
-  const [phone, setPhone] = useState(""), [otp, setOtp] = useState("");
-  const sendCode = () => { if (phone.trim().length >= 6) setStep("otp"); };
-  const verify = () => { if (otp.trim().length >= 4) onDone(); };
-  return (
-    <div className="reg-wrap"><div className="reg-card">
-      {step === "phone" ? <>
-        <h1>{tr(lang,"Sign in to KiX","登录 KiX")}</h1>
-        <p className="login-sub">{tr(lang,"Enter your phone and we'll text you a code. New here? It creates your account.","输入手机号，我们发条验证码。第一次来？会自动帮你建账号。")}</p>
-        <div className="field"><label>{tr(lang,"Mobile","手机号")}</label><div className="phonewrap"><input className="cc" value="+65" readOnly/><input autoFocus value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9123 4567" onKeyDown={e=>{ if(e.key==="Enter") sendCode(); }}/></div></div>
-        <button className="btn primary" disabled={phone.trim().length<6} onClick={sendCode}>{tr(lang,"Continue","继续")}</button>
-      </> : <>
-        <h1>{tr(lang,"Enter the code","输入验证码")}</h1>
-        <p className="login-sub">{tr(lang,`We sent a 6-digit code to +65 ${phone}`,`验证码已发送至 +65 ${phone}`)}</p>
-        <div className="field"><input className="otp-input" autoFocus value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,""))} placeholder="––––––" maxLength="6" onKeyDown={e=>{ if(e.key==="Enter") verify(); }}/></div>
-        <button className="btn primary" disabled={otp.trim().length<4} onClick={verify}>{tr(lang,"Verify & sign in","验证并登录")}</button>
-        <div className="reg-fine"><a onClick={()=>{ setStep("phone"); setOtp(""); }} style={{ cursor:"pointer" }}>{tr(lang,"Use a different number","换个号码")}</a></div>
-      </>}
-    </div></div>
-  );
+  const footer = <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。</div>;
+  return (<div className="reg-wrap"><div className="reg-card"><AuthEntry onVerified={onDone} footer={footer} /></div></div>);
 }
 
 /* ===================== flow screens ===================== */
@@ -2303,10 +2363,11 @@ const STEP_IDX_RET = { describe:0, building:0, results:0, preview:1, done:1 };  
 
 function App() {
   const _p = new URLSearchParams(location.search);
-  const initScreen = _p.get("screen") || "landing";
+  const initScreen = _p.get("screen") || (_p.get("welcome")==="1" ? "app" : "landing");
   const [lang, setLang] = useState((_p.get("lang") === "zh") ? "zh" : "en");
   const [screen, setScreen] = useState(initScreen);
-  const [authed, setAuthed] = useState(_p.get("authed") === "1" || ["app","dashboard"].includes(initScreen));
+  const [authed, setAuthed] = useState(_p.get("authed") === "1" || ["app","dashboard"].includes(initScreen) || _p.get("welcome")==="1");
+  const [welcomeOpen, setWelcomeOpen] = useState(_p.get("welcome")==="1");   // 首次商家主页上的「恭喜+补资料」遮罩弹窗
   const [appSec, setAppSec] = useState(_p.get("sec") || (initScreen === "dashboard" ? "reports" : "home"));
   const [need, setNeed] = useState(_p.get("need") || "");
   const [game, setGame] = useState(TEMPLATES[0]);
@@ -2333,11 +2394,13 @@ function App() {
     const firstTime = !authed;          // 经注册首次发布 = 全新商家
     setAuthed(true);
     if (!myGames.find(g => g.id === game.id)) setMyGames(gs => [...gs, game]);
-    if (firstTime) setActivities([]);   // 新商家还没有任何活动，主页落到空态（不显示假数据）
+    if (firstTime) { setActivities([]); setWelcomeOpen(true); }   // 新商家：主页空态 + 叠加「恭喜+补资料」遮罩弹窗
     setAppSec("home"); setScreen("app"); top();
   };
   const signIn = () => { setScreen("login"); top(); };
-  const loginDone = () => { setAuthed(true); setAppSec("home"); setScreen("app"); top(); };
+  // 验证后账号解析：?accounts=multi 模拟 membership≥2 → 账号选择页；否则直接进（单商家/0）
+  const loginDone = () => { if (_p.get("accounts")==="multi") { setScreen("choose"); top(); return; } setAuthed(true); setAppSec("home"); setScreen("app"); top(); };
+  const chooseDone = () => { setAuthed(true); setAppSec("home"); setScreen("app"); top(); };
   const exitBuild = () => { authed ? enterApp(appSec) : toLanding(); };
 
   const buildTasks = BUILD_TASKS.map(t => P(lang,t));
@@ -2362,12 +2425,18 @@ function App() {
           <button className="ghost-x" onClick={toLanding}>{tr(lang,"Exit","退出")}</button>
         </div>
       </div>
-      <Register onDone={publishDone} onSignIn={signIn} onSaveCard={setCardOnFile} onBack={backToPreview} />
+      <Register onDone={publishDone} onSignIn={signIn} onSaveCard={setCardOnFile} onBack={backToPreview} need={need} />
+    </div>
+  );
+  else if (screen === "choose") body = (
+    <div className="shell">
+      <div className="topbar"><div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/> <span className="tg">{tr(lang,"Merchant","商家版")}</span></div><div style={{ marginLeft:"auto", display:"flex", gap:10, alignItems:"center" }}><LangToggle lang={lang} setLang={setLang} /><button className="ghost-x" onClick={toLanding}>{tr(lang,"Exit","退出")}</button></div></div>
+      <AccountPicker onPick={chooseDone} />
     </div>
   );
   else if (screen === "login") body = (
     <div className="shell">
-      <div className="topbar"><div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/> <span className="tg">{tr(lang,"Merchant","商家版")}</span></div><LangToggle lang={lang} setLang={setLang} style={{ marginLeft:"auto" }} /><button className="iconx" onClick={toLanding} title={tr(lang,"Back","返回")}><Ic.back/></button></div>
+      <div className="topbar"><div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/> <span className="tg">{tr(lang,"Merchant","商家版")}</span></div><div style={{ marginLeft:"auto", display:"flex", gap:10, alignItems:"center" }}><LangToggle lang={lang} setLang={setLang} /><button className="ghost-x" onClick={toLanding}>{tr(lang,"Exit","退出")}</button></div></div>
       <Login onDone={loginDone} />
     </div>
   );
@@ -2390,7 +2459,7 @@ function App() {
     </div>
   );
 
-  return <LangCtx.Provider value={lang}>{body}</LangCtx.Provider>;
+  return <LangCtx.Provider value={lang}>{body}{welcomeOpen && <Welcome need={need} onDone={()=>setWelcomeOpen(false)} />}</LangCtx.Provider>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);

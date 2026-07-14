@@ -322,11 +322,42 @@ footer{padding:44px 0 56px;color:var(--muted);font-size:13.5px;display:flex;just
 .field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px var(--green-50)}
 .phonewrap{display:flex;gap:8px}.phonewrap .cc{flex:none;width:84px}
 .reg-card .btn{width:100%;justify-content:center;margin-top:10px;font-size:16.5px;padding:16px;border-radius:14px}
-.reg-card .btn[disabled]{opacity:1;background:#7FCF9C;box-shadow:none;color:#fff}
+.reg-card .btn[disabled]{opacity:1;background:#EAEEEB;box-shadow:none;color:var(--muted-2);cursor:not-allowed}
 .reg-trust{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px;font-size:12.5px;font-weight:600;color:var(--green-d)}
 .reg-trust span{display:flex;align-items:center;gap:5px}
 .reg-fine{font-size:12.5px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
 .reg-fine a{color:var(--green-d);font-weight:600}
+
+/* ===== auth v3 (IP-region login / SSO / welcome / account picker) ===== */
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0 4px;color:var(--muted-2);font-size:12.5px;font-weight:600}
+.auth-divider:before,.auth-divider:after{content:"";flex:1;height:1px;background:var(--line)}
+.sso-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid var(--line);background:#fff;border-radius:13px;padding:13px;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;margin-top:11px;transition:background .15s}
+.sso-btn:hover{background:#FAFBFA}
+.sso-btn.apple{background:#000;color:#fff;border-color:#000}
+.sso-btn.apple:hover{background:#181818}
+.glogo{width:19px;height:19px;border-radius:50%;background:conic-gradient(from -45deg,#EA4335 0 25%,#FBBC05 0 50%,#34A853 0 75%,#4285F4 0);position:relative;flex:none}
+.glogo:after{content:"";position:absolute;inset:4px;background:#fff;border-radius:50%}
+.region-note{display:inline-flex;align-items:center;gap:6px;background:var(--green-50);color:var(--green-d);font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;margin:0 0 18px}
+.demo-flip{text-align:center;margin-top:18px;font-size:11.5px;color:var(--muted-2)}
+.demo-flip a{color:var(--muted);font-weight:700;cursor:pointer;text-decoration:underline}
+.welcome-overlay{position:fixed;inset:0;z-index:120;background:rgba(18,32,24,.5);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:24px;animation:fade .25s ease both}
+.welcome-overlay .welcome-modal{max-width:430px;margin:0}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.welcome-hero{text-align:center;margin-bottom:6px}
+.welcome-hero .welcome-badge{display:inline-block;margin-bottom:10px}
+.field label .pre{color:var(--green-d);font-weight:700;font-size:11.5px;margin-left:6px}
+.acct-row{display:flex;align-items:center;gap:13px;background:#fff;border:1.5px solid var(--line);border-radius:15px;padding:14px;margin-top:12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-align:left;min-height:88px}
+.acct-row:hover{border-color:var(--green);box-shadow:0 4px 12px rgba(95,192,141,.15)}
+.acct-row.on{border-color:var(--green);box-shadow:0 0 0 3px var(--green-50)}
+.acct-av{width:46px;height:46px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px}
+.acct-nm{font-weight:800;font-size:15px;color:var(--ink)}
+.acct-ad{color:var(--ink-2);font-size:12px;margin-top:2px}
+.acct-role{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;margin-top:6px}
+.acct-role.owner{background:var(--green-50);color:var(--green-d)}
+.acct-role.staff{background:#F0F1F3;color:var(--ink-2)}
+.acct-last{margin-left:auto;font-size:10.5px;color:var(--green-d);font-weight:700;align-self:flex-start;white-space:nowrap}
+.acct-new{display:flex;align-items:center;justify-content:center;gap:9px;color:var(--ink-2);font-weight:700;font-size:14px;border:1.5px dashed var(--line);border-radius:14px;padding:14px;margin-top:14px;cursor:pointer}
+.acct-new:hover{border-color:var(--green);color:var(--green-d)}
 
 /* ===== flow shell ===== */
 .shell{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(120% 80% at 50% -20%, #FFFFFF 0%, var(--bg) 55%)}

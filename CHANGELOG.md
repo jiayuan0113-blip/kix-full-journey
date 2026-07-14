@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-07-14
+
+### 93. 注册登录合一 v3 —— 按 IP 分区登录 + 验证即建号 + 恭喜补资料 + 账号选择页
+- **需求根因**：多入口身份分裂——注册海外填邮箱/国内填手机、登录又可 Google/Apple SSO，每种凭证各建号、无人归并 → 同一人多个互不关联账号。（三体：REDUCTIVE，根因=缺规范身份主键 + verify 后账号解析。）
+- **方案（前后端联合，采纳前端 V2「零表单」骨架 + Joyce 决策）**：
+  - **删注册表单，验证即建号**：唯一入口，身份验证通过即登录态（老=登录 / 新=后端静默建号，默认资料：店名派生 / 国家按 IP / 手机可空）。旧的 4 栏注册页（店名/国家/邮箱码/手机）作废。
+  - **按 IP 分区展示登录**：海外 IP = 邮箱 OTP + Google/Apple SSO；国内 IP = 手机号 +86（Google/Apple 国内不可用，逻辑自洽）。**SSO 保留**，分裂靠**后端身份归并**（email/kix_user_id 归到同一账号）防——⚠️ 归并覆盖自动建号场景是后端硬验收项（前端方案 §9 待确认）。
+  - **恭喜 + 可跳过补资料 = 主页上的遮罩弹窗（非独立整页，2026-07-14 Joyce 定）**：新用户绑卡后**先进主页**，主页压半透明遮罩、上浮「欢迎加入 KiX」弹窗 + 店名(预填)/WhatsApp(选填)/国家(预填)，「保存并进入」或「稍后再说」或点遮罩关闭。强化"已经进来了、这只是可跳过小步骤"，不做硬闸门（守 canon 注册后置 / 加法伤留存）。
+  - **verify 后账号解析**：membership 0→匿名进 / 1→直接进 / ≥2→账号选择页（大卡+地址区分同名店+角色+记住上次+新建入口）。对齐 §13 + `PRD-team-seats.md`。
+  - 绑卡步（Stripe /register/card 语义）**不动**。
+- **设计评审已过（设计评审官 web 媒介）**：修了①验证步标题按目标命名「最后一步：验证身份就能上线」+ 删冗余「已有账号登录」链；②禁用按钮从假激活改明显置灰；③SSO 等权描边（邮箱主按钮唯一焦点）；④去 📍 emoji；⑤退出控件统一右上。恭喜页 🎉 换成品牌绿成功徽章 SVG（去 AI 味）。
+- **原型改动**：`journey.jsx` 新增 `AuthEntry`（IP 分区 + SSO + OTP，可传 title）/`Welcome`/`AccountPicker`，重写 `Login`（用 AuthEntry）与 `Register`（auth→card→welcome，删旧 4 栏表单）；App 加 `choose` 屏 + loginDone 按 `?accounts=multi` 分流。`index.html` 加 auth v3 样式（sso/divider/region-note/welcome-badge/acct-*）+ 禁用态置灰。
+- **调试参数**：`?screen=login`（海外）·`&region=cn`（国内）·`?screen=register`(验证→绑卡)·`&rstep=card`·`?welcome=1`（主页遮罩恭喜弹窗，配 `&fresh=1` 空态更真）·`?screen=choose`（账号选择）·`&accounts=multi`（登录后进选择页）·`&need=<店名>`（恭喜预填）。登录卡底部 `demo·切换视图` 翻两种 IP 视图。
+- **原型为 mock**：验证即建号 / is_new_account / **后端身份归并** 是后端行为，原型只演示前端形态；真效果需前端 TS portal（`src/pages/auth/*`，不在本机）+ 后端联合上。
+- **影响文件**：`journey.jsx`、`index.html`、`SPEC.md`（§11/§13）、`CHANGELOG.md`。
+
+---
+
 ## 2026-07-13
 
 ### 92. 多账号团队席位（Team Seats）——「我的」新增团队面板 + 邀请弹窗
