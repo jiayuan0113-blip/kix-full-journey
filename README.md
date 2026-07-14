@@ -27,13 +27,17 @@ npx serve -l 4311
 
 | 参数 | 取值 | 作用 |
 |---|---|---|
-| `screen` | `landing` / `describe` / `building` / `results` / `preview` / `register` / `done` / `app` | 直接跳到某屏（建游戏=三步：describe→building→results→preview） |
+| `screen` | `landing` / `describe` / `building` / `results` / `preview` / `register` / `login` / `choose` / `app` | 直接跳到某屏（建游戏=三步：describe→building→results→preview；`login`=登录/注册合一，`choose`=账号选择页） |
+| `region` | `cn` | 登录页国内手机视图（默认海外邮箱 + Google/Apple） |
+| `welcome` | `1` | 新用户主页上的「恭喜 + 补资料」遮罩弹窗（配 `fresh=1` 看空态主页） |
+| `accounts` | `multi` | 登录后进账号选择页（模拟名下多商家 / 团队席位） |
+| `rstep` | `card` | 发布闸门直达绑卡子步 |
 | `authed` | `1` | 模拟已登录（带左侧栏的后台外壳） |
-| `sec` | `home` / `games` / `redeem` / `reports` / `me` | 后台具体页 |
+| `sec` | `home` / `activities` / `games` / `redeem` / `reports` / `me` | 后台具体页 |
 | `edit` | `1` | 配合 `sec=games` 直接打开「游戏工作台」（预览 + 控制 + AI 对话） |
 | `lang` | `en` / `zh` | 语言 |
 
-例：`...?screen=preview`（建游戏第3步）｜`...?screen=app&authed=1&sec=games&edit=1`（游戏工作台）｜`...?screen=app&authed=1&sec=me`（多店铺）
+例：`...?screen=login`（海外登录）｜`...?screen=login&region=cn`（国内手机登录）｜`...?welcome=1&fresh=1&need=Kopi Corner`（主页恭喜弹窗）｜`...?screen=choose`（账号选择页）｜`...?screen=app&authed=1&sec=games&edit=1`（游戏工作台）
 
 ## 文件结构
 

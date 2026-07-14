@@ -80,7 +80,7 @@
   - `challenge`（限时挑战赛）：`{id, name, form:'challenge', outletIds, gameId, status, logo?, schedule:{mode:'oneoff'|'recurring', date?, days?:[0-6], time, roundMins, endDate?}, tiebreak:'earliest', prizeLadder:[{from, to, prize:{type:'cash'|'item'|'discount'|'custom', denom?&count?(cash：商家自定面额×张数，总额=denom×count) | pct?(discount), label?(名称/商品名), img?(配图), codeSource?:'auto'|'custom', codeFile?}}], stat?:{players, walkins, newCust}}` —— 定点开赛+排名定奖（见 §3.9a）。奖品券码=系统自动生成或商家上传自有码（同长期活动 codeSource）。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页)。
 
 ---
 
