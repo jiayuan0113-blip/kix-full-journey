@@ -141,10 +141,33 @@ const SPARSE_METRICS = {
 /* 游戏（独立上线）纯玩数据 —— 无奖品/无到店；只统计游玩、玩家、完成率。
    自洽：byGame 720+340+180 = 1240 = plays；trend 7 天求和 = 1240；players 890 < plays；完成率 68%。 */
 const GAME_METRICS = {
-  plays: 1240, players: 890, completion: 68, avgPlaySec: 38,
-  delta: { plays:"+22%", players:"+15%" },
-  trend: [{d:{en:"Mon",zh:"一"},v:150},{d:{en:"Tue",zh:"二"},v:160},{d:{en:"Wed",zh:"三"},v:170},{d:{en:"Thu",zh:"四"},v:180},{d:{en:"Fri",zh:"五"},v:190},{d:{en:"Sat",zh:"六"},v:190},{d:{en:"Sun",zh:"日"},v:200}],
-  byGame: [ {n:{en:"Lucky Spin",zh:"幸运大转盘"}, v:720, c:"#16A34A"}, {n:{en:"Scratch Card",zh:"刮刮乐"}, v:340, c:"#0EA5E9"}, {n:{en:"Fruit Merge",zh:"合成水果"}, v:180, c:"#EF4444"} ],
+  /* 概览聚合 */
+  plays: 1304, players: 974, avgPlaySec: 36, dailyAvg: 54,
+  spark: [60,66,70,78,84,92,100],
+  /* per-game：status = live(在跑) / offline(曾上线已下线，纯展示态，非游戏状态机)；
+     small=true → 小样本，逐日柱降级 sparkline + 提示（对齐活动侧稀疏规则） */
+  games: [
+    { id:"wheel", kind:"spin", color:"#16A34A", c:"linear-gradient(90deg,#16A34A,#22C55E)",
+      name:{en:"Lucky Spin",zh:"幸运大转盘"}, status:"live",
+      liveMeta:{en:"Live for 24 days",zh:"上线 24 天 · 至今在跑"},
+      plays:720, players:512, avgPlaySec:41, dailyAvg:30,
+      trend:[{d:{en:"Mon",zh:"一"},v:88},{d:{en:"Tue",zh:"二"},v:96},{d:{en:"Wed",zh:"三"},v:92},{d:{en:"Thu",zh:"四"},v:110},{d:{en:"Fri",zh:"五"},v:118},{d:{en:"Sat",zh:"六"},v:128},{d:{en:"Sun",zh:"日"},v:88}] },
+    { id:"scratch", kind:"scratch", color:"#0EA5E9", c:"linear-gradient(90deg,#0EA5E9,#38BDF8)",
+      name:{en:"Scratch Card",zh:"刮刮乐"}, status:"offline",
+      liveMeta:{en:"Ran 18 days (May 3 to Jun 20), now offline",zh:"上线 18 天（5月3日–6月20日），已下线"},
+      plays:340, players:268, avgPlaySec:33, ended:true,
+      trend:[{d:{en:"Wk1",zh:"周1"},v:44},{d:{en:"Wk2",zh:"周2"},v:96},{d:{en:"Wk3",zh:"周3"},v:120},{d:{en:"Wk4",zh:"周4"},v:80}] },
+    { id:"fruit", kind:"merge", color:"#EF4444", c:"linear-gradient(90deg,#EF4444,#FB7185)",
+      name:{en:"Fruit Merge",zh:"合成水果"}, status:"offline",
+      liveMeta:{en:"Ran 9 days, now offline",zh:"上线 9 天，已下线"},
+      plays:180, players:143, avgPlaySec:28, ended:true,
+      trend:[{d:{en:"Wk1",zh:"周1"},v:52},{d:{en:"Wk2",zh:"周2"},v:128}] },
+    { id:"stack", kind:"stack", color:"#F59E0B", c:"linear-gradient(90deg,#F59E0B,#FBBF24)",
+      name:{en:"Stack It",zh:"叠叠乐"}, status:"offline",
+      liveMeta:{en:"Ran 5 days, now offline",zh:"上线 5 天，已下线"},
+      plays:64, players:51, avgPlaySec:22, ended:true, small:true,
+      trend:[{d:{en:"D1",zh:"1"},v:9},{d:{en:"D2",zh:"2"},v:18},{d:{en:"D3",zh:"3"},v:22}] },
+  ],
 };
 
 /* vouchers — merchant只填「折扣 + 张数」，无中奖率概念。发券概率按剩余张数自然分布、发完即停。 */

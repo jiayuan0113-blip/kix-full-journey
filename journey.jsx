@@ -1856,6 +1856,8 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   const ranges = [{en:"Since launch",zh:"上线以来"},{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
   const [ri, setRi] = useState(0);
   const [tab, setTab] = useState(new URLSearchParams(location.search).get("tab") || (hasLive ? "activity" : (hasLiveGame ? "game" : "activity")));
+  const [gsel, setGsel] = useState(new URLSearchParams(location.search).get("g") || null); // 选中的单游戏（下钻详情）
+  const [gmetric, setGmetric] = useState("plays"); // 横向对比维度：plays/players/time
   const note = tr(lang,"vs last week","比上周");
   const totRed = vouchers.reduce((s,v)=>s+(v.redeemed||0),0);
   // 漏斗转化率 + 新客占比
@@ -1964,48 +1966,109 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     </>
   );
 
-  // 游戏数据（独立上线的纯玩数据：无奖品/无到店）
-  const gmax2 = Math.max(...GM.byGame.map(g=>g.v));
-  const gtmax = Math.max(...GM.trend.map(t=>t.v));
-  const gameBody = !hasLiveGame ? (
-    <EmptyState
-      icon={<Ic.gamepad/>}
-      title={tr(lang,"No game is live yet","还没有已上线的游戏")}
-      sub={tr(lang,"Publish a game (no prizes needed) and its plays, players and play time will show up here.","上线一个游戏（无需奖品），它的游玩次数、玩家数、平均时长会显示在这里。")}
-      actLabel={tr(lang,"Go to My games","去我的游戏")}
-      onAct={onGoGames}
-    />
-  ) : (
-    <>
-      <div className="rep-hero">
+  // 游戏参与度：概览(横向对比+可点) → 单游戏历史详情；含「曾上线现已下线」游戏(历史不删)
+  const games = GM.games || [];
+  const hasEver = games.length > 0;              // 曾上线过任何游戏（判空态，取代 hasLiveGame）
+  const oneGame = games.length === 1;            // 只有 1 个 → 跳过列表直接进详情
+  const selGame = gsel ? games.find(g=>g.id===gsel) : (oneGame ? games[0] : null);
+  const GMETRICS = [
+    { k:"plays",   en:"Plays",   zh:"玩次", val:g=>g.plays,      unit:{en:"plays",zh:"次"} },
+    { k:"players", en:"Players", zh:"玩家", val:g=>g.players,    unit:{en:"players",zh:"人"} },
+    { k:"time",    en:"Time",    zh:"时长", val:g=>g.avgPlaySec, unit:{en:"s",zh:"s"} },
+  ];
+  const curMetric = GMETRICS.find(m=>m.k===gmetric) || GMETRICS[0];
+  const gsorted = [...games].sort((a,b)=>curMetric.val(b)-curMetric.val(a));
+  const gcmax = Math.max(1, ...games.map(m=>curMetric.val(m)));
+  const gBadge = (off) => <span className={"act-badge sm "+(off?"st-offline":"st-live")}>{!off && <span className="b"></span>}{off ? tr(lang,"Offline","已下线") : tr(lang,"Live","已上线")}</span>;
+
+  // 单游戏历史详情（在跑=绿；已下线=灰存档；小样本=sparkline 降级）
+  const gameDetail = (g) => {
+    const off = g.status==="offline";
+    const dmax = Math.max(1, ...g.trend.map(t=>t.v));
+    return (<>
+      {!oneGame && <div className="rep-back" onClick={()=>setGsel(null)}><Ic.arrow style={{ width:15, height:15, transform:"rotate(180deg)" }}/> {tr(lang,"All games","所有游戏")}</div>}
+      <div className="gd-head">
+        <div className="gd-art" style={{ background:g.c }}></div>
+        <div className="gd-tt"><div className="gd-nm">{P(lang,g.name)} {gBadge(off)}</div><div className="gd-meta">{P(lang,g.liveMeta)}</div></div>
+      </div>
+      {off && <div className="gnote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ flexShrink:0, marginTop:1 }}><rect x="9" y="8" width="2.2" height="8" rx="1" fill="currentColor" stroke="none"/><rect x="13" y="8" width="2.2" height="8" rx="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="9"/></svg><span><b>{tr(lang,"This game is offline.","游戏已下线。")}</b> {tr(lang,"Below is the data it gathered while live. To collect more, relaunch it from My games.","下面是它上线期间攒下的数据。想继续收集，去「我的游戏」重新上线。")}</span></div>}
+      <div className={"rep-hero"+(off?" archived":"")}>
         <div className="rh-l">
-          <span className="rh-eye"><span className="b"></span>{tr(lang,`Game plays · ${P(lang,ranges[ri])}`,`游玩次数 · ${P(lang,ranges[ri])}`)}</span>
-          <div className="rh-num">{GM.plays}<span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{GM.delta.plays} {note}</span></div>
-          <p className="rh-sub">{tr(lang,"How many times customers played; games go live on their own, no prizes.","客人玩你游戏的总次数。游戏可以单独上线，没有奖品。")}</p>
+          <span className="rh-eye"><span className="b" style={off?{ background:"#94A3B0", boxShadow:"none" }:undefined}></span>{off ? tr(lang,"Plays · while live","游玩次数 · 在线期间") : tr(lang,`Plays · ${P(lang,ranges[ri])}`,`游玩次数 · ${P(lang,ranges[ri])}`)}</span>
+          <div className="rh-num">{g.plays}{!off && g.dailyAvg && <span className="rh-sub2">{tr(lang,`About ${g.dailyAvg} a day`,`日均约 ${g.dailyAvg} 次`)}</span>}</div>
+          <p className="rh-sub">{tr(lang,"Total times customers played this game, including plays inside activities.","客人玩这个游戏的总次数，包含在活动里玩的。")}</p>
         </div>
-        <div className="rh-r">{GM.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/gtmax*100)+"%" }}></span>))}</div>
+        {!g.small && <div className="rh-r">{g.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/dmax*100)+"%" }}></span>))}</div>}
       </div>
       <div className="panels">
-        <div className="panel">
-          <h3>{tr(lang,"Players","玩家数")}</h3>
-          <p className="ph-sub">{tr(lang,"Distinct people who played","玩过的独立用户数")}</p>
-          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.players}<span className="rh-delta up" style={{ position:"static", marginLeft:10 }}>{GM.delta.players} {note}</span></div>
+        <div className="panel gstat">
+          <div className="gstat-l"><h3>{tr(lang,"Players","玩家数")}</h3><p className="ph-sub">{off ? tr(lang,"How many played while live","在线期间多少人玩过") : tr(lang,"How many people played","多少人玩过")}</p></div>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{g.players}</div>
         </div>
-        <div className="panel">
-          <h3>{tr(lang,"Avg play time","玩的时长")}</h3>
-          <p className="ph-sub">{tr(lang,"Average time per play","平均每局玩多久")}</p>
-          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.avgPlaySec}s</div>
+        <div className="panel gstat">
+          <div className="gstat-l"><h3>{tr(lang,"Avg play time","平均时长")}</h3><p className="ph-sub">{tr(lang,"Average time per play","平均每局玩多久")}</p></div>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{g.avgPlaySec}<span className="rh-unit">s</span></div>
         </div>
-      </div>
-      <div className="panel">
-        <h3>{tr(lang,"Plays by game","各游戏游玩次数")}</h3>
-        <p className="ph-sub">{tr(lang,"Which game gets played the most","哪个游戏最多人玩")}</p>
-        {GM.byGame.map((g,i)=>(<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"plays","次")}</span></div><div className="ht"><i style={{ width:(g.v/gmax2*100)+"%", background:g.c }}></i></div></div>))}
       </div>
       <div className="panel">
         <h3>{tr(lang,"Plays per day","每天游玩次数")}</h3>
-        <p className="ph-sub">{tr(lang,"Daily game plays","每日游戏游玩量")}</p>
-        <div className="bars7">{GM.trend.map((t,i)=>(<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height:(t.v/gtmax*100)+"%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
+        <p className="ph-sub">{g.small ? tr(lang,"Too little data to chart yet. The daily bars fill in as it runs.","数据太少，还画不出每日走势。多跑几天就有了。") : off ? tr(lang,"Its live days only. The line marks when it went offline.","只显示它在线那段时间。虚线之后已下线，不再收数据。") : tr(lang,"Daily plays over the last 7 days","这个游戏近 7 天每天被玩多少次")}</p>
+        {g.small
+          ? <div style={{ display:"flex", alignItems:"center", gap:16, padding:"8px 2px" }}>
+              <div style={{ display:"flex", alignItems:"flex-end", gap:5, height:40 }}>{g.trend.map((t,i)=>(<span key={i} style={{ width:9, borderRadius:3, height:Math.max(7,(t.v/dmax*40))+"px", background:t.v>0?"var(--green)":"var(--line-2)" }}></span>))}</div>
+              <span style={{ fontSize:13, color:"var(--muted)" }}>{tr(lang,"A few more days and this becomes a full chart.","多跑几天，这里会变成完整柱状图。")}</span>
+            </div>
+          : <div className="bars7">
+              {g.trend.map((t,i)=>(<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height:(t.v/dmax*100)+"%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}
+              {off && <div className="endline"><span>{tr(lang,"Offline","下线")}</span></div>}
+            </div>}
+      </div>
+    </>);
+  };
+
+  const gameBody = !hasEver ? (
+    <EmptyState
+      icon={<Ic.gamepad/>}
+      title={tr(lang,"No game data yet","还没有游戏数据")}
+      sub={tr(lang,"Launch a game (no prizes needed) and its plays, players and play time show up here. Take it offline later and the history stays.","上线一个游戏（不用奖品），玩次、玩家、时长就显示在这里。以后下线了，数据也一直留着。")}
+      actLabel={tr(lang,"Go to My games","去我的游戏")}
+      onAct={onGoGames}
+    />
+  ) : selGame ? gameDetail(selGame) : (
+    <>
+      <div className="rep-hero">
+        <div className="rh-l">
+          <span className="rh-eye"><span className="b"></span>{tr(lang,`Plays · ${P(lang,ranges[ri])}`,`游玩次数 · ${P(lang,ranges[ri])}`)}</span>
+          <div className="rh-num">{GM.plays}{GM.dailyAvg && <span className="rh-sub2">{tr(lang,`About ${GM.dailyAvg} a day`,`日均约 ${GM.dailyAvg} 次`)}</span>}</div>
+          <p className="rh-sub">{tr(lang,"Total plays across your games, including plays inside activities.","你所有游戏被玩的总次数，包含在活动里玩的。")}</p>
+        </div>
+        <div className="rh-r">{(GM.spark||[]).map((h,i)=>(<span key={i} className="rh-spark" style={{ height:h+"%" }}></span>))}</div>
+      </div>
+      <div className="panels">
+        <div className="panel gstat">
+          <div className="gstat-l"><h3>{tr(lang,"Players","玩家数")}</h3><p className="ph-sub">{tr(lang,"How many people played","多少人玩过")}</p></div>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.players}</div>
+        </div>
+        <div className="panel gstat">
+          <div className="gstat-l"><h3>{tr(lang,"Avg play time","平均时长")}</h3><p className="ph-sub">{tr(lang,"Average time per play","平均每局玩多久")}</p></div>
+          <div className="rh-num" style={{ color:"var(--ink)" }}>{GM.avgPlaySec}<span className="rh-unit">s</span></div>
+        </div>
+      </div>
+      <div className="panel">
+        <div className="panel-head" style={{ alignItems:"flex-start" }}>
+          <div><h3>{tr(lang,"Plays by game","各游戏游玩次数")}</h3><p className="ph-sub" style={{ margin:0 }}>{tr(lang,"Which game gets played most. Tap a bar for details.","哪个游戏最多人玩。点一条看详情。")}</p></div>
+          <div className="metricseg">{GMETRICS.map(m=>(<button key={m.k} className={gmetric===m.k?"on":""} onClick={()=>setGmetric(m.k)}>{tr(lang,m.en,m.zh)}</button>))}</div>
+        </div>
+        <div style={{ marginTop:16 }}>
+          {gsorted.map(g=>{
+            const v = curMetric.val(g), off = g.status==="offline";
+            const disp = gmetric==="time" ? v+"s" : v+" "+P(lang,curMetric.unit);
+            return (<div key={g.id} className="cbar" onClick={()=>setGsel(g.id)}>
+              <div className="cbar-l"><span className="cn">{P(lang,g.name)} {gBadge(off)}</span><span className="cv">{disp} <span className="ch">›</span></span></div>
+              <div className="cbar-t"><i style={{ width:(v/gcmax*100)+"%", background:g.c }}></i></div>
+            </div>);
+          })}
+        </div>
       </div>
     </>
   );
@@ -2014,10 +2077,12 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     <div className="app-body">
       <div className="rep-top">
         <div className="rep-seg">
-          <button className={tab==="activity"?"on":""} onClick={()=>setTab("activity")}>{tr(lang,"Activities","活动")}</button>
-          <button className={tab==="game"?"on":""} onClick={()=>setTab("game")}>{tr(lang,"Games","游戏")}</button>
+          <button className={tab==="activity"?"on":""} onClick={()=>{ setTab("activity"); }}>{tr(lang,"Activities","活动")}</button>
+          <button className={tab==="game"?"on":""} onClick={()=>{ setTab("game"); }}>{tr(lang,"Games","游戏")}</button>
         </div>
-        <div className="datepills">{ranges.map((r,i) => <button key={i} className={ri===i?"on":""} onClick={()=>setRi(i)}>{P(lang,r)}</button>)}</div>
+        {/* 已下线单游戏详情用"在线期间"口径，隐藏区间选择器（避免今天/近7天全空穿帮）*/}
+        {!(tab==="game" && selGame && selGame.status==="offline") &&
+          <div className="datepills">{ranges.map((r,i) => <button key={i} className={ri===i?"on":""} onClick={()=>setRi(i)}>{P(lang,r)}</button>)}</div>}
       </div>
       {tab==="activity" ? activityBody : gameBody}
     </div>

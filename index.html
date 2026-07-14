@@ -855,11 +855,48 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .rep-hero{display:flex;justify-content:space-between;align-items:center;gap:24px;background:linear-gradient(135deg,#0B1220,#16261C);color:#fff;border-radius:18px;padding:24px 28px;margin-bottom:16px}
 .rep-hero .rh-eye{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.05em;color:#9fb0c4;text-transform:uppercase}
 .rep-hero .rh-eye .b{width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.22)}
-.rep-hero .rh-num{font-size:54px;font-weight:900;line-height:1;margin:12px 0 10px;display:flex;align-items:baseline;gap:14px}
+.rep-hero .rh-num{font-size:54px;font-weight:800;line-height:1;margin:12px 0 10px;display:flex;align-items:baseline;gap:14px;font-variant-numeric:tabular-nums}
 .rep-hero .rh-delta{font-size:14.5px;font-weight:800;color:#34D399;display:inline-flex;align-items:center;gap:3px}
 .rep-hero .rh-sub{color:#9fb0c4;font-size:13.5px;line-height:1.5;margin:0;max-width:48ch}
 .rep-hero .rh-r{display:flex;align-items:flex-end;gap:7px;height:72px;min-width:160px;justify-content:flex-end}
 .rep-hero .rh-spark{width:15px;min-height:8px;background:linear-gradient(180deg,#22C55E,#16A34A);border-radius:5px;opacity:.92}
+.rep-hero .rh-num .rh-sub2{font-size:14px;font-weight:700;color:#9fb0c4;letter-spacing:0}
+/* 已下线游戏 = 存档态：hero 降饱和成静默灰绿，一眼看出是历史 */
+.rep-hero.archived{background:linear-gradient(135deg,#232B33,#2A322C)}
+.rep-hero.archived .rh-num{color:#D7DEE4}
+.rep-hero.archived .rh-spark{background:linear-gradient(180deg,#8FA79A,#6E8579);opacity:.85}
+/* 游戏统计卡（玩家数/平均时长）：单行——标签左、大号粗体数字右，垂直居中 */
+.panel.gstat{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.panel.gstat .gstat-l{min-width:0}
+.panel.gstat .gstat-l h3{margin:0 0 3px}
+.panel.gstat .gstat-l .ph-sub{margin:0}
+.panel.gstat > .rh-num{margin:0;flex:none;font-size:36px;font-weight:700;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.panel.gstat > .rh-num .rh-unit{font-size:.5em;font-weight:600;color:var(--muted);margin-left:1px;letter-spacing:0}
+/* 游戏数据：返回 / 详情头 / 已下线提示 / 横向对比可点条 / 结束分隔线 */
+.rep-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--green-d);margin-bottom:14px;cursor:pointer}
+.rep-back:hover{color:var(--green)}
+.gd-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.gd-head .gd-art{width:46px;height:46px;border-radius:11px;flex:none}
+.gd-head .gd-nm{font-size:20px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.gd-head .gd-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.gnote{background:#FFFBEB;border:1px solid #FDE9B8;color:#8A6D1F;font-size:12.5px;font-weight:600;border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start}
+.gnote b{color:#6b520f}
+.metricseg{display:flex;gap:3px;background:#F1F5F3;border-radius:999px;padding:3px;flex:none}
+.metricseg button{font-size:12.5px;font-weight:700;color:var(--muted);padding:5px 12px;border-radius:999px;transition:all .15s}
+.metricseg button.on{background:#fff;color:var(--ink);box-shadow:var(--sh-sm)}
+.cbar{padding:12px;margin-bottom:8px;border:1px solid var(--line-2);border-radius:12px;cursor:pointer;transition:background .15s,border-color .15s}
+.cbar:last-child{margin-bottom:0}
+.cbar:hover{background:#F7FAF8;border-color:#CFE0D6}
+.cbar .cbar-l{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;margin-bottom:8px;color:var(--ink-2)}
+.cbar .cbar-l .cn{display:inline-flex;align-items:center;gap:8px}
+.cbar .cbar-l .cv{color:var(--ink);font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+.cbar .cbar-l .cv .ch{color:var(--muted-2);font-weight:600;font-size:16px}
+.cbar:hover .cbar-l .cv,.cbar:hover .cbar-l .cv .ch{color:var(--green-d)}
+.cbar .cbar-t{height:12px;background:#EEF3F0;border-radius:999px;overflow:hidden}
+.cbar .cbar-t>i{display:block;height:100%;border-radius:999px}
+.act-badge.sm{font-size:11.5px;padding:3px 9px}
+.bars7 .endline{align-self:stretch;display:flex;flex-direction:column;justify-content:center;align-items:center;border-left:2px dashed #C7D2CB;margin-left:6px;padding-left:10px}
+.bars7 .endline span{writing-mode:vertical-rl;font-size:11px;font-weight:700;color:var(--muted-2);letter-spacing:.1em}
 /* 计费仪表 billmeter */
 .billmeter{display:flex;align-items:center;gap:22px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--sh)}
 .bm-usage{display:flex;align-items:center;gap:20px}

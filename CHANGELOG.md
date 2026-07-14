@@ -6,6 +6,18 @@
 
 ## 2026-07-14
 
+### 94. 数据页·游戏 tab 重构 —— 概览→单游戏下钻 + 已下线历史留存 + 玩次含活动内
+- **需求根因**：原游戏 tab 只展示"当前 live 游戏"的单聚合数据，游戏一下线（回 draft）历史即消失；且无法按单游戏维度看。根因 = 数据挂"live 瞬时态"而非"游戏对象生命周期"。（三体 REDUCTIVE，一根杠杆=数据留存与游戏状态解耦。）
+- **方案**：
+  - **数据模型**（`data.jsx` `GAME_METRICS`）：由单聚合改为 `{ plays,players,avgPlaySec,dailyAvg,spark, games:[] }`；`games[]` 每项含 `status(live|offline)/liveMeta/plays/players/avgPlaySec/trend/ended/small`。`status:"offline"` = 展示态"曾上线现已下线"，**非游戏状态机态**（游戏仍只有 draft/live）。
+  - **⭐ 玩次含活动内游玩**：跟游戏对象走 = 独立上线 + 活动内被玩之和。与 Activities 漏斗「扫码玩」有意重叠（参与度 vs 转化）。文案改「包含在活动里玩的 / including plays inside activities」，删旧「纯玩，不送奖品」。
+  - **两层 UI**（`journey.jsx` `ReportsView` 的 `gameBody`/`gameDetail`）：概览(总数 hero + 玩家/时长 单行 KPI 卡 + 各游戏横向对比条形图〔含已下线、可点、玩次/玩家/时长切换〕，砍掉重复的合并每日图) → 点条进单游戏详情。`games.length===1` 跳过概览直接详情；≥2 有「‹ 所有游戏」返回。
+  - **已下线详情**：灰存档 hero + "在线期间"口径 + 黄提示条 + 每日柱只画在线段 + 结束竖虚线 + 隐藏日期 pill。**小样本**降级 sparkline + 提示。
+  - **空态判据** `hasLiveGame`→`hasEverLive`（曾上线有数据即走概览，全下线也不空）。
+  - **字体（设计评审）**：hero 900→800、KPI 数字 50/900→36/700、单位 `.rh-unit` 缩小变灰、全站数字 `tabular-nums`（Plus Jakarta 900 是营销字重、放大发闷）。
+- **影响文件**：`data.jsx`（GAME_METRICS）、`journey.jsx`（gameBody/gameDetail + gsel/gmetric state）、`index.html`（`.panel.gstat`/`.cbar`/`.metricseg`/`.rep-hero.archived`/`.endline`/`.rep-back`/`.gd-head`/`.gnote` 等 CSS）。
+- **研发**：GAME_METRICS 需接真实服务，按游戏对象累计玩次(含活动内)、下线不删历史；`everLive` 标记 + 单游戏时间序列(在线期间)。调试参数 `&tab=game&g=<id>`。SPEC §4.8 已更新。
+
 ### 93. 注册登录合一 v3 —— 按 IP 分区登录 + 验证即建号 + 恭喜补资料 + 账号选择页
 - **需求根因**：多入口身份分裂——注册海外填邮箱/国内填手机、登录又可 Google/Apple SSO，每种凭证各建号、无人归并 → 同一人多个互不关联账号。（三体：REDUCTIVE，根因=缺规范身份主键 + verify 后账号解析。）
 - **方案（前后端联合，采纳前端 V2「零表单」骨架 + Joyce 决策）**：
