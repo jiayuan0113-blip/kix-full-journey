@@ -682,7 +682,9 @@ Player（客人，端侧最小化）
 User        id, login_type(email|phone), login_id, region
             # 登录凭证 = 海外邮箱 / 国内手机号（二选一，按区域）；login_id 唯一标识“一个人”
 Membership  id, user_id, account_id, role(owner|member),
-            status(invited|active|removed), default_outlet_id?, joined_at
+            status(active|removed), default_outlet_id?, joined_at
+            # 无“待加入/invited”态：邀请是匿名可分享链接，平台不知道受邀人凭证；
+            # 成员登录接受链接的瞬间即 active、直接出现在成员列表。无老板审批。
 Account     去掉直接挂登录凭证 → owner 关系变成一条 role=owner 的 Membership
 InviteToken id, account_id, role=member, token, expires_at, one_time(bool), used_count, created_by, revoked
 ```
@@ -692,8 +694,9 @@ InviteToken id, account_id, role=member, token, expires_at, one_time(bool), used
 
 ### 13.3 邀请与加入
 1. Owner「我的 → 团队 → + 邀请成员」→ **邀请二维码 + 可复制链接**（默认 7 天有效、可重新生成使旧的失效、可选一次性/常驻）。
-2. 受邀人扫码/开链接 → 「加入 {店名}」→ 按其区域走邮箱码/手机验证码 → 以 `member` 加入。
+2. 受邀人扫码/开链接 → 「加入 {店名}」→ 按其区域走邮箱码/手机验证码 → **登录即以 `member` 加入（点击即加入，无老板审批、无待加入队列）**。
 3. 已是别账号成员的凭证 → 追加一条 membership，下次登录出账号选择页。
+- **无"待加入"状态**（v1）：邀请是匿名可分享链接，平台不知道受邀人是谁，故成员列表只显示**已加入成员**；安全边界靠链接本身（7 天失效 + 可撤销 + 可一次性）。
 
 ### 13.4 接口（建议）
 | 动作 | 方法 路径 | 返回 |

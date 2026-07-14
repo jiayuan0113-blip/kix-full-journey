@@ -10,7 +10,8 @@
 - **需求**：不同的人（合伙人/夫妻档/店长/记账）都想登录同一后台、**共同看到全部数据、能一起干活**。现状账号被单一登录凭证（国内手机号/海外邮箱）唯一标识，第二个人进不去。
 - **角色 2 个**：`Owner`（全部 + 账单 + 增删成员）/ `Member`（看全部数据 + 能操作 + 能上线花钱，仅不碰账单和成员管理）。**不做"只核销受限角色"（无需求证据）**；席位免费不限数。
 - **身份模型（给研发的契约）**：`User(login_type=email|phone, region)` + `Membership(role=owner|member)` + `InviteToken`；Account 去掉直接挂登录凭证；登录 verify 后按 membership 数量决定 新号/直接进/账号选择页；渠道按区域（国内短信码 / 海外邮件码 + SSO）。详见 `SPEC.md §13` + `PRD-team-seats.md`。
-- **原型改动**：`journey.jsx` 新增 `InviteModal`（QR + 复制链接 + 区域验证码说明 + 重新生成）；`MeView` 新增团队面板（members 列表 + 移除 + 「+ 邀请成员」，Owner 行不可移除、邀请中显示待加入）；账户菜单加「团队管理」入口。`icons.jsx` 加 `users` 图标。`index.html` 加 `.team-*` / `.invite-*` CSS。调试参数 `?screen=app&sec=me&invite=1`。
+- **点击即加入，无老板审批、无"待加入"状态**：邀请是匿名可分享链接，平台不知道受邀人凭证 → 成员列表只显示已加入成员；`Membership.status` 只有 `active|removed`；安全边界靠链接本身（7 天失效 + 可撤销 + 可一次性）。
+- **原型改动**：`journey.jsx` 新增 `InviteModal`（QR + 复制链接 + 区域验证码说明 + 重新生成）；`MeView` 新增团队面板（members 列表 + 移除 + 「+ 邀请成员」，Owner 行不可移除）；账户菜单加「团队管理」入口。`icons.jsx` 加 `users` 图标。`index.html` 加 `.team-*` / `.invite-*` CSS。调试参数 `?screen=app&sec=me&invite=1`。
 - **原型为 mock**（成员写死、token 随机）；身份模型/鉴权/账号选择页是给研发的契约，原型未演示。
 - **影响文件**：`journey.jsx`、`icons.jsx`、`index.html`、`SPEC.md`（§13）、`PRD-team-seats.md`（新增）。
 

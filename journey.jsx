@@ -2066,10 +2066,10 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
   const curPlan = PLANS.find(p=>p.id===plan) || PLANS[1];
   const [saved, setSaved] = useState(""), [appQr, setAppQr] = useState(false);
   const [invite, setInvite] = useState(new URLSearchParams(location.search).get("invite")==="1"); // ?invite=1 调试直开
+  // 邀请是匿名可分享链接，老板不知道对方凭证 → 不存在“待加入”状态；成员登录后才出现在列表
   const [members, setMembers] = useState([
-    { id:"m1", name:"Joyce", cred:"9123 4567", role:"owner",  status:"active"  },
-    { id:"m2", name:"Wei Ling", cred:"9876 5432", role:"member", status:"active"  },
-    { id:"m3", name:"—", cred:"manager@kopicorner.sg", role:"member", status:"invited" },
+    { id:"m1", name:"Joyce", cred:"9123 4567", role:"owner",  status:"active" },
+    { id:"m2", name:"Wei Ling", cred:"9876 5432", role:"member", status:"active" },
   ]);
   const removeM = (id) => setMembers(ms => ms.filter(m => m.id!==id));
   const save = (k) => { setSaved(k); setTimeout(()=>setSaved(s=>s===k?"":s), 2000); };
@@ -2098,13 +2098,12 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
         <div className="team-list">
           {members.map(m => (
             <div className="team-row" key={m.id}>
-              <div className={"team-av" + (m.role==="owner" ? " owner" : "")}>{m.status==="invited" ? "…" : (m.name.slice(0,1) || "?")}</div>
+              <div className={"team-av" + (m.role==="owner" ? " owner" : "")}>{m.name.slice(0,1) || "?"}</div>
               <div className="team-info">
-                <div className="team-name">{m.status==="invited" ? tr(lang,"Invitation pending","邀请中") : m.name}</div>
+                <div className="team-name">{m.name}</div>
                 <div className="team-cred">{m.cred}</div>
               </div>
               <span className={"team-tag " + (m.role==="owner" ? "owner" : "member")}>{m.role==="owner" ? tr(lang,"Owner","老板") : tr(lang,"Member","成员")}</span>
-              {m.status==="invited" && <span className="team-pending">{tr(lang,"Pending","待加入")}</span>}
               {m.role==="owner"
                 ? <span className="team-you">{tr(lang,"You","你")}</span>
                 : <button className="team-rm" onClick={()=>removeM(m.id)}>{tr(lang,"Remove","移除")}</button>}
