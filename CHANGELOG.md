@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-07-15
+
+### 95. 接入法律文本 —— ToS / 隐私政策 / 玩家条款（中英，三体调研）
+- **需求**：portal 缺对外法律文本；注册绑卡步已引用"条款"但为死链；上线即采玩家个人数据无隐私政策 = PDPA 违规 + Apple 上架需 privacy policy URL。
+- **调研（三体，2 轮收敛）**：新加坡 PDPA + GDPR + PIPL + Stripe 条款 + 13 家同类平台。核心定性 = **玩家数据双重角色**（单商家时 processor / network·App 时 KiX 独立 controller）；结构母版 = Como。决策与来源见 `Desktop/Mozat/kix/[决策] 2026-07-15-KiX-portal-ToS隐私政策-三体.md`。
+- **分类**：3 份对外文档 = 商家 ToS / 隐私政策（统一含双数据主体）/ 玩家条款（含券规则 + 反赌博 recital）；DPA 待补。
+- **原型改动**：
+  - **新增 `legal.jsx`**：`LEGAL{tos,privacy,player}.{en,zh}` 结构化块，**由 `scratchpad/md2legal.py` 从 3 份 md 生成**（改 md 后重跑脚本，勿手改）。
+  - `journey.jsx`：新增 `LegalModal`（三 tab + createPortal）/`LegalHost`（挂 App 根 + `?legal=` 调试）/`LegalLinks`/全局 `openLegal`；landing footer + 侧栏底 + 注册验证步 + 登录页死链→打开弹窗；**绑卡步**卡框上方加授权披露句（Terms 链接 + 按月扣费 S$29 起 + 随时取消），采 clickwrap（未加硬 checkbox，守 canon 绑卡步单一焦点）。
+  - `index.html`：加载 `legal.jsx` + 法律弹窗/链接/表格/占位符 chip 样式 + `.reg-fine.card-consent`。
+- **已定内容**：管辖=新加坡法院；儿童=13 岁（EU 16）；保留期给默认（账号+计费 5 年 / 游玩 24 月 / 验证码分钟 / 营销至撤回）；EU·中国代表暂未指定。**占位符待填**：公司法定名称 / UEN / 注册地址 / DPO 邮箱 / **生效日（暂空）**。
+- ⚠️ 全部 DRAFT，上线前须经新加坡法务复核。SPEC §14 已加。调试参数 `?legal=tos|privacy|player`。
+- **影响文件**：`legal.jsx`(新)、`journey.jsx`、`index.html`、`SPEC.md`(§14 + 调试参数)、`CHANGELOG.md`。
+
 ## 2026-07-14
 
 ### 94. 数据页·游戏 tab 重构 —— 概览→单游戏下钻 + 已下线历史留存 + 玩次含活动内

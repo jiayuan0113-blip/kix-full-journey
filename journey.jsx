@@ -13,6 +13,67 @@ function LangToggle({ lang, setLang, style }) {
   );
 }
 
+/* ===================== legal (ToS / Privacy / Player Terms) ===================== */
+/* content lives in legal.jsx (LEGAL); opened globally via openLegal(doc) */
+let _setLegal = null;
+const openLegal = (doc) => { _setLegal && _setLegal(doc); };
+const LEGAL_TITLES = { tos:["Terms of Service","服务条款"], privacy:["Privacy Policy","隐私政策"], player:["Player Terms","玩家使用条款"] };
+function legalInline(s){
+  return String(s).split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean).map((p,i)=>{
+    if(p.startsWith("**")&&p.endsWith("**")) return <strong key={i}>{p.slice(2,-2)}</strong>;
+    if(p.startsWith("`")&&p.endsWith("`")) return <code key={i} className="legal-ph">{p.slice(1,-1)}</code>;
+    return <React.Fragment key={i}>{p}</React.Fragment>;
+  });
+}
+function LegalBlocks({ blocks }){
+  return (blocks||[]).map((b,i)=>{
+    if(b.t==="h") return <h4 key={i} className="legal-h">{legalInline(b.x)}</h4>;
+    if(b.t==="h1") return <h3 key={i} className="legal-h1">{legalInline(b.x)}</h3>;
+    if(b.t==="p") return <p key={i} className="legal-p">{legalInline(b.x)}</p>;
+    if(b.t==="ul") return <ul key={i} className="legal-ul">{b.x.map((it,j)=><li key={j}>{legalInline(it)}</li>)}</ul>;
+    if(b.t==="tbl") return (
+      <div key={i} className="legal-tblwrap"><table className="legal-tbl">
+        <thead><tr>{b.head.map((h,j)=><th key={j}>{legalInline(h)}</th>)}</tr></thead>
+        <tbody>{b.rows.map((r,j)=><tr key={j}>{r.map((c,k)=><td key={k}>{legalInline(c)}</td>)}</tr>)}</tbody>
+      </table></div>);
+    return null;
+  });
+}
+function LegalModal({ doc, onClose }){
+  const lang = useLang();
+  const [cur, setCur] = useState(doc);
+  const blocks = ((typeof LEGAL!=="undefined" && LEGAL[cur]) || {})[lang] || [];
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal legal-modal" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <div className="legal-tabs">
+          {["tos","privacy","player"].map(k=>(
+            <button key={k} className={"legal-tab "+(k===cur?"on":"")} onClick={()=>setCur(k)}>{tr(lang,LEGAL_TITLES[k][0],LEGAL_TITLES[k][1])}</button>
+          ))}
+        </div>
+        <div className="legal-body"><LegalBlocks blocks={blocks}/></div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+function LegalHost(){
+  const _lg = new URLSearchParams(location.search).get("legal");   // ?legal=tos|privacy|player 调试
+  const [doc, setDoc] = useState(["tos","privacy","player"].includes(_lg) ? _lg : null);
+  useEffect(()=>{ _setLegal = setDoc; return ()=>{ _setLegal = null; }; }, []);
+  return doc ? <LegalModal doc={doc} onClose={()=>setDoc(null)} /> : null;
+}
+function LegalLinks({ lang, className }){
+  return (
+    <div className={"legal-links "+(className||"")}>
+      <a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>
+      <a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>
+      <a onClick={()=>openLegal("player")}>{tr(lang,"Player Terms","玩家条款")}</a>
+    </div>
+  );
+}
+
 /* ===================== helpers ===================== */
 const toHex = (rgb) => "#" + rgb.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
 const lighten = (rgb, a) => rgb.map(v => v + (255 - v) * a);
@@ -528,7 +589,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
         <button className="btn primary final-cta" onClick={go}>{tr(lang,"Build my game for free →","免费搭建我的游戏 →")}</button>
         <div className="final-fine">{tr(lang,"First 3 months free · regulars always free · cancel anytime","前 3 个月免费 · 老客永远免费 · 随时取消")}</div>
       </section>
-      <footer><div>{tr(lang,"KiX · built for neighbourhood shops","KiX · 为街边小店而做")}</div><div>Mozat Pte Ltd · Singapore</div></footer>
+      <footer><div>{tr(lang,"KiX · built for neighbourhood shops","KiX · 为街边小店而做")}</div><LegalLinks lang={lang}/><div>Mozat Pte Ltd · Singapore</div></footer>
     </div>
   );
 }
@@ -649,7 +710,7 @@ function Register({ onDone, onSignIn, onSaveCard, onBack, need }) {
       <div className="reg-steps"><span className={rstep==="auth"?"on":"done"}>1 · {tr(lang,"Verify","验证")}</span><i></i><span className={rstep==="card"?"on":""}>2 · {tr(lang,"Card","绑卡")}</span></div>
       {rstep === "auth" ?
         <AuthEntry title={tr(lang,"Last step: verify to go live","最后一步，验证一下就上线")} onVerified={()=>setRstep("card")} footer={
-          <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。</div>
+          <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>。</div>
         } />
       : <>
         <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
@@ -659,6 +720,7 @@ function Register({ onDone, onSignIn, onSaveCard, onBack, need }) {
           <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime.","随时下线或取消。")}</span></div>
           <div className="trust-row"><Ic.shield/><span>{tr(lang,"Stripe-encrypted, we never see your card number.","卡号交给 Stripe 加密，我们看不到。")}</span></div>
         </div>
+        <div className="reg-fine card-consent">{tr(lang,"By adding your card you agree to our ","绑卡即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," and "," 与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>{tr(lang,", and authorize KiX to charge this card monthly after your free period (from S$29/mo, based on active players). Cancel anytime.","，并授权 KiX 在免费期结束后按月从此卡扣费（S$29/月起，按活跃玩家计）；可随时取消。")}</div>
         <div className="cardf">
           <div className="cardf-input">
             <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
@@ -678,7 +740,7 @@ function Register({ onDone, onSignIn, onSaveCard, onBack, need }) {
 /* ===================== login (统一认证入口 · 按 IP 分区) ===================== */
 function Login({ onDone }) {
   const lang = useLang();
-  const footer = <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a>{tr(lang,"Privacy","隐私政策")}</a>。</div>;
+  const footer = <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>。</div>;
   return (<div className="reg-wrap"><div className="reg-card"><AuthEntry onVerified={onDone} footer={footer} /></div></div>);
 }
 
@@ -2374,6 +2436,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           </button>))}</nav>
         <div className="sb-bottom">
           <LangToggle lang={lang} setLang={setLang} />
+          <LegalLinks lang={lang} className="sb-legal" />
           <div className="sb-kix"><img className="logo-img" src="logo.png" alt="KiX"/> <span className="tg">{tr(lang,"Merchant","商家版")}</span></div>
         </div>
       </aside>
@@ -2524,7 +2587,7 @@ function App() {
     </div>
   );
 
-  return <LangCtx.Provider value={lang}>{body}{welcomeOpen && <Welcome need={need} onDone={()=>setWelcomeOpen(false)} />}</LangCtx.Provider>;
+  return <LangCtx.Provider value={lang}>{body}{welcomeOpen && <Welcome need={need} onDone={()=>setWelcomeOpen(false)} />}<LegalHost/></LangCtx.Provider>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);

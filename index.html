@@ -326,7 +326,30 @@ footer{padding:44px 0 56px;color:var(--muted);font-size:13.5px;display:flex;just
 .reg-trust{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px;font-size:12.5px;font-weight:600;color:var(--green-d)}
 .reg-trust span{display:flex;align-items:center;gap:5px}
 .reg-fine{font-size:12.5px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
-.reg-fine a{color:var(--green-d);font-weight:600}
+.reg-fine a{color:var(--green-d);font-weight:600;cursor:pointer}
+.reg-fine.card-consent{text-align:left;margin:0 0 16px;font-size:11.5px}
+/* legal links (footers / sidebar) */
+.legal-links{display:flex;gap:16px;flex-wrap:wrap}
+.legal-links a{color:var(--muted);cursor:pointer;font-size:inherit}
+.legal-links a:hover{color:var(--ink-2)}
+footer .legal-links{order:2}
+.sb-legal{gap:12px;padding:0 2px;font-size:11.5px;line-height:1.4}
+/* legal modal */
+.legal-modal{width:680px;max-width:100%;padding:0;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.legal-tabs{display:flex;gap:6px;padding:20px 22px 0;flex-wrap:wrap}
+.legal-tab{font-size:13px;font-weight:700;color:var(--muted);padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:#fff}
+.legal-tab.on{color:#fff;background:var(--ink);border-color:var(--ink)}
+.legal-body{overflow-y:auto;padding:18px 26px 30px;border-top:1px solid var(--line);margin-top:16px}
+.legal-h1{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 6px;letter-spacing:-.01em}
+.legal-h{font-size:14.5px;font-weight:800;color:var(--ink);margin:22px 0 6px}
+.legal-p{font-size:13px;line-height:1.7;color:var(--ink-2);margin:0 0 10px}
+.legal-ul{margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.legal-ul li{font-size:13px;line-height:1.65;color:var(--ink-2)}
+.legal-ph{background:var(--line-2);border-radius:5px;padding:1px 5px;font-size:11.5px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+.legal-tblwrap{overflow-x:auto;margin:0 0 14px}
+.legal-tbl{border-collapse:collapse;width:100%;font-size:12.5px}
+.legal-tbl th,.legal-tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink-2);line-height:1.5}
+.legal-tbl th{background:var(--line-2);font-weight:700;color:var(--ink)}
 
 /* ===== auth v3 (IP-region login / SSO / welcome / account picker) ===== */
 .auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0 4px;color:var(--muted-2);font-size:12.5px;font-weight:600}
@@ -1327,4 +1350,5 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 <script src="vendor/babel.min.js"></script>
 <script type="text/babel" src="data.jsx"></script>
 <script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="legal.jsx"></script>
 <script type="text/babel" src="journey.jsx"></script>

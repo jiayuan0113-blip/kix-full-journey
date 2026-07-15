@@ -80,7 +80,7 @@
   - `challenge`（限时挑战赛）：`{id, name, form:'challenge', outletIds, gameId, status, logo?, schedule:{mode:'oneoff'|'recurring', date?, days?:[0-6], time, roundMins, endDate?}, tiebreak:'earliest', prizeLadder:[{from, to, prize:{type:'cash'|'item'|'discount'|'custom', denom?&count?(cash：商家自定面额×张数，总额=denom×count) | pct?(discount), label?(名称/商品名), img?(配图), codeSource?:'auto'|'custom', codeFile?}}], stat?:{players, walkins, newCust}}` —— 定点开赛+排名定奖（见 §3.9a）。奖品券码=系统自动生成或商家上传自有码（同长期活动 codeSource）。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页) `?legal=tos|privacy|player`(打开法律文本弹窗)。
 
 ---
 
@@ -731,6 +731,31 @@ InviteToken id, account_id, role=member, token, expires_at, one_time(bool), used
 ### 13.6 原型现状（journey.jsx）
 - 「我的」新增**团队面板**（`MeView`：members 列表 + 移除 + 「+ 邀请成员」）；**InviteModal**（QR + 复制链接 + 区域验证码说明 + 重新生成）；账户菜单加「团队管理」入口；`icons.jsx` 加 `users`。调试 `?screen=app&sec=me&invite=1`。
 - 原型为前端 mock（成员写死、token 随机）；身份模型/鉴权/账号选择页为**给研发的契约**，原型未演示。
+
+---
+
+## 14. 法律文本（ToS / 隐私政策 / 玩家条款，2026-07-15）⭐
+三体调研后补的对外法律文本，中英双语。决策与来源见 `Desktop/Mozat/kix/[决策] 2026-07-15-KiX-portal-ToS隐私政策-三体.md`；正文母版见同目录 `[法务] KiX-*` 三份 md。
+
+### 14.1 分类（3 份对外文档 + 1 份待补）
+| 文档 | 服务谁 | 放哪 |
+|---|---|---|
+| 商家服务条款 Merchant ToS | KiX↔商家(B2B) | 注册验证步/登录页 footer + landing/侧栏 footer |
+| 隐私政策 Privacy Policy（统一，含双数据主体） | 商家+玩家 | 全站 footer + (将来)KiX App |
+| 玩家条款 Player Terms（含券规则 + 反赌博 recital） | KiX↔玩家 | (将来)KiX App + 扫码玩入口 |
+| DPA 数据处理附录 | 商家(processor 关系) | 待商家侧提出再补，未做 |
+
+### 14.2 核心法律定性（研发/合规须知）
+- **玩家数据双重角色**：仅为单个商家运行游戏/分析时 = processor(data intermediary)、商家=controller；**跨商家 network / KiX App / 反欺诈 / 平台改进 = KiX 独立 controller**。商家账号数据 = KiX controller。
+- 主管法 = 新加坡 PDPA（强制指定 DPO 且公开、达标数据泄露评估后 3 日内通报 PDPC、跨境传输须受认可机制）；海外触及 GDPR（Art.13 披露 + Art.27 EU 代表 + SCC，SG 无 adequacy）；国内手机用户触及 PIPL（单独同意 + 跨境机制）。
+- **Stripe off-session 存卡**：条款须含 4 项（授权发起扣款 / 频率 / 金额算法 / 取消）+ 明确同意 + 留痕。计费口径无 POS → 以 KiX 平台计数为准 + 争议窗口。
+
+### 14.3 原型实现（journey.jsx + legal.jsx + index.html）
+- **内容**：`legal.jsx` 的 `LEGAL{tos,privacy,player}.{en,zh}` = 结构化块（h/h1/p/ul/tbl），**由 `scratchpad/md2legal.py` 从 3 份 md 生成——改 md 后须重跑脚本再生成，勿手改 legal.jsx**。
+- **组件**：`LegalModal`（三 tab 可切 + createPortal，复用 `.pub-scrim/.pub-modal`）、`LegalHost`（挂 App 根，`?legal=` 调试自动打开）、`LegalLinks`、全局 `openLegal(doc)`。
+- **接入点**：landing footer + dashboard 侧栏底 + 注册验证步 + 登录页 → 链接打开弹窗；**绑卡步**在卡框上方加授权披露句（Terms 链接 + 按月扣费 + 随时取消），采 **clickwrap**（点「绑卡并上线」即同意），未加硬 checkbox（守 canon 绑卡步单一焦点；若法务要留痕再改）。
+- **占位符（待填后上线）**：公司法定名称 / UEN / 注册地址 / DPO 邮箱 / **生效日（暂空）** / 管辖已定新加坡法院 / 儿童 13 岁 / 保留期已给默认（待运营法务确认）/ EU·中国代表暂未指定。
+- ⚠️ 全部为 **DRAFT**，上线前须经新加坡法务复核（尤其跨境/GDPR/PIPL）。
 
 ---
 

@@ -37,7 +37,7 @@ npx serve -l 4311
 | `edit` | `1` | 配合 `sec=games` 直接打开「游戏工作台」（预览 + 控制 + AI 对话） |
 | `lang` | `en` / `zh` | 语言 |
 
-例：`...?screen=login`（海外登录）｜`...?screen=login&region=cn`（国内手机登录）｜`...?welcome=1&fresh=1&need=Kopi Corner`（主页恭喜弹窗）｜`...?screen=choose`（账号选择页）｜`...?screen=app&authed=1&sec=games&edit=1`（游戏工作台）
+例：`...?screen=login`（海外登录）｜`...?screen=login&region=cn`（国内手机登录）｜`...?welcome=1&fresh=1&need=Kopi Corner`（主页恭喜弹窗）｜`...?screen=choose`（账号选择页）｜`...?screen=app&authed=1&sec=games&edit=1`（游戏工作台）｜`...?legal=tos`（法律文本弹窗：tos/privacy/player）
 
 ## 文件结构
 
