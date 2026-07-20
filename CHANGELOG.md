@@ -6,6 +6,15 @@
 
 ## 2026-07-20
 
+### 100. 定价改版：MAU 用量阶梯 3 档 + Custom + 全平台口径统一 + ToS/隐私对齐（本地→push）
+- **模型**：软件永久免费；**3 个月免费试用 → 到期自动转付**（opt-out，card-on-file）；卡**在发布闸门收、不在冷启动入口收**（"不一进去就绑卡"）；按 **MAU（当月玩过≥1次的活跃玩家）** 计费。**推翻旧「walk-in/到店=计费」与旧梯度 0.49→0.12**；删「只对新生意/老客永远免费」。
+- **落地页 Pricing（`journey.jsx` `TiersNew`/`LADDER_STEPS` + `index.html` `.ladder .step*`）**：2 卡 → **单一 Start free + 上升阶梯 4 档**（Starter S$29/≤500 · Growth S$79/≤2,500 · Pro S$199/≤10,000 · Custom=Talk to us）。视觉 = **倒色阶**（便宜档最深、越贵越淡、Custom 白卡）+ **四档等高**（去高度台阶，避免与色阶/CTA 冲突，三体决策）；每档「含 N 玩家 + 超额 S$0.0X/位」明码；标题「Priced to grow with you」。`?pricing=legacy` 保留旧 2 卡回退。**数字待财务核 per-MAU 毛利**。
+- **平台文案统一**：FAQ「怎么收费」→ 3 档；主页 `nudge-free` / 数据页 `bm-proj` / 「我的」`cardf-note`×2 → 去「老客免费/只对新生意」，改 MAU 口径。
+- **「我的 → 套餐」(`PLANS`/`PlanModal`)**：单一「Grow with KiX」→ **只读 4 档阶梯**，当前档高亮「You're here」，**自动定档不手选**；账单行显示「Starter · S$29/mo」。（并入另一窗口 `chain` 条为 Custom 行。）
+- **ToS/隐私(`legal.jsx`)**：§7.3 去「或首 1,000 玩家」；**§7.4 改宽表述**（不写死 29/79/199，指向「当前公示价目表」，变价走 §7.7）；**walk-in 全清**（术语 Verified walk-in→In-store redemption；§7.5/§68/隐私计量去 walk-in；"到店兑奖"作兑奖动作保留）。⚠️ DRAFT 待法务。
+- 决策存档：`Desktop/Mozat/kix/[决策] 2026-07-20-KiX注册收卡时机-三体.md`、`[决策] 2026-07-20-KiX定价页信息架构-B骨A皮.md`。
+- ⚠️ **SPEC 待跟进**：§4.0/§6.7/数据页/成员角色仍有旧「walk-in/到店=计费」「梯度」「2 卡」表述，本次未逐条清（已在 SPEC §4.0 顶部加超越标记指向本条），标 follow-up。
+
 ### 99. 建游戏 3 步 UI 按 Joyce 截图对齐（describe/results/preview）+ 删 building loader（本地未 push）
 - **描述(Describe)**：店型 chips 从 **emoji → 单色线性 SVG 图标**（12 类，`sic()` 生成；craft 反 emoji-当图标）；选中态复用 `.cate-chip.on` 绿圈 + `.cico` 绿标。
 - **选游戏(Results)** 重建为设计稿版：**店铺信息卡**(你输入的店铺 + name + ✏改) + **主游戏卡**(方形封面 `.gcov` + 名 + `96%匹配` + 为什么是这个 + lede) + **用这个游戏**(绿满宽) + **换一个看看**(白满宽) + **其他 2 个候选**(带封面 + 匹配%)。match% = 按 rank [96,91,88,…]；封面 = 玩法色 tint 方块 + gamepad 图标（研发接真实方形封面图）。游戏名用本地 TEMPLATES 真实数据（幸运大转盘/刮刮乐/叠叠乐），非 mock 的 Palette Puzzle。
