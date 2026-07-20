@@ -1242,9 +1242,9 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   const vQty = (_lv&&+_lv.qty)||0, vRem = _lv ? Math.max(0, vQty-((+_lv.awarded)||0)) : 0, vLow = vQty>0 && vRem/vQty<=0.15;
   // 启动态 hero：按进度只给一个下一步动作
   const sh = liveAct
-    ? { badge:tr(lang,"Live · waiting for the first walk-in","已上线 · 等第一位到店"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
+    ? { badge:tr(lang,"Live · waiting for the first redemption","已上线 · 等第一笔到店兑奖"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
     : liveGame
-    ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into walk-ins? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
+    ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into store visits? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
     : hasActs
     ? { badge:tr(lang,"Draft","修改中"), dark:false, title:tr(lang,"Finish and publish your activity","完善并上线你的活动"), sub:tr(lang,"Set a voucher, pick outlets, then go live, and customers scan to play.","设一张券、选门店、点上线，客人扫码就能玩。"), cta:tr(lang,"Finish activity","去完善"), on:onGoActivity }
     : { badge:tr(lang,"No activity yet","暂时还没有活动"), dark:false, title:tr(lang,"Create an activity to open for business","建个活动，就能开门营业"), sub:tr(lang,"Pick outlets, set a voucher, link your game, and customers scan to play.","选门店、设一张券、绑上你的游戏，客人扫码就能玩。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct };
@@ -1261,7 +1261,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
               </div>
               <div className="live3">
                 <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"walked in & redeemed","到店兑奖")}</div></div>
+                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"redeemed in store","到店兑奖")}</div></div>
                 {vQty>0 && <div className="lc"><div className={"n"+(vLow?" low":"")}>{vRem}</div><div className="l">{tr(lang,"vouchers left","券剩余")}</div></div>}
               </div>
             </div>
@@ -1493,7 +1493,7 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
       title={hasActs ? tr(lang,"Your activity isn't live yet","活动还没上线") : tr(lang,"Nothing to redeem yet","还没有可兑奖的奖品")}
       sub={hasActs
         ? tr(lang,"It's still being edited. Once it's live, customers play and win vouchers, then you scan to redeem here.","活动还在修改中。上线后客人才能玩、赢券，你才能在这里扫码兑奖。")
-        : tr(lang,"Create an activity and publish it. Customers play, win a voucher and walk in; you scan it here, and that counts as a real walk-in.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次真实到店。")}
+        : tr(lang,"Create an activity and publish it. Customers play, win a voucher and redeem; you scan it here, and that counts as an in-store redemption.","先建一个活动并上线。客人玩、赢券、到店，你在这里一扫，就算一次到店兑奖。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
     /></div>
@@ -1534,7 +1534,7 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
             : <button className="btn primary lg scanbtn" onClick={scan}><Ic.qr style={{ width:20, height:20 }}/> {tr(lang,"Scan QR to redeem","扫码兑奖")}</button>}
           <div className="redeem-or"><span>{tr(lang,"or enter the code","或 输入奖品码")}</span></div>
           <div className="redeem-input"><input value={code} onChange={e=>setCode(e.target.value)} placeholder={tr(lang,"prize code","奖品码")} onKeyDown={e=>{ if(e.key==="Enter") submit(); }}/><button className="btn primary" onClick={submit}>{tr(lang,"Redeem","兑奖")}</button></div>
-          {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed, counted as a real walk-in","兑奖成功，已计入真实到店")}</div>}
+          {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed, counted in store","兑奖成功，已计入到店兑奖")}</div>}
         </div>
       </div>
 
@@ -1588,7 +1588,7 @@ function ActivityQRSheet({ act, outlets, lang, onDownload, onClose }) {
       <div className="pub-modal" style={{ width:430 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Outlet QR codes","门店二维码")}</h3>
-        <p className="pub-sub">{tr(lang,"One QR per outlet, so walk-ins are attributed to the right shop. Fixed since first publish, safe to print.","每家门店各一个，到店才能算到对应门店头上。首次上线即固定，可放心打印。")}</p>
+        <p className="pub-sub">{tr(lang,"One QR per outlet, so redemptions are attributed to the right shop. Fixed since first publish, safe to print.","每家门店各一个，兑奖才能算到对应门店头上。首次上线即固定，可放心打印。")}</p>
         <div className="qr-list">
           {list.map(o => (
             <div className="qr-card" key={o.id}>
@@ -1672,12 +1672,12 @@ function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, 
                     {isChal
                       ? (()=>{ const isLive=act.status==="live", isOff=act.status==="offline"; const ns=isLive?nextSession(act.schedule):null; return <>
                           <div className={"chal-when"+(isLive&&ns?" next":"")}>{isLive&&ns && <span className="cw-dot"></span>}{isOff ? tr(lang,"Ended","已结束") : isLive ? (ns ? tr(lang,"Next","下一场")+" · "+nextLabel(act.schedule,lang) : tr(lang,"Finished","已跑完")) : schedSummary(act.schedule,lang)}</div>
-                          {isOff && act.stat && <div className="act-stat"><b>{act.stat.players}</b> {tr(lang,"played","人参赛")} · <b>{act.stat.walkins}</b> {tr(lang,"walked in","到店")}</div>}
+                          {isOff && act.stat && <div className="act-stat"><b>{act.stat.players}</b> {tr(lang,"played","人参赛")} · <b>{act.stat.walkins}</b> {tr(lang,"redeemed","到店兑奖")}</div>}
                           {!ran && <div className="st">{ls.slots} {tr(lang,"prizes","个奖")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
                         </>; })()
                       : <>
                           {act.stat && ran
-                            ? <div className="act-stat"><b>{act.stat.walkins}</b> {tr(lang,"walked in","人到店")}<span style={{ color:"var(--muted)", fontWeight:400 }}>{tr(lang,` (incl. ${act.stat.newCust} new)`,`（含 ${act.stat.newCust} 新客）`)}</span></div>
+                            ? <div className="act-stat"><b>{act.stat.walkins}</b> {tr(lang,"redeemed","到店兑奖")}<span style={{ color:"var(--muted)", fontWeight:400 }}>{tr(lang,` (incl. ${act.stat.newCust} new)`,`（含 ${act.stat.newCust} 新客）`)}</span></div>
                             : <div className="st">{(act.vouchers[0]&&act.vouchers[0].qty)||0} {tr(lang,"vouchers","张券")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
                           {act.status==="live" && (()=>{ const v=act.vouchers&&act.vouchers[0]; const qty=(v&&+v.qty)||0, issued=(v&&+v.awarded)||0, rem=Math.max(0,qty-issued), pct=qty?rem/qty:1; if(!qty) return null; return (
                             <div className={"stockrow"+(rem===0?" out":pct<=0.15?" low":"")}>
@@ -2042,7 +2042,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
       </div>
       <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Activity QR codes, one per outlet","活动二维码，每家门店一个")}</h3>
-        <p className="ph-sub">{tr(lang,"Each outlet gets its own QR, so walk-ins are attributed to the right shop.","每家门店各一个二维码，到店才能归因到对应门店。")}</p>
+        <p className="ph-sub">{tr(lang,"Each outlet gets its own QR, so redemptions are attributed to the right shop.","每家门店各一个二维码，兑奖才能归因到对应门店。")}</p>
         {st === "draft"
           ? <p className="ph-sub" style={{ marginTop:8, color:"var(--muted-2)" }}><Ic.qr style={{ width:14, height:14, verticalAlign:"-2px", marginRight:4 }}/>{tr(lang,"Published once you go live: each outlet gets a fixed QR you can print, and it never changes on later edits.","上线后每家门店各生成一个固定二维码，可放心打印，后续编辑也不会变。")}</p>
           : actOutlets.length === 0
@@ -2108,16 +2108,16 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       icon={<Ic.chart/>}
       title={hasActs ? tr(lang,"No data until you go live","上线后才有数据") : tr(lang,"No data yet","还没有数据")}
       sub={hasActs
-        ? tr(lang,"Once your activity is live and customers redeem in store, walk-ins, new vs returning, and per-outlet stats appear here.","活动上线、客人到店兑奖后，这里会显示真实到店、新客/回头客、各门店表现。")
-        : tr(lang,"This page only counts people who actually walked in. Create an activity, go live, and your real walk-in data will build up here.","这页只统计真正走进门的人。建活动、上线后，真实到店数据会在这里累积。")}
+        ? tr(lang,"Once your activity is live and customers redeem in store, redemptions, new vs returning, and per-outlet stats appear here.","活动上线、客人到店兑奖后，这里会显示到店兑奖、新客/回头客、各门店表现。")
+        : tr(lang,"This page only counts people who actually redeemed in store. Create an activity, go live, and your redemption data will build up here.","这页只统计真正到店兑奖的人。建活动、上线后，到店兑奖数据会在这里累积。")}
       actLabel={hasActs ? tr(lang,"Go to activities","去活动") : "+ "+tr(lang,"New activity","新建活动")}
       onAct={hasActs ? onGoActivities : onNewAct}
     />
   ) : totRed === 0 ? (
     <EmptyState
       icon={<Ic.chart/>}
-      title={tr(lang,"Live, waiting for the first walk-in","已上线，等第一位到店")}
-      sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your walk-in numbers and trends will appear here.","只要有客人扫码玩、赢券、到店兑奖，到店数据和趋势就会出现在这里。")}
+      title={tr(lang,"Live, waiting for the first redemption","已上线，等第一笔到店兑奖")}
+      sub={tr(lang,"As soon as a customer plays, wins, and redeems in store, your redemption numbers and trends will appear here.","只要有客人扫码玩、赢券、到店兑奖，兑奖数据和趋势就会出现在这里。")}
       actLabel={tr(lang,"Download activity QR","下载活动二维码")}
       onAct={dlQR}
       ghostLabel={tr(lang,"Manage activities","管理活动")}
@@ -2128,7 +2128,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       {/* Hero：真实到店兑奖 = 唯一付费指标、唯一独家证明，做绝对主角 */}
       <div className="rep-hero">
         <div className="rh-l">
-          <span className="rh-eye"><span className="b"></span>{tr(lang,`Verified walk-ins · ${P(lang,ranges[ri])}`,`真实到店兑奖 · ${P(lang,ranges[ri])}`)}</span>
+          <span className="rh-eye"><span className="b"></span>{tr(lang,`In-store redemptions · ${P(lang,ranges[ri])}`,`到店兑奖 · ${P(lang,ranges[ri])}`)}</span>
           <div className="rh-num">{M.walkins}{ri!==0 && <span className="rh-delta up"><Ic.arrow style={{ width:15, height:15, transform:"rotate(-90deg)" }}/>{M.delta.walkins}{smallSample ? "" : " "+note}</span>}</div>
         </div>
         <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
@@ -2144,13 +2144,13 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       <div className="panels">
         {/* 转化漏斗：吸收"玩了游戏"作为分母，证明全链路通 */}
         <div className="panel">
-          <h3>{tr(lang,"From scan to walk-in","从扫码到到店")}</h3>
+          <h3>{tr(lang,"From scan to redemption","从扫码到兑奖")}</h3>
           <div className="funnel">
             <div className="fstep"><div className="fn">{M.plays}</div><div className="fl">{tr(lang,"Played","扫码玩")}</div></div>
             <div className="farrow"><b>{wonRate}%</b><span>{tr(lang,"won","赢券")}</span></div>
             <div className="fstep"><div className="fn">{M.awarded}</div><div className="fl">{tr(lang,"Won a voucher","赢到券")}</div></div>
-            <div className="farrow"><b>{redRate}%</b><span>{tr(lang,"walked in","到店")}</span></div>
-            <div className="fstep on"><div className="fn">{M.walkins}</div><div className="fl">{tr(lang,"Walked in","到店兑奖")}</div></div>
+            <div className="farrow"><b>{redRate}%</b><span>{tr(lang,"redeemed","兑奖")}</span></div>
+            <div className="fstep on"><div className="fn">{M.walkins}</div><div className="fl">{tr(lang,"Redeemed","到店兑奖")}</div></div>
           </div>
         </div>
         {/* 新客 vs 回头：证明"把路过变回头客" */}
@@ -2167,27 +2167,27 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
       </div>
       {/* 每日到店趋势 */}
       <div className="panel">
-        <h3>{tr(lang,"Walk-ins per day","每天有多少人到店")}</h3>
+        <h3>{tr(lang,"Redemptions per day","每天有多少人到店兑奖")}</h3>
         {showTrendBars
           ? <div className="bars7">{M.trend.map((t, i) => (<div key={i} className="col"><div className="bv">{t.v}</div><div className="bar" style={{ height: (t.v/tmax*100) + "%" }}></div><div className="bd">{P(lang,t.d)}</div></div>))}</div>
           : <div style={{ display:"flex", alignItems:"center", gap:18, padding:"6px 2px 2px" }}>
               <div style={{ display:"flex", alignItems:"flex-end", gap:5, height:46, flex:"none" }}>{M.trend.map((t,i)=>(<span key={i} style={{ width:9, borderRadius:3, height:Math.max(7,(t.v/Math.max(1,tmax))*46)+"px", background:t.v>0?"var(--green)":"var(--line-2)" }}></span>))}</div>
-              <p className="ph-sub" style={{ margin:0 }}>{tr(lang,"Too few walk-ins to chart yet. The daily trend appears once more customers come in.","到店还太少，暂时画不出每日趋势。等客人多起来，这里会显示每日走势。")}</p>
+              <p className="ph-sub" style={{ margin:0 }}>{tr(lang,"Too few redemptions to chart yet. The daily trend appears once more customers come in.","到店兑奖还太少，暂时画不出每日趋势。等客人多起来，这里会显示每日走势。")}</p>
             </div>}
       </div>
       {/* 条件区：多活动才有"排名"意义；多门店才有"分店"意义 */}
       {(multiAct && outlets.length>=2) ? <div className="panels">
         <div className="panel">
           <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
-          {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
+          <p className="ph-sub">{tr(lang,"Ranked by in-store redemptions, back the one that works","按到店兑奖排序，把预算押在最能带客的那个")}</p>
+          {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"redemptions","到店兑奖")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
         <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample} unknown={unknownRed}/></div>
       </div>
       : multiAct ? <div className="panel">
           <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
-          {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
+          <p className="ph-sub">{tr(lang,"Ranked by in-store redemptions, back the one that works","按到店兑奖排序，把预算押在最能带客的那个")}</p>
+          {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"redemptions","到店兑奖")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
       : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample} unknown={unknownRed}/></div>
       : null}
@@ -2318,11 +2318,11 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
 }
 function OutletPanel({ lang, outRed, omax, smallSample, unknown = 0 }) {
   return (<>
-    <h3>{tr(lang,"Walk-ins by outlet","各门店到店")}</h3>
+    <h3>{tr(lang,"Redemptions by outlet","各门店到店兑奖")}</h3>
     <p className="ph-sub">{tr(lang,"Which shop pulls the most; voucher stock is shared across outlets","哪家店带客最多。券的库存整个活动全门店共用。")}</p>
-    {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"walk-ins","人到店")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div>}</div>))}
+    {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"redemptions","到店兑奖")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div>}</div>))}
     {unknown > 0 && <>
-      <div className="hbar"><div className="hl"><span className="ho-unk">{tr(lang,"Outlet not set","未指定门店")}</span><span className="hv">{unknown} {tr(lang,"walk-ins","人到店")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(unknown/omax*100)+"%", background:"linear-gradient(90deg,#94A3B0,#B6C1CC)" }}></i></div>}</div>
+      <div className="hbar"><div className="hl"><span className="ho-unk">{tr(lang,"Outlet not set","未指定门店")}</span><span className="hv">{unknown} {tr(lang,"redemptions","到店兑奖")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(unknown/omax*100)+"%", background:"linear-gradient(90deg,#94A3B0,#B6C1CC)" }}></i></div>}</div>
       <p className="ph-sub ho-unk-note">{tr(lang,"Redeemed on the shop's own device without picking a current outlet — still counted in your total.","用自家设备核销、没先选当前门店的，仍计入总数。")}</p>
     </>}
   </>);
@@ -2332,9 +2332,9 @@ function OutletPanel({ lang, outRed, omax, smallSample, unknown = 0 }) {
 // bible §4.0：软件永久免费、无 freemium 分层。只有一套自助计费(免费窗口→MAU 基础费)+ 连锁定制。没有"永久免费套餐"(免费只是窗口，过了都要付)。
 // 只读展示：档位按当月活跃玩家自动决定（不手选）。演示当前档 = starter。Custom=连锁/定制、talk to us。
 const PLANS = [
-  { id:"starter", name:{en:"Starter",zh:"入门"}, price:{en:"S$29/mo",zh:"S$29/月"},   note:{en:"Up to 500 active players / month",zh:"每月最多 500 位活跃玩家"} },
-  { id:"growth",  name:{en:"Growth",zh:"成长"}, price:{en:"S$79/mo",zh:"S$79/月"},   note:{en:"Up to 2,500 active players / month",zh:"每月最多 2,500 位活跃玩家"} },
-  { id:"pro",     name:{en:"Pro",zh:"专业"}, price:{en:"S$199/mo",zh:"S$199/月"}, note:{en:"Up to 10,000 active players / month",zh:"每月最多 10,000 位活跃玩家"} },
+  { id:"starter", name:{en:"Starter",zh:"入门"}, price:{en:"S$29/mo",zh:"S$29/月"},   note:{en:"Up to 500 active players / month · then S$0.08 / extra player",zh:"每月最多 500 位活跃玩家 · 超出每位 S$0.08"} },
+  { id:"growth",  name:{en:"Growth",zh:"成长"}, price:{en:"S$79/mo",zh:"S$79/月"},   note:{en:"Up to 2,500 active players / month · then S$0.05 / extra player",zh:"每月最多 2,500 位活跃玩家 · 超出每位 S$0.05"} },
+  { id:"pro",     name:{en:"Pro",zh:"专业"}, price:{en:"S$199/mo",zh:"S$199/月"}, note:{en:"Up to 10,000 active players / month · then S$0.03 / extra player",zh:"每月最多 10,000 位活跃玩家 · 超出每位 S$0.03"} },
   { id:"custom",  name:{en:"Custom",zh:"定制"}, price:{en:"Talk to us",zh:"联系我们"}, note:{en:"10,000+ players · chains & bespoke",zh:"10,000+ 玩家 · 连锁与定制"} },
 ];
 function CardModal({ cardOnFile, onSave, onClose }) {
@@ -2382,7 +2382,7 @@ function PlanModal({ plan, onClose }) {
             </div>
           ))}
         </div>
-        <p className="cardf-note" style={{ margin:"14px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for your first 3 months. Extra players beyond your plan are just a few cents each; cancel anytime.","前 3 个月免费。超出当前档的玩家每位只要几分钱；随时可取消。")}</span></p>
+        <p className="cardf-note" style={{ margin:"14px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for your first 3 months. You only pay for players above your plan; cancel anytime.","前 3 个月免费。只有超出档位的玩家才额外收费；随时可取消。")}</span></p>
       </div>
     </div>,
     document.body
@@ -2659,7 +2659,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
 
 /* ===================== app ===================== */
 /* one narrated loader = matching + generating fused (Buell & Norton labor-illusion: visible work feels valuable) */
-const BUILD_TASKS = [{en:"Reading your shop type",zh:"读懂你的店型"},{en:"Scanning 1,012 game templates",zh:"扫描 1,012 个玩法模板"},{en:"Ranking by walk-in conversion",zh:"按到店转化率排序"},{en:"Picking the best fits",zh:"挑出最合适的几款"}];
+const BUILD_TASKS = [{en:"Reading your shop type",zh:"读懂你的店型"},{en:"Scanning 1,012 game templates",zh:"扫描 1,012 个玩法模板"},{en:"Ranking by redemption conversion",zh:"按到店兑奖转化率排序"},{en:"Picking the best fits",zh:"挑出最合适的几款"}];
 const STEP_IDX = { describe:0, building:1, results:1, preview:2, done:2 };       // 店名(0)在首页完成→loader/选游戏=1, 上线=2
 const STEP_IDX_RET = { describe:0, building:0, results:0, preview:1, done:1 };   // 登录后 2 步
 
