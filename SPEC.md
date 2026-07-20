@@ -97,7 +97,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - **绑卡步信任设计**：条款副标题(前 3 月免费·之后 S$29/月起、只算新生意、老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Stripe 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Stripe hosted fields**，原型 mock。
 - ⚠️ **定价已改版（2026-07-20，见 CHANGELOG #100）——下方 §4.0 旧口径中「walk-in/到店=计费」「梯度 0.49→0.12」「只对新生意/老客免费」「落地页 2 卡」均作废**。现行 = 软件永久免费 + **MAU 用量阶梯 3 档 + Custom**（Starter S$29/≤500 · Growth S$79/≤2,500 · Pro S$199/≤10,000 · Custom=Talk to us）+ **3 月免费试用到期自动转付** + 卡在发布闸门收；落地页 = 单 Start free + 倒色阶等高阶梯；ToS §7.4 用宽表述指向公示价目表。数字待财务核。下方旧描述待逐条清（follow-up）。
 - ⭐ **计费口径 = bible §4.0 CANON（2026-07-09，`mozatyin/kix-platform`）**：软件永久免费；基础费按**品牌 MAU**（本月玩过≥1次的活跃用户）= `max($29/品牌/月 地板, 梯度费)`、**≤12% 增量**、**只算新生意、永不碰老客存量**；免费窗口 = 满 3 个月或活跃用户达 1,000（先到）。梯度 0–1k=$0.49/1k–5k=$0.39/5k–20k=$0.29/20k–100k=$0.19/100k+=$0.12。广告 B = 竞价（非固定 CPA）。**旧「S$3/位新客·pay-per-result·从不收月费」全部作废**，商家端所有文案已迁。
-  - **UI 呈现（2026-07-09 定稿）**：① 落地页 Pricing = **2 卡 + 免费→付费时间线**（现在 S$0 → 之后 $0.49/活跃玩家），非并列多档；用户好处排序（免费定制品牌游戏 → 老客免费 → 越多越便宜封顶12% → 多店合并账单）。② **全平台 UI 不强调 $29 月度地板价**（撤下所有显眼处，只在 FAQ 软性披露「很低的月度最低消费」防 bill-shock）。③ FAQ 用 per-active-player 梯度表（边际累进）讲清「越多越便宜」。④ 套餐（我的>套餐）无 freemium 分层，只 **标准版**（含免费窗口→按增长）+ **连锁版**（联系我们）。⑤ 计费单位 UI 暂定 **active player（MAU）**；⚠️ 后台旧「到店=计费」叙事与此的统一为**待办**（Joyce 暂按 active player，后台对齐另起一轮）。
+  - ⚠️ **UI 呈现（2026-07-09；已被 2026-07-20 改版取代，见 §Pricing / CHANGELOG #100——落地页 2 卡→阶梯、套餐→3 档只读、后台计费→MAU；下为旧记录）**：① 落地页 Pricing = **2 卡 + 免费→付费时间线**（现在 S$0 → 之后 $0.49/活跃玩家），非并列多档；用户好处排序（免费定制品牌游戏 → 老客免费 → 越多越便宜封顶12% → 多店合并账单）。② **全平台 UI 不强调 $29 月度地板价**（撤下所有显眼处，只在 FAQ 软性披露「很低的月度最低消费」防 bill-shock）。③ FAQ 用 per-active-player 梯度表（边际累进）讲清「越多越便宜」。④ 套餐（我的>套餐）无 freemium 分层，只 **标准版**（含免费窗口→按增长）+ **连锁版**（联系我们）。⑤ 计费单位 UI 暂定 **active player（MAU）**；⚠️ 后台旧「到店=计费」叙事与此的统一为**待办**（Joyce 暂按 active player，后台对齐另起一轮）。
 - **返回统一**：内容区左上角「← 上一步」（验证步→回预览 `onBack`；绑卡步不给返回——卡要绑刚建的账户），顶栏右上「退出」——与建游戏各步一致；登录页/账号选择页顶栏也统一右上「退出」（2026-07-14）。
 - 收卡写入 `cardOnFile`（**state 提升到 App**，authed=已有卡），存活进后台：我的>账单显示 ••••。落地页所有 "no credit card" 文案已删。**上线活动弹窗（ActivityPublishModal）不再显示「付款方式」**（卡在注册即收，不重复要卡、不显定价）——弹窗只剩 标题+说明+活动名+确认上线。
 - **无「已有账号？登录」冗余入口**（2026-07-14 删）：验证即建号已合一登录/注册，不需第二条路（守 canon「登录=注册同一动作」）。独立登录仍可从落地页导航「登录」进。
@@ -159,8 +159,8 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 第二种活动形态，与长期活动并列。品牌**自营**（用自己的品牌游戏、自己的排行榜、自己的档期），非赞助平台夜赛。
 - **建活动第一步**：形态选择弹窗 `NewActivityPicker`（长期活动 vs 限时挑战赛对比卡，含"适合/例"）。选完进对应编辑器。
 - **挑战赛编辑器**（`ActivityEditor` 内按 `form` 分支）：活动名+Logo → **档期 `ScheduleEditor`**（一次性/循环 段选、循环选星期 chips、开赛时间、单局时长、循环截止）→ **阶梯奖池 `PrizeLadderEditor`**（逐档 `名次区间 from–to → 奖品`；奖品四类可配 `cash`(填 S$)/`item`(商品名+图，UI 名「免费商品 / Free item」)/`discount`(填%)/`custom`(自填名+图)；「套用示例奖池」`SAMPLE_LADDER` 一键铺 + 「复制上一档」+ 删；**成本条** = 名额合计 + 现金奖合计 + "按实际排名发、空名次不发不花钱"，**不折现/不加总折扣与商品**，避免臆测总价与损失厌恶）→ **赛制**（同分裁决=先提交者靠前 + 每人每场限一局，均 app 侧保证；**不设最低人数门槛**，来多少人都照常开赛）→ 游戏/门店/二维码/上线复用长期活动那套。
-- **不设人数上限/中奖上限**：开赛前人数不可知、人已参赛无法回头取消；成本由 card-on-file + 按真到店新客计费兜底，无需封顶。
-- **App 侧契约**（Portal 只配置）：倒计时卡 + 开赛推送 → 限时玩一局 → 赛后排行榜 → 名次出券 → 到店兑（= verified walk-in 计费，同长期活动）。排行榜结算/名次出券/推送 = 后端职责。
+- **不设人数上限/中奖上限**：开赛前人数不可知、人已参赛无法回头取消；成本由 card-on-file + MAU 计费兜底，无需封顶。
+- **App 侧契约**（Portal 只配置）：倒计时卡 + 开赛推送 → 限时玩一局 → 赛后排行榜 → 名次出券 → 到店兑奖（计入 MAU 计费口径，同长期活动）。排行榜结算/名次出券/推送 = 后端职责。
 - **helper**：`ladderStats(ladder)`→{slots,cash}；`schedSummary`/`nextSession`/`nextLabel`（`nextSession` 对过期一次性返 null → 卡显「已跑完」）。
 
 ### 3.9b 活动列表卡内容（产品三体收敛，2026-07-09）⭐
@@ -201,7 +201,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 6. **FAQ｜Everything a business owner asks**（`id=questions`）：6 条，**静态全展开**（去掉 + 折叠——已讲完无需展开）。
 7. **结尾 CTA**：「Every business deserves its own playground」（playground 绿）+「Build my game — free」+ 细则（No credit card · first 3 months free · cancel anytime）+ 页脚。
 - **Nav**：The game · Why it works · Pricing · Questions（点击平滑滚动到对应 `id`；EN/中文 + 登录 + 免费开始 保留）。
-- **价格模型（2026-07-10 定稿，以上文 §4.0 CANON 为准）**：落地页 **2 卡** —— ①「GROW WITH KIX / 成长计划」(`.tier.pop`)：Free for 3 months（or first 1,000 players）→ then **S$0.49 / active player**（越多越便宜）；4 要点（不限定制游戏与看板 · S$29/mo minimum · never for your regulars · 软件永远免费只为增长付费 · 无绑定随时取消）；`Start free`。②「CUSTOM / Need something custom?」（**任何规模，非仅连锁**）→ `Talk to us` **弹 `CustomLeadModal` 线索表单**（见 CHANGELOG #85）。**旧「S$3/new customer · PAY PER RESULT · FREE FOREVER」作废。** 币种 = 新币 S$；计费单位 = active player（MAU）。⚠️「我的」页 `PLANS` 旧「专业版 S$49/月」与此仍不一致 = 待对齐。
+- **价格模型（2026-07-20 改版，见 CHANGELOG #100）**：落地页 = **单一 `Start free` CTA + 上升阶梯**（`TiersNew`/`LADDER_STEPS` + `.ladder .step*`）：4 档 Starter S$29/≤500 · Growth S$79/≤2,500 · Pro S$199/≤10,000 · Custom(`Talk to us`→`CustomLeadModal`)；每档「含 N 玩家 + 超额 S$0.0X/位」明码在卡；视觉 = **倒色阶**（便宜档最深、越贵越淡、Custom 白卡）+ **四档等高**。软件永久免费；**3 月免费试用 → 到期自动转付**；按 **MAU** 计费。`?pricing=legacy` 保留旧 2 卡回退。数字待财务核 per-MAU 毛利。**旧「2 卡 / S$0.49 梯度 / never for regulars / S$3-per-new-customer / 专业版 S$49」全作废。**「我的」`PLANS` 已改 3 档只读阶梯。
 - **CustomLeadModal（线索表单，#85）**：`Talk to us` 点击弹出（`?lead=1` 调试）。5 必填（姓名/品牌名/电话·WhatsApp/邮箱/「你需要什么」下拉）+ 选填留言 + PDPA 同意；提交后感谢态含 **WhatsApp 即时出口**。⚠️ `WA_LINK` 占位待换真号；`submit()` 前端 mock 待接后端（存线索 + 通知 BD）。
 - **卡文案去重（#62）**：三卡描述改为"只讲 bullet 不讲的一件事"——FREE=`适合做你的第一个游戏。`；PAY=`前 3 个月免费 · 价格锁定。`（去掉与价格标签重复的"只为新客付费"及"永不收软件费"）；CHAINS=`适合成长中的多门店品牌。`（原描述是下方 bullet 的复述）。**已删**三卡下方 `.pnote` 底注（与卡描述 + 上方 WhyGame「老客免费」段重复）。
 - 原型组件：`Hero/Walkthrough/SeeYourGame/WhyGame/Pricing/Faq` + 结尾 CTA；CSS `.hscene/.hero-tag/.wt-*/.ppp*/.wow-*/.pnote`；新增 `Ic.globe`。**已从落地页移除渲染**：`Steps/Gallery/ThreeThings/Stories/FairDeal`（组件函数仍留在 `journey.jsx`，便于回退）。**已删数据**：`HEADLINE/SUB_LANDING`。
@@ -337,7 +337,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
    - 设计逻辑：二维码是活动级别的（不是游戏级别）。QR URL 由 activity+outlet 决定性生成、创建时固定，编辑活动不重新生成，保证打印出去的码永久有效。
 
 6. **底部操作栏**（去审批后）：
-   - 左=**上线/下线按钮**：draft/offline 显示「上线」（点击弹**二次确认弹窗** `ActivityPublishModal`：活动名 + **付款方式**（card on file，首次未存卡才出卡输入；SetupIntent 不扣款；文案「首月免费，之后按到店笔数收费，随时可下线、无最低消费」；未填卡则「确认上线」置灰）+ 确认上线/取消 → 直接置 live，无审批 → **切成功态**：绿勾「已上线🎉」+ `QRDownload`（在 App 查看）+ 「完成」。见 §6.7 / §4.9a）；live 显示「下线活动」（→ offline）。
+   - 左=**上线/下线按钮**：draft/offline 显示「上线」（点击弹**二次确认弹窗** `ActivityPublishModal`：活动名 + **付款方式**（card on file，首次未存卡才出卡输入；SetupIntent 不扣款；文案「前 3 个月免费，之后按当月活跃玩家(MAU)计费，随时可下线」；未填卡则「确认上线」置灰）+ 确认上线/取消 → 直接置 live，无审批 → **切成功态**：绿勾「已上线🎉」+ `QRDownload`（在 App 查看）+ 「完成」。见 §6.7 / §4.9a）；live 显示「下线活动」（→ offline）。
    - 右=**「保存并返回」**。保存所有编辑（名称/门店/券/游戏绑定/winScore），返回活动列表。
 
 ---
@@ -432,7 +432,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 **⭐ 稀疏 / 小样本精确规则（2026-07-13 三体；治冷启动难看 + 小样本误导。阈值可调）**
 - **`nonZeroDays` = 本期有到店的天数**。**逐日到店柱状图仅当 `nonZeroDays ≥ 7` 才画柱**；否则（≤6）换 **mini sparkline + 文案「到店还太少，暂时画不出每日趋势」**，不画一堆空柱。
-- **`smallSample` = 本期 verified walk-ins `< 10`**（"多小叫小"= 少于 10）。触发时：① **Hero 隐藏"vs 上期"百分比比较**，只显绝对数（不甩 +100%/+∞，经典小样本误导）；② **各门店到店(`OutletPanel`)的比例条收掉，只留「门店名 + N 人到店」**（满格条对"1 人"无意义且误导）。
+- **`smallSample` = 本期 in-store redemptions（到店兑奖）`< 10`**（"多小叫小"= 少于 10）。触发时：① **Hero 隐藏"vs 上期"百分比比较**，只显绝对数（不甩 +100%/+∞，经典小样本误导）；② **各门店到店(`OutletPanel`)的比例条收掉，只留「门店名 + N 人到店」**（满格条对"1 人"无意义且误导）。
 - **Hero 的百分比比较**在 **范围 =「上线以来」(lifetime 无上期可比) 时同样不显**；仅在 今天/近7天/近30天 且 **非** 小样本时显示"↗ +X% 比上周"。
 - 数据源：富数据 `DEMO_METRICS`；**冷启动/稀疏演示 `SPARSE_METRICS`**（`?sparse=1`：1 到店 / 27 玩 / 单店有客）。
 
@@ -497,7 +497,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 ---
 
 ## 7. 数据指标定义（商家语言，禁用广告黑话）
-- **到店核销**：赢家到店并核销成功的人数（=真实到店，计费基准）。
+- **到店兑奖**：赢家到店并兑奖成功的人数（= 到店兑奖成功指标；⚠️ 计费已改 MAU，此为成功指标、非计费基准）。
 - **玩了游戏 plays**：游戏被打开游玩次数。
 - **新客 / 回头客**：首次到店 vs 二次以上到店。
 - **到店率**：到店 ÷ 玩过的人。
@@ -527,7 +527,7 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 | 主 CTA | Create your first game — free | 免费创建第一个游戏 |
 | 发布闸门标题 | Last step: create an account to publish | 最后一步：创建账号，发布上线 |
 | 登录后建游戏 Step1 | What's this game for? | 这次想做个什么游戏？ |
-| 核销成功 | Redeemed — counted as a real walk-in | 核销成功 —— 已计入真实到店 |
+| 核销成功 | Redeemed, counted in store | 兑奖成功 —— 已计入到店兑奖 |
 | 侧栏 | Home / Activities / My games / Redeem / Reports / Me | 主页 / 活动 / 我的游戏 / 核销 / 数据 / 我的 |
 
 ---
@@ -628,8 +628,8 @@ Player（客人，端侧最小化）
 3. **库存池**：券库存是 **activity 级共享**，跨 `participating_outlet_ids` 的所有门店共用（v1 不做按店子配额）。
 4. **每人限领**：`per_customer_limit` 在抽券时按 `player_id` 校验。
 5. **召回**：`winback/send` 发的是**召回通知**（push/WhatsApp 提醒回店），不是直接发券。
-6. **计费（2026-07-06 更新）**：**第一个月免费**；首月后按 **redemption（真实到店核销）笔数**计费，未核销不计费。无最低消费、随时可下线。
-7. **付款方式（card on file，2026-07-06 新增）**：**gate 放「上线活动」，不放注册**（注册保持手机验证码一步，维持激活铁律；卡是漏斗里掉转化最狠的字段之一）。首次上线活动且未存卡 → 在上线确认弹窗内收集卡（**Stripe SetupIntent，usage=off_session，不扣款**、仅 tokenize 存 `customer`）；已存卡则显示 `•••• last4 · 更换`。**上线游戏不收卡**（游戏无奖品/无到店/无计费）。首笔 walk-in 计费时用该 PaymentMethod 建 PaymentIntent。文案须点明"首月免费、之后按到店笔数收费、随时可下线、无最低消费"以降恐惧。理由见决策文档 `Desktop/Mozat/kix/[分析] 2026-07-06 商家端-信用卡预存储+下载App入口.md`。
+6. **计费（2026-07-20 改版，见 CHANGELOG #100）**：软件永久免费；**前 3 个月免费试用 → 到期自动转付**；按 **MAU（当月玩过≥1次的活跃玩家）** 计费（3 档含额度 + 超额，见 §4.0 顶部 / §Pricing）。**旧「按到店核销笔数计费」作废**——到店兑奖现在是成功指标、非计费单位。
+7. **付款方式（card on file，2026-07-06 新增）**：**gate 放「上线活动」，不放注册**（注册保持手机验证码一步，维持激活铁律；卡是漏斗里掉转化最狠的字段之一）。首次上线活动且未存卡 → 在上线确认弹窗内收集卡（**Stripe SetupIntent，usage=off_session，不扣款**、仅 tokenize 存 `customer`）；已存卡则显示 `•••• last4 · 更换`。**上线游戏不收卡**（游戏无奖品/无到店/无计费）。首次 MAU 计费时用该 PaymentMethod 建订阅/PaymentIntent。文案须点明"前 3 个月免费、之后按当月活跃玩家计费、随时可取消"以降恐惧。理由见决策文档 `Desktop/Mozat/kix/[分析] 2026-07-06 商家端-信用卡预存储+下载App入口.md`。
 
 ### 10.4 原型变量 → 后端字段映射（给研发对照）
 
@@ -693,7 +693,7 @@ Player（客人，端侧最小化）
 | 角色 | 能力 | 唯一不能 |
 |---|---|---|
 | **Owner**（创建者） | 全部 | — |
-| **Member**（受邀全权成员） | 看全部数据 · 核销 · 建/改/**上线**/下线 活动与游戏（含按到店计费花钱）· 召回老客 · 门店/品牌 | **账单/换卡** · **增删成员** |
+| **Member**（受邀全权成员） | 看全部数据 · 核销 · 建/改/**上线**/下线 活动与游戏（含按 MAU 计费花钱）· 召回老客 · 门店/品牌 | **账单/换卡** · **增删成员** |
 
 - v1 **不做** "只核销的收银员" 受限角色（无需求证据，且与"共同看全部数据"冲突）；留待第三角色 `Cashier`。
 - v1 不做角色升降 / 转让 Owner。**席位免费、不限数**（软件永久免费，计费只按 MAU/walk-in）。
