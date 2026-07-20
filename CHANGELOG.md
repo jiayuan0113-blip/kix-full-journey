@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-07-20
+
+### 97. 兑奖页布局重排 —— 修正视觉权重倒挂，扫码成唯一焦点（Pencil 定稿 → 落码）
+- **需求**：Joyce 觉得兑奖页排布可优化。三体调研收敛（Square/Toast/Loyverse 收银屏 + POS UX：一屏一主动作、主动作最大最高对比、离屏≥80cm 要够大、砍冗余）→ Pencil 出布局稿 → Joyce 微调（去页副标题、右栏第 2 数改「累计兑奖」）→ 落码。
+- **诊断**：原布局主动作「扫码兑奖」挤在左侧 400px 窄栏，更宽的右栏却放次要参考（3 统计块 + 券进度）= 视觉权重倒挂；券进度是分析、越位（违 canon 操作页/分析页分离）。
+- **原型改动**：
+  - `index.html`：`.redeem-wrap` 网格翻转 `minmax(0,400px) 1fr` → **`minmax(0,1fr) minmax(0,360px)`**（左主右次）、`align-items:stretch`；`.redeem-card` 改 flex 垂直居中 + 放大 padding（扫码 hero 占主导、居中）；`.rd-summary` `repeat(3)`→`repeat(2)`；新增 `.rd-datalink`（深入数据入口）。
+  - `journey.jsx` `RedeemView`：最近兑奖从左栏移到右栏；右栏概览三数→**两数（今日兑奖 + 累计兑奖，删待兑奖）**；**移除奖品券进度面板**、换成一行「各门店与趋势 · 查看完整数据 →」（`onReport` 跳数据页）。
+- **影响文件**：`index.html`、`journey.jsx`、`SPEC.md`(§4.7 重写)、`CHANGELOG.md`。调试 `?screen=dashboard&sec=redeem`。
+
+### 96. 核销门店归因 —— 兑奖页当前门店选择器 + 数据页「未指定门店」桶（三体，统计用非计费）
+- **需求**：Portal 要展示"这个码在哪核销的"。很多商家用自家设备核销（不用 KiX 机子），无设备级门店绑定 → 记不到门店。三体调研：核销门店不靠客人的码定位，靠"扫码端携带门店身份"（对标 Shopify POS 设备绑 location / 美团门店授权）。**仅统计用、不计费** → 软处理、不卡扫码；纯 off-KiX 核销 KiX 无记录、覆盖不到（须强制"在 KiX 标记已用"，未做）。决策见 `Desktop/Mozat/kix/[决策] 2026-07-20-KiX核销门店归因.md`。
+- **原型改动**：
+  - `journey.jsx` `RedeemView`：顶部通栏「当前兑奖门店」bar——单门店只读、多门店下拉（`curStore` state、默认主门店、软默认不卡扫码）。新增 `outlets` prop（App 传 `outlets`）。
+  - `journey.jsx` `ReportsView`/`OutletPanel`：各门店到店追加「未指定门店」灰桶（`M.byOutlet.unknown`）+ 说明；归因轴 = 门店是否已归因（非设备归属）。
+  - `data.jsx` `DEMO_METRICS.byOutlet`：`{o1:50,o2:36}` → `{o1:44,o2:30,unknown:12}`（自洽求和仍 = walkins 86）。
+  - `index.html`：`.redeem-storebar`/`.rsb-*`/`.ho-unk` 样式。
+- **影响文件**：`journey.jsx`、`data.jsx`、`index.html`、`SPEC.md`(§4.7 顶部门店 bar + §4.8 未指定门店桶)、`CHANGELOG.md`。
+
+---
+
 ## 2026-07-15
 
 ### 95. 接入法律文本 —— ToS / 隐私政策 / 玩家条款（中英，三体调研）

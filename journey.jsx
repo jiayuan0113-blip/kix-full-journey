@@ -478,41 +478,95 @@ function Stories() {
     </section>
   );
 }
+// ?pricing=legacy → 旧 §4.0 用量计费 2 卡方案（可切换回退）；默认 = 新混合制 3 档 + Custom（2026-07-20 定价改版）
+function pricingLegacy() { return new URLSearchParams(location.search).get("pricing")==="legacy"; }
 function Pricing({ go }) {
   const lang = useLang();
   const [lead, setLead] = useState(()=> new URLSearchParams(location.search).get("lead")==="1");   // ?lead=1 调试
+  const legacy = pricingLegacy();
   return (
     <section className="sec">
-      <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div><h2 className="sec-h">{tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</h2>
-      <div className="tiers tiers-2">
-        <div className="tier pop">
-          <div className="tier-tags"><span className="tag-pill">{tr(lang,"GROW WITH KIX","成长计划")}</span></div>
-          <div className="tier-big">{tr(lang,"Free for 3 months","免费 3 个月")}</div>
-          <div className="tier-sub">{tr(lang,"or your first 1,000 players","或首 1,000 名玩家（先到为准）")}</div>
-          <hr className="tier-hr"/>
-          <p className="tier-then">{tr(lang,"Then just S$0.49 per active player, cheaper the more you grow.","之后每位活跃玩家只要 S$0.49，玩的人越多越便宜。")}</p>
-          <ul>
-            <li><span className="ck"><Check/></span>{tr(lang,"Unlimited custom games & dashboard","不限定制游戏与数据看板")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"S$29/mo minimum · never for your regulars","每月最低 S$29 · 老客永远免费")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"Software always free, only pay for growth","软件永远免费，只为增长付费")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"No lock-in · cancel anytime","无绑定 · 随时取消")}</li>
-          </ul>
-          <button className="btn primary" onClick={go}>{tr(lang,"Start free","免费开始")} <Ic.arrow style={{ width:16, height:16 }}/></button></div>
-        <div className="tier">
-          <div className="tier-tags"><span className="tag-pill">{tr(lang,"CUSTOM","定制")}</span></div>
-          <div className="tier-big">{tr(lang,"Need something custom?","需要定制？")}</div>
-          <div className="tier-sub">{tr(lang,"Any size. If the standard plan doesn't fit, we'll build one with you.","不论规模。标准计划不合适，我们就陪你一起定制。")}</div>
-          <hr className="tier-hr"/>
-          <ul>
-            <li><span className="ck"><Check/></span>{tr(lang,"A bespoke game & brand build","定制游戏与品牌搭建")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","对接 API / POS")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"Multiple outlets, rolled out together","多门店统一上线")}</li>
-            <li><span className="ck"><Check/></span>{tr(lang,"Exclusive & volume pricing","排他与量价")}</li>
-          </ul>
-          <button className="btn ghost" onClick={()=>setLead(true)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg> {tr(lang,"Talk to us","联系我们")}</button></div>
-      </div>
+      <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div>
+      <h2 className="sec-h">{legacy
+        ? tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只按增长付费。")
+        : tr(lang,"One simple price that grows with you.","一套随你长大的简单定价。")}</h2>
+      {legacy ? <TiersLegacy lang={lang} go={go} setLead={setLead}/> : <TiersNew lang={lang} go={go} setLead={setLead}/>}
       {lead && <CustomLeadModal onClose={()=>setLead(false)}/>}
     </section>
+  );
+}
+// 新方案（默认，2026-07-20 定）：单一 Start free + 上升阶梯（到某玩家量收多少 + 额外每位多少）。
+// 档间唯一区别 = 玩家量；门店/功能全档一样，收进 EVERY PLAN INCLUDES。Custom 折进阶梯最高一级（深色）。
+const LADDER_STEPS = [
+  { cls:"s1",   players:{en:"Up to 500 players",zh:"最多 500 位玩家"},    price:"S$29",  over:{en:"+ S$0.08 / extra player",zh:"超出每位 S$0.08"} },
+  { cls:"pop",  pop:true, players:{en:"Up to 2,500 players",zh:"最多 2,500 位玩家"}, price:"S$79",  over:{en:"+ S$0.05 / extra player",zh:"超出每位 S$0.05"} },
+  { cls:"mint", players:{en:"Up to 10,000 players",zh:"最多 10,000 位玩家"}, price:"S$199", over:{en:"+ S$0.03 / extra player",zh:"超出每位 S$0.03"} },
+];
+const PLAN_INCLUDES = [
+  {en:"Unlimited games & dashboard",zh:"不限游戏与数据看板"},
+  {en:"Unlimited outlets",zh:"不限门店"},
+  {en:"Scan-to-redeem",zh:"到店扫码兑奖"},
+  {en:"Shared team data",zh:"团队数据共享"},
+  {en:"Auto win-back",zh:"老客自动召回"},
+];
+function TiersNew({ lang, go, setLead }) {
+  return (<>
+    <div className="ladder">
+      {LADDER_STEPS.map((s,i)=>(
+        <div key={i} className={"step "+s.cls}>
+          <div className="step-players">{P(lang,s.players)}</div>
+          <div className="step-price">{s.price}<small>{tr(lang," /mo"," /月")}</small></div>
+          <div className="step-over">{P(lang,s.over)}</div>
+        </div>
+      ))}
+      <div className="step custom" onClick={()=>setLead(true)}>
+        <div className="step-players">{tr(lang,"10,000+ players","10,000+ 位玩家")}</div>
+        <div className="step-price">{tr(lang,"Talk to us","联系我们")}</div>
+        <div className="step-over">{tr(lang,"Custom plan · your own onboarding link","定制套餐 · 专属登录链接")}</div>
+      </div>
+    </div>
+    <div className="ladder-cta">
+      <button className="btn primary big" onClick={go}>{tr(lang,"Start free","免费开始")} <Ic.arrow style={{ width:18, height:18 }}/></button>
+      <div className="ladder-micro">{tr(lang,"Free for 3 months · no card charged today · cancel anytime","前 3 个月免费 · 今天不扣卡 · 随时取消")}</div>
+    </div>
+    <div className="includes">
+      <div className="includes-lab">{tr(lang,"EVERY PLAN INCLUDES","每个套餐都包含")}</div>
+      <div className="includes-chips">
+        {PLAN_INCLUDES.map((c,i)=>(<div key={i} className="inc-chip"><span className="ck"><Check/></span>{P(lang,c)}</div>))}
+      </div>
+    </div>
+  </>);
+}
+// 旧方案（?pricing=legacy）：§4.0 用量计费 2 卡，原样保留以便回退/对比
+function TiersLegacy({ lang, go, setLead }) {
+  return (
+    <div className="tiers tiers-2">
+      <div className="tier pop">
+        <div className="tier-tags"><span className="tag-pill">{tr(lang,"GROW WITH KIX","成长计划")}</span></div>
+        <div className="tier-big">{tr(lang,"Free for 3 months","免费 3 个月")}</div>
+        <div className="tier-sub">{tr(lang,"or your first 1,000 players","或首 1,000 名玩家（先到为准）")}</div>
+        <hr className="tier-hr"/>
+        <p className="tier-then">{tr(lang,"Then just S$0.49 per active player, cheaper the more you grow.","之后每位活跃玩家只要 S$0.49，玩的人越多越便宜。")}</p>
+        <ul>
+          <li><span className="ck"><Check/></span>{tr(lang,"Unlimited custom games & dashboard","不限定制游戏与数据看板")}</li>
+          <li><span className="ck"><Check/></span>{tr(lang,"S$29/mo minimum · never for your regulars","每月最低 S$29 · 老客永远免费")}</li>
+          <li><span className="ck"><Check/></span>{tr(lang,"Software always free, only pay for growth","软件永远免费，只为增长付费")}</li>
+          <li><span className="ck"><Check/></span>{tr(lang,"No lock-in · cancel anytime","无绑定 · 随时取消")}</li>
+        </ul>
+        <button className="btn primary" onClick={go}>{tr(lang,"Start free","免费开始")} <Ic.arrow style={{ width:16, height:16 }}/></button></div>
+      <div className="tier">
+        <div className="tier-tags"><span className="tag-pill">{tr(lang,"CUSTOM","定制")}</span></div>
+        <div className="tier-big">{tr(lang,"Need something custom?","需要定制？")}</div>
+        <div className="tier-sub">{tr(lang,"Any size. If the standard plan doesn't fit, we'll build one with you.","不论规模。标准计划不合适，我们就陪你一起定制。")}</div>
+        <hr className="tier-hr"/>
+        <ul>
+          <li><span className="ck"><Check/></span>{tr(lang,"A bespoke game & brand build","定制游戏与品牌搭建")}</li>
+          <li><span className="ck"><Check/></span>{tr(lang,"API / POS integration","对接 API / POS")}</li>
+          <li><span className="ck"><Check/></span>{tr(lang,"Multiple outlets, rolled out together","多门店统一上线")}</li>
+          <li><span className="ck"><Check/></span>{tr(lang,"Exclusive & volume pricing","排他与量价")}</li>
+        </ul>
+        <button className="btn ghost" onClick={()=>setLead(true)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg> {tr(lang,"Talk to us","联系我们")}</button></div>
+    </div>
   );
 }
 /* CHAINS/Custom lead-capture modal (三体 2026-07-10): modal · 5 required + optional msg ·
@@ -1312,9 +1366,14 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline, onDelete })
   );
 }
 
-function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, onNewAct, onGoActivities, liveName }) {
+function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, onNewAct, onGoActivities, liveName, outlets = OUTLETS }) {
   const lang = useLang();
   const [code, setCode] = useState(""), [ok, setOk] = useState(false), [scanning, setScanning] = useState(false);
+  // 当前门店：兑奖用自家设备时没有设备级门店绑定，这里手动选一次，记住即可。
+  // 单店 → 自动是那家、不打扰；多店 → 顶部 sticky 选择器（软默认，不卡扫码），保证兑奖能归到店。
+  const multiOutlet = outlets.length >= 2;
+  const [curStore, setCurStore] = useState(() => (outlets.find(o=>o.primary) || outlets[0] || {}).id);
+  const curName = P(lang, (outlets.find(o=>o.id===curStore) || outlets[0] || {name:{}}).name);
   const success = () => { setOk(true); setCode(""); setTimeout(()=>setOk(false), 2800); };
   const submit = () => { if (code.trim().length >= 3) success(); };
   const scan = () => { setScanning(true); setTimeout(()=>{ setScanning(false); success(); }, 1700); };
@@ -1347,7 +1406,20 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
     /></div>
   );
   return (
-    <div className="app-body redeem-wrap">
+    <div className="app-body">
+      <div className="redeem-storebar">
+        <div className="rsb-l">
+          <span className="rsb-ic"><Ic.store style={{ width:16, height:16 }}/></span>
+          <div className="rsb-tx">
+            <span className="rsb-lb">{tr(lang,"Redeeming at","当前兑奖门店")}</span>
+            {multiOutlet
+              ? <select className="rsb-sel" value={curStore} onChange={e=>setCurStore(e.target.value)}>{outlets.map(o=>(<option key={o.id} value={o.id}>{P(lang,o.name)}</option>))}</select>
+              : <span className="rsb-one">{curName}</span>}
+          </div>
+        </div>
+        <span className="rsb-note">{multiOutlet ? tr(lang,"Redemptions count toward this outlet. Switch it if you move counters.","兑奖会记到这家店；换到别的店请先切换。") : tr(lang,"Redemptions count toward this outlet.","兑奖会记到这家店。")}</span>
+      </div>
+      <div className="redeem-wrap">
       <div className="rd-left">
         <div className="redeem-card">
           <div className="ic-big"><Ic.target/></div>
@@ -1360,34 +1432,23 @@ function RedeemView({ vouchers = DEFAULT_VOUCHERS, onReport, hasLive, hasActs, o
           <div className="redeem-input"><input value={code} onChange={e=>setCode(e.target.value)} placeholder={tr(lang,"prize code","奖品码")} onKeyDown={e=>{ if(e.key==="Enter") submit(); }}/><button className="btn primary" onClick={submit}>{tr(lang,"Redeem","兑奖")}</button></div>
           {ok && <div className="redeem-ok"><Ic.check/> {tr(lang,"Redeemed, counted as a real walk-in","兑奖成功，已计入真实到店")}</div>}
         </div>
+      </div>
+
+      <div className="rd-right">
+        {/* 右栏=次要参考：今日/累计两个数 + 最近兑奖确认流 + 深入数据入口。待兑奖、券进度、各门店等分析都在「数据」页（操作页/分析页分离） */}
+        <div className="rd-summary" style={{ marginTop:0 }}>
+          <div className="rd-sum"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed today","今日兑奖")}</div></div>
+          <div className="rd-sum"><div className="n">{totRedeemed}</div><div className="l">{tr(lang,"redeemed total","累计兑奖")}</div></div>
+        </div>
         {reds.length > 0 && <div className="panel">
           <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent redemptions","最近兑奖")}</h4>
           {reds.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
         </div>}
+        <button className="rd-datalink" onClick={onReport}>
+          <span>{tr(lang,"By outlet & trends","各门店与趋势")}</span>
+          <span className="rd-dl-cta">{tr(lang,"Full report","查看完整数据")} <Ic.arrow style={{ width:14, height:14 }}/></span>
+        </button>
       </div>
-
-      <div className="rd-right">
-        {/* 简要概览 — 当下要瞄一眼的数；完整分析在「数据」页 */}
-        <div className="rd-summary" style={{ marginTop:0 }}>
-          <div className="rd-sum"><div className="n">{DEMO_METRICS.today.redeemed}</div><div className="l">{tr(lang,"redeemed today","今日兑奖")}</div></div>
-          <div className="rd-sum"><div className="n">{toCome}</div><div className="l">{tr(lang,"not yet redeemed","待兑奖")}</div></div>
-          <div className="rd-sum"><div className="n">{totRedeemed}</div><div className="l">{tr(lang,"redeemed total","累计兑奖")}</div></div>
-        </div>
-        <div className="panel">
-          <div className="panel-head"><h4 style={{ fontSize:16, fontWeight:800, margin:0 }}>{tr(lang,"Voucher status","奖品券兑奖")}</h4><button className="panel-link" onClick={onReport}>{tr(lang,"Full report","查看完整数据")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
-          <p className="ph-sub">{tr(lang,"Redeemed / total issued · per-outlet & trends in Reports","已兑奖 / 总张数 · 各门店与趋势看「数据」")}</p>
-          <div className="rd-list">
-            {vouchers.map((v,i)=>{
-              const cap=+v.qty||0, redeemed=v.redeemed||0;
-              return (
-                <div className="rd-row" key={i}>
-                  <div className="rd-head"><span className="rd-name">{P(lang,v.name)} <em>· {P(lang,v.discount)}</em></span><span className="rd-frac"><b>{redeemed}</b>/{cap}</span></div>
-                  <div className="rd-bar"><i className="rdR" style={{ width:(cap?redeemed/cap*100:0)+"%" }}></i></div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -1933,7 +1994,8 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   const smallSample = M.walkins < 10;
   // 各门店到店（来自统一 demo 口径，自洽求和=walkins）
   const outRed = outlets.map(o => ({ o, v: M.byOutlet[o.id] || 0 }));
-  const omax = Math.max(1, ...outRed.map(x=>x.v));
+  const unknownRed = M.byOutlet.unknown || 0;   // 用自家设备核销、未选当前门店 → 记不到具体门店，仍计入总数
+  const omax = Math.max(1, ...outRed.map(x=>x.v), unknownRed);
   const gmax = Math.max(...GAME_PERF.map(g => g.v));
   const dlQR = () => { const c=document.createElement("canvas"); c.width=200; c.height=200; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,200,200); x.fillStyle="#0B1220"; x.font="bold 24px sans-serif"; x.textAlign="center"; x.fillText("QR CODE",100,90); x.font="13px sans-serif"; x.fillText(liveName||"activity",100,120); const a=document.createElement("a"); a.download="activity-qr.png"; a.href=c.toDataURL(); a.click(); };
   // 活动数据（真实到店）— 空状态分级
@@ -2016,14 +2078,14 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
           <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
-        <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample}/></div>
+        <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample} unknown={unknownRed}/></div>
       </div>
       : multiAct ? <div className="panel">
           <div className="panel-head"><h3>{tr(lang,"Which activity brings customers","哪个活动在帮你带客")}</h3><button className="panel-link" onClick={onTune}>{tr(lang,"Manage","管理活动")} <Ic.arrow style={{ width:14, height:14 }}/></button></div>
           <p className="ph-sub">{tr(lang,"Ranked by walk-ins, back the one that works","按到店人数排序，把预算押在最能带客的那个")}</p>
           {GAME_PERF.map((g, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,g.n)}</span><span className="hv">{g.v} {tr(lang,"walk-ins","人到店")}</span></div><div className="ht"><i style={{ width:(g.v/gmax*100)+"%", background:g.c }}></i></div></div>))}
         </div>
-      : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample}/></div>
+      : outlets.length>=2 ? <div className="panel"><OutletPanel lang={lang} outRed={outRed} omax={omax} smallSample={smallSample} unknown={unknownRed}/></div>
       : null}
     </>
   );
@@ -2150,11 +2212,15 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
     </div>
   );
 }
-function OutletPanel({ lang, outRed, omax, smallSample }) {
+function OutletPanel({ lang, outRed, omax, smallSample, unknown = 0 }) {
   return (<>
     <h3>{tr(lang,"Walk-ins by outlet","各门店到店")}</h3>
     <p className="ph-sub">{tr(lang,"Which shop pulls the most; voucher stock is shared across outlets","哪家店带客最多。券的库存整个活动全门店共用。")}</p>
     {outRed.map(({o,v}, i) => (<div key={i} className="hbar"><div className="hl"><span>{P(lang,o.name)}</span><span className="hv">{v} {tr(lang,"walk-ins","人到店")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(v/omax*100)+"%", background:"linear-gradient(90deg,#16A34A,#22C55E)" }}></i></div>}</div>))}
+    {unknown > 0 && <>
+      <div className="hbar"><div className="hl"><span className="ho-unk">{tr(lang,"Outlet not set","未指定门店")}</span><span className="hv">{unknown} {tr(lang,"walk-ins","人到店")}</span></div>{!smallSample && <div className="ht"><i style={{ width:(unknown/omax*100)+"%", background:"linear-gradient(90deg,#94A3B0,#B6C1CC)" }}></i></div>}</div>
+      <p className="ph-sub ho-unk-note">{tr(lang,"Redeemed on the shop's own device without picking a current outlet — still counted in your total.","用自家设备核销、没先选当前门店的，仍计入总数。")}</p>
+    </>}
   </>);
 }
 
@@ -2473,7 +2539,7 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={openNewActPicker} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
           : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} onDelete={(ids)=>setActivities(list=>list.filter(a=>!ids.includes(a.id)))} />
           : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} onDelete={(ids)=>setMyGames(gs=>gs.filter(g=>!ids.includes(g.id)))} />
-          : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} />
+          : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} outlets={outlets} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>

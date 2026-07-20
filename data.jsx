@@ -124,7 +124,7 @@ const DEMO_METRICS = {
   delta: { plays:"+18%", walkins:"+24%", newCust:"+31%", returning:"+12%" },
   today: { plays: 47, walkins: 12, redeemed: 9 },
   trend: [{d:{en:"Mon",zh:"一"},v:10},{d:{en:"Tue",zh:"二"},v:12},{d:{en:"Wed",zh:"三"},v:11},{d:{en:"Thu",zh:"四"},v:14},{d:{en:"Fri",zh:"五"},v:13},{d:{en:"Sat",zh:"六"},v:14},{d:{en:"Sun",zh:"日"},v:12}],
-  byOutlet: { o1: 50, o2: 36 },
+  byOutlet: { o1: 44, o2: 30, unknown: 12 },   // unknown = 用自家设备核销、未选当前门店 → 记不到具体门店，仍计入总数(44+30+12=86)
   spark: { plays:[20,28,24,32,30,40,44], walkins:[5,7,6,9,8,11,13], newCust:[3,5,4,7,6,9,11], returning:[2,3,3,4,3,5,5] },
 };
 /* 冷启动/稀疏数据集(?sparse=1 演示)：新活动上线没几天、只有 1 个到店。用于验证「上线以来累计 + 稀疏不画空柱 + 小样本隐百分比」。 */
