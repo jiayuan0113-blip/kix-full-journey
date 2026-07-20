@@ -73,7 +73,7 @@ const LEGAL = {
    },
    {
     "t": "p",
-    "x": "7.1 **Software is free.** Building Games and Activities and using the dashboard is free. 7.2 **Card at registration (stored, not charged).** To publish an Activity you add a payment card during registration. We use Stripe to securely tokenise your card; **KiX never sees or stores your full card number**, and **you are not charged when you add the card**. 7.3 **Free period.** Your first 3 months are free. 7.4 **What you pay after the free period.** You authorise KiX, through Stripe, to charge your stored card **on a recurring monthly basis** for your use of the Service. **The amount is** a recurring monthly fee based on your Monthly Active Players (players who played at least once that month), per our current published pricing; the more people play, the lower the effective price per player. Fees are billed monthly in arrears based on that month's usage. All fees are in Singapore Dollars (S$) and exclusive of taxes, which you are responsible for. 7.5 **Metering and disputes.** Because KiX does not integrate with your point-of-sale, MAP counts are derived solely from KiX platform events, and **our records are the system of record**. Your usage is visible to you in the dashboard billing meter. If you believe a count is wrong, contact us within `[30]` days of the invoice; we will review in good faith. 7.6 **Cancellation.** You can cancel at any time from the dashboard. Cancellation stops future charges and takes your Activities offline; it is at least as easy as signing up. We will remind you around 7 days before your first charge. 7.7 **Price changes.** We may change fees or the metering model with at least `[30]` days' prior notice. Continued use after the effective date is acceptance. 7.8 **Refunds.** Fees already charged for usage are non-refundable except where required by law. 7.9 **Non-payment.** If a charge fails, we may retry, suspend paid features, or take Activities offline after notice."
+    "x": "7.1 **Software is free.** Building Games and Activities and using the dashboard is free. 7.2 **Card at registration (stored, not charged).** To publish an Activity you add a payment card during registration. We use Stripe to securely tokenise your card; **KiX never sees or stores your full card number**, and **you are not charged when you add the card**. 7.3 **Free period.** Your first 3 months are free. 7.4 **What you pay after the free period.** You authorise KiX, through Stripe, to charge your stored card **on a recurring monthly basis** for your use of the Service. **The amount is** a recurring monthly fee based on your Monthly Active Players (players who played at least once that month), per our current published pricing; the more people play, the lower the effective price per player. Fees are billed monthly in arrears based on that month's usage. All fees are in Singapore Dollars (S$) and exclusive of taxes, which you are responsible for. 7.5 **Metering and disputes.** Because KiX does not integrate with your point-of-sale, MAP counts are derived solely from KiX platform events, and **our records are the system of record**. Your usage is visible to you in the dashboard billing meter. If you believe a count is wrong, contact us within 30 days of the invoice; we will review in good faith. 7.6 **Cancellation.** You can cancel at any time from the dashboard. Cancellation stops future charges and takes your Activities offline; it is at least as easy as signing up. We will remind you around 7 days before your first charge. 7.7 **Price changes.** We may change fees or the metering model with at least 30 days' prior notice. Continued use after the effective date is acceptance. 7.8 **Refunds.** Fees already charged for usage are non-refundable except where required by law. 7.9 **Non-payment.** If a charge fails, we may retry, suspend paid features, or take Activities offline after notice."
    },
    {
     "t": "h",
@@ -232,7 +232,7 @@ const LEGAL = {
    },
    {
     "t": "p",
-    "x": "7.1 **软件免费。** 制作游戏与活动、使用后台，免费。 7.2 **注册时绑卡（存卡，不扣款）。** 上线活动需在注册时添加银行卡。我们通过 Stripe 安全地将你的卡令牌化；**KiX 绝不查看或存储你的完整卡号**，**绑卡当下不扣款**。 7.3 **免费期。** 首 3 个月免费。 7.4 **免费期后的费用。** 你授权 KiX 通过 Stripe，就你对本服务的使用，**按月循环**从你所存的卡扣费。**金额为**按你的月活跃玩家（当月至少玩过一次的人）计的按月循环费用，以我们当前公示的价目表为准；玩的人越多，每位的实际价格越低。费用按当月用量、于次月结算。所有费用以新加坡元（S$）计，且不含税，税费由你承担。 7.5 **计量与争议。** 由于 KiX 不接入你的收银系统（POS），MAP 计数仅来自 KiX 平台事件，**以我们的记录为准**。你的用量在后台计费仪表可见。如你认为计数有误，请在账单出具后 `[30]` 日内联系我们，我们将善意复核。 7.6 **取消。** 你可随时在后台取消。取消将停止后续扣费并使你的活动下线；取消至少和注册一样容易。首次扣款前约 7 天我们会提醒你。 7.7 **价格变更。** 我们可提前至少 `[30]` 日通知后调整费用或计量模型。生效日后继续使用即为接受。 7.8 **退款。** 已就用量收取的费用不予退还，法律另有要求的除外。 7.9 **未付款。** 若扣款失败，我们可重试、暂停付费功能，或在通知后使活动下线。"
+    "x": "7.1 **软件免费。** 制作游戏与活动、使用后台，免费。 7.2 **注册时绑卡（存卡，不扣款）。** 上线活动需在注册时添加银行卡。我们通过 Stripe 安全地将你的卡令牌化；**KiX 绝不查看或存储你的完整卡号**，**绑卡当下不扣款**。 7.3 **免费期。** 首 3 个月免费。 7.4 **免费期后的费用。** 你授权 KiX 通过 Stripe，就你对本服务的使用，**按月循环**从你所存的卡扣费。**金额为**按你的月活跃玩家（当月至少玩过一次的人）计的按月循环费用，以我们当前公示的价目表为准；玩的人越多，每位的实际价格越低。费用按当月用量、于次月结算。所有费用以新加坡元（S$）计，且不含税，税费由你承担。 7.5 **计量与争议。** 由于 KiX 不接入你的收银系统（POS），MAP 计数仅来自 KiX 平台事件，**以我们的记录为准**。你的用量在后台计费仪表可见。如你认为计数有误，请在账单出具后 30 日内联系我们，我们将善意复核。 7.6 **取消。** 你可随时在后台取消。取消将停止后续扣费并使你的活动下线；取消至少和注册一样容易。首次扣款前约 7 天我们会提醒你。 7.7 **价格变更。** 我们可提前至少 30 日通知后调整费用或计量模型。生效日后继续使用即为接受。 7.8 **退款。** 已就用量收取的费用不予退还，法律另有要求的除外。 7.9 **未付款。** 若扣款失败，我们可重试、暂停付费功能，或在通知后使活动下线。"
    },
    {
     "t": "h",
@@ -457,7 +457,7 @@ const LEGAL = {
    },
    {
     "t": "p",
-    "x": "We keep personal data only as long as needed for the purposes above or as required by law, then delete or de-identify it. As a guide: **account and billing records** — while your account is active and for 5 years after closure (to meet Singapore tax and accounting rules); **player gameplay, voucher and redemption data** — while the related activity is running and for up to 24 months after, then de-identified; **one-time verification codes** — minutes; **marketing preferences** — until you withdraw consent. `[Confirm final periods with ops/legal.]`"
+    "x": "We keep personal data only as long as needed for the purposes above or as required by law, then delete or de-identify it. As a guide: **account and billing records** — while your account is active and for 5 years after closure (to meet Singapore tax and accounting rules); **player gameplay, voucher and redemption data** — while the related activity is running and for up to 24 months after, then de-identified; **one-time verification codes** — minutes; **marketing preferences** — until you withdraw consent."
    },
    {
     "t": "h",
@@ -640,7 +640,7 @@ const LEGAL = {
    },
    {
     "t": "p",
-    "x": "我们仅在实现上述目的所需的期间、或法律要求的期间内保留个人数据，之后予以删除或去标识化。作为指引：**账号与计费记录**——账号存续期间及关闭后 5 年（满足新加坡税务与会计要求）；**玩家游玩、券与到店兑奖数据**——相关活动运行期间及其后至多 24 个月，之后去标识化；**一次性验证码**——数分钟；**营销偏好**——直至你撤回同意。`[最终期限请与运营/法务确认。]`"
+    "x": "我们仅在实现上述目的所需的期间、或法律要求的期间内保留个人数据，之后予以删除或去标识化。作为指引：**账号与计费记录**——账号存续期间及关闭后 5 年（满足新加坡税务与会计要求）；**玩家游玩、券与到店兑奖数据**——相关活动运行期间及其后至多 24 个月，之后去标识化；**一次性验证码**——数分钟；**营销偏好**——直至你撤回同意。"
    },
    {
     "t": "h",
