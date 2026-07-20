@@ -6,6 +6,33 @@
 
 ## 2026-07-20
 
+### 99. 建游戏 3 步 UI 按 Joyce 截图对齐（describe/results/preview）+ 删 building loader（本地未 push）
+- **描述(Describe)**：店型 chips 从 **emoji → 单色线性 SVG 图标**（12 类，`sic()` 生成；craft 反 emoji-当图标）；选中态复用 `.cate-chip.on` 绿圈 + `.cico` 绿标。
+- **选游戏(Results)** 重建为设计稿版：**店铺信息卡**(你输入的店铺 + name + ✏改) + **主游戏卡**(方形封面 `.gcov` + 名 + `96%匹配` + 为什么是这个 + lede) + **用这个游戏**(绿满宽) + **换一个看看**(白满宽) + **其他 2 个候选**(带封面 + 匹配%)。match% = 按 rank [96,91,88,…]；封面 = 玩法色 tint 方块 + gamepad 图标（研发接真实方形封面图）。游戏名用本地 TEMPLATES 真实数据（幸运大转盘/刮刮乐/叠叠乐），非 mock 的 Palette Puzzle。
+- **我的游戏(Preview)** 品牌面板重构为设计稿版：标题「换成你的品牌」+ 副题；`.pv-brand` 卡 = **配色**(圆 swatch + 选中黑圈 + "+"换色) + **Logo / 商品图 两个上传框** + **或让 AI 帮你抓一套**(网址 input + `用我的品牌生成` 浅紫按钮) + **即时预览绿提示条** + **🚀 上线**。弃用 Preview 内的共享 `BrandControls`（Workspace 仍用，未动）。
+- **删 building loader 屏**（Joyce：这一屏删掉）：`describe onNext` 与 `startBuild(有店名)` 均直接 →`results`（原 `Loader`「Matching games…」分支移除；`BUILD_TASKS`/`Loader` 变未用 dead code，保留）。
+- 文件：`journey.jsx`(CATE+sic/Describe/Results/Preview/路由) + `index.html`(`.cate-chip .cico`/`.rs-*`/`.gcov`/`.pv-*` CSS)。**仅本地，未 push**。
+
+### 98. 落地页「进地图」重定位 —— 从卖功能(AI建游戏) → 卖需求(上地图被一城人发现)（设计流水线定稿 → 落码，本地未 push）
+- **需求**：线上新版抛头引入"进地图"范式（消费者端城市地图 = 需求侧可视化）。落地页据此重定位。产品事实：每家店 = 一个 3D 游戏化建模，点进去玩该店专属小游戏；客人体验三层下钻 城市地图→店 3D 建模→店内游戏。
+- **方向（设计流水线 Stage0-8 + 三体）**：lead-with-demand 换 lead-with-feature（marketplace 铁律：Airbnb/Yelp/DoorDash/Dixon come-for-the-tool-stay-for-the-network）。hero=地图（需求钩子）；建游戏工具降为 how、地图/网络升为 why-it-compounds。
+- **原型改动（`journey.jsx` + `index.html`，只改 Landing 段）**：
+  - **Hero**：去掉"冷清空店场景"→ 换**嵌入式消费者城市地图**（`MapHero`：搜索/City/★pts/券/Singapore·Orchard/GO·Night·Bold/NEARBY MALLS/定位准星 + 散布店 pin + 高亮 YOU pin + callout「你的店，就在这里 / ▶玩一局，赢张券」）。文案精简：去 eyebrow，副标题一句「把你的店做成游戏放进地图，被全球发现」（店=游戏+全球，与网络段「全世界」一致；2026-07-20 Joyce 定）；chips 改 3分钟上线/客人免下载/免费试用。hero 栅格调宽给地图（`.86fr 1.14fr`）。
+  - **Walkthrough(`#the-game`)**：改回**多手机屏流程**，5 屏 = ①**3D 城市地图** `walkthrough/map-3d.png` ②**3D 店** `walkthrough/store-3d.png`（Joyce 给的真 3D 渲染图，含自带手机边框 → 用 `.wt-full` 无框直铺，避免框中框）③④⑤ **复用现有图** `walkthrough/play|win|redeem.png`（`.wt-phone` 框）。标题「他们在地图上发现你，玩着就进店」。PLAY/PAY/STAY 口径贴地图。〔`MiniMap` 组件保留未用〕
+  - **SeeYourGame**：**改为 live-3D 店铺预览**（2026-07-20 Joyce：这屏不是手机截屏，是实时 3D 图、真实 3D 店铺将来嵌入，先做模拟）。`.live3d` 深色圆角卡 + 店铺 3D 图放大裁掉手机框 + 「◈ LIVE 3D」实时徽标 + 「↻ 拖动查看你的店」提示 + 轻微自转动画（`live3dspin`）。**⚠️ 研发接真实 3D embed（three.js / model-viewer）**；副题"生成你的品牌 3D 店和小游戏，做好就能上地图"；去"前3月免费"note。
+  - **WhyGame(`#why`)**：→「这不只是地图，是**全世界**的游戏乐园 / Not just a map. The whole world at play.」（2026-07-20 Joyce：城→全世界）+ 副题「店越多，玩的人越多，你也被更多人发现」；3 卡 = 券非现金 / **店和店互相带客** / **店越多玩家越多**；**删**旧"每次到店可验证"卡（与 MAU 计费冲突）。
+  - **Hero 地图**再放大：栅格 `.76fr 1.24fr`。
+  - **Pricing 可点（2026-07-20 Joyce）**：`TiersNew` 3 档位卡加 `onClick={go}`（点击 = Start free，走注册/生成闸门）；Custom 卡本就 `setLead`。**⚠️ 仅加可点行为，档位数字/内容仍未改**（之前"完全未动"修正为此）。
+  - **Pricing 视觉中心（2026-07-20 Joyce：Start free 被信息淹没）**：`.btn.big` 放大 52→66px 高 / 17→21px 字 / padding 60 / 更强绿投影 + hover 抬升；`.ladder-cta` `.includes` 加留白。深绿实心 CTA 压过浅绿档位卡 = 唯一焦点（Fitts + 单一焦点）。仅 index.html CSS。
+  - **Faq**：顶部**新增 3 条地图 Q**（怎么在地图上找到我 / 找到之后然后呢〔含 3D 店→游戏→券→到店〕/ 地图上没人怎么办〔诚实冷启动 come-for-tool〕）；旧 Q&A（含定价档 FAQ）不动。
+  - **Stories**：接进 Landing（原 `Stories` 组件定义了但没渲染）；内容换地图版店主证言（Marcus 茶饮/Lim 姨小食/Priya 咖啡），去掉旧虚荣数字(48%/1500/29%)，改 quote-forward。标题「已经在地图上的店」。
+  - **Final CTA**：**保留旧版**「每家店都值得拥有自己的游乐场」（2026-07-20 Joyce：最后一屏保留旧的；曾短暂改地图版又还原）。
+  - **地图/店铺素材**：流程首屏地图 `walkthrough/map-3d.png` + 店铺 `walkthrough/store-3d.png` 均用 Joyce 给的 **852×1846 高清透明 PNG**（hasAlpha，融入无底色块）。同一 store-3d.png 在流程里作手机屏、在 SeeYourGame 里作 live-3D 预览两处复用。
+  - **Nav**：首链接「游戏」→「怎么被发现」。
+  - 新增组件 `MapHero / MiniMap / Store3D`；新增 CSS `.mapcard/.mchrome/.mpin/.mcallout/.wtm/.wts` 等（index.html）。
+  - **⚠️ 定价段（`Pricing`/`TiersNew`）完全未动**（Joyce 指示：除定价外其他都传）。3D 店目前为 CSS 卡通示意，待真实 3D 建模素材替换。
+  - **状态**：仅改本地，**未 push**（待 Joyce 确认）。设计流水线全程产物在 `design-runs/落地页-进地图/`。
+
 ### 97. 兑奖页布局重排 —— 修正视觉权重倒挂，扫码成唯一焦点（Pencil 定稿 → 落码）
 - **需求**：Joyce 觉得兑奖页排布可优化。三体调研收敛（Square/Toast/Loyverse 收银屏 + POS UX：一屏一主动作、主动作最大最高对比、离屏≥80cm 要够大、砍冗余）→ Pencil 出布局稿 → Joyce 微调（去页副标题、右栏第 2 数改「累计兑奖」）→ 落码。
 - **诊断**：原布局主动作「扫码兑奖」挤在左侧 400px 窄栏，更宽的右栏却放次要参考（3 统计块 + 券进度）= 视觉权重倒挂；券进度是分析、越位（违 canon 操作页/分析页分离）。

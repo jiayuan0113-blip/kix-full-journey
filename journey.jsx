@@ -260,6 +260,66 @@ function Loader({ title, who, tasks, onDone }) {
 }
 
 /* ===================== landing ===================== */
+/* map-first landing helpers (2026-07-20) */
+function MapHero({ lang }) {
+  return (
+    <div className="mapcard">
+      <div className="mglow"></div>
+      <svg className="mstreets" viewBox="0 0 400 416" preserveAspectRatio="none">
+        <line className="mn" x1="0" y1="120" x2="400" y2="150"/>
+        <line className="mn" x1="150" y1="0" x2="120" y2="416"/>
+        <line className="mn" x1="0" y1="300" x2="400" y2="270"/>
+        <line x1="0" y1="60" x2="400" y2="80"/><line x1="0" y1="205" x2="400" y2="215"/>
+        <line x1="0" y1="365" x2="400" y2="345"/><line x1="60" y1="0" x2="40" y2="416"/>
+        <line x1="260" y1="0" x2="280" y2="416"/><line x1="340" y1="0" x2="360" y2="416"/>
+      </svg>
+      <div className="mpin" style={{ left:"24%", top:"30%" }}><span className="d"><b>C</b></span></div>
+      <div className="mpin" style={{ left:"78%", top:"26%" }}><span className="d"><b>B</b></span></div>
+      <div className="mpin" style={{ left:"16%", top:"64%" }}><span className="d"><b>R</b></span></div>
+      <div className="mpin" style={{ left:"84%", top:"70%" }}><span className="d"><b>K</b></span></div>
+      <div className="mpin" style={{ left:"40%", top:"80%" }}><span className="d"><b>T</b></span></div>
+      <div className="mpin" style={{ left:"66%", top:"82%" }}><span className="d"><b>D</b></span></div>
+      <div className="mpin you" style={{ left:"52%", top:"52%" }}><span className="d"><b>YOU</b></span></div>
+      <div className="mcallout">
+        <div className="ct">{tr(lang,"Your shop","你的店")}</div>
+        <div className="cb">{tr(lang,"▶  Click to play your game","▶  点击玩你的游戏")}</div>
+      </div>
+      <div className="mchrome">
+        <div className="mtop">
+          <span className="mlg"><b>Ki</b>X</span><span className="msp"></span>
+          <span className="mpill">⌕ {tr(lang,"Search","搜索")}</span>
+          <span className="mpill">◱ City</span>
+          <span className="mpill pts">★ 0 pts</span>
+          <span className="mpill vch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 9a2 2 0 012-2h12a2 2 0 012 2 2 2 0 000 6 2 2 0 01-2 2H6a2 2 0 01-2-2 2 2 0 000-6z"/></svg> 0</span>
+        </div>
+        <div className="mloc">Singapore · Orchard</div>
+        <div className="mfilters"><span className="mfil on">GO</span><span className="mfil">Night</span><span className="mfil">Bold</span></div>
+        <div className="mfoot"><span className="mnearby">{tr(lang,"NEARBY MALLS","附近商场")}</span><span className="mrecenter">◎</span></div>
+      </div>
+    </div>
+  );
+}
+function MiniMap() {
+  return (
+    <div className="wtm">
+      <svg viewBox="0 0 120 250" preserveAspectRatio="none"><line x1="0" y1="90" x2="120" y2="80"/><line x1="0" y1="170" x2="120" y2="180"/><line x1="45" y1="0" x2="35" y2="250"/><line x1="90" y1="0" x2="100" y2="250"/></svg>
+      <div className="b">◱ Singapore</div>
+      <span className="p" style={{ left:"70%", top:"30%" }}></span>
+      <span className="p" style={{ left:"25%", top:"58%" }}></span>
+      <span className="p" style={{ left:"80%", top:"74%" }}></span>
+      <span className="p you" style={{ left:"48%", top:"48%" }}></span>
+    </div>
+  );
+}
+function Store3D({ lang }) {
+  return (
+    <div className="wts"><div className="bld">
+      <div className="sign">{tr(lang,"Your shop","你的店")}</div>
+      <div className="face"><div className="awn"></div><div className="door"></div></div>
+      <div className="enter">{tr(lang,"▶ Enter","▶ 进店")}</div>
+    </div></div>
+  );
+}
 function Hero({ go }) {
   const lang = useLang();
   const [name, setName] = useState("");
@@ -267,27 +327,19 @@ function Hero({ go }) {
     <section className="hero">
       <div>
         <h1 className="hero-h">{tr(lang,"They play.","他们来玩。")}<br/>{tr(lang,"They pay.","他们消费。")}<br/>{tr(lang,"They ","他们")}<span className="hl">{tr(lang,"stay.","留下来。")}</span></h1>
-        <div className="hero-chips">
-          <span className="hchip"><b>{tr(lang,"3 min","3 分钟")}</b>{tr(lang," to launch"," 上线")}</span>
-          <span className="hchip"><b>S$0</b>{tr(lang," to start"," 起步")}</span>
-          <span className="hchip">{tr(lang,"First 3 months free","前 3 个月免费")}</span>
-        </div>
+        <p style={{ fontSize:18, color:"var(--ink-2)", margin:"18px 0 0", maxWidth:"22em" }}>{tr(lang,"Turn your shop into a game on the map, discovered worldwide.","把你的店做成游戏放进地图，被全球发现。")}</p>
         <div className="wow-form">
           <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
           <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
         </div>
+        <div className="hero-chips">
+          <span className="hchip"><b>{tr(lang,"3 min","3 分钟")}</b>{tr(lang," to launch"," 上线")}</span>
+          <span className="hchip">{tr(lang,"Free to try","免费试用")}</span>
+        </div>
       </div>
       <div className="visual">
         <div className="visual-col">
-          <div className="hscene">
-            <span className="lamp" style={{ left:"22%" }}></span>
-            <span className="lamp" style={{ left:"46%" }}></span>
-            <span className="lamp" style={{ left:"70%" }}></span>
-            <div className="cap">{tr(lang,"“Another slow day… same empty seats.”","「又是冷清的一天……还是空座位。」")}</div>
-            <div className="floor"></div>
-            <div className="counter"></div>
-            <div className="person"></div>
-          </div>
+          <MapHero lang={lang} />
         </div>
       </div>
     </section>
@@ -296,23 +348,24 @@ function Hero({ go }) {
 function Walkthrough() {
   const lang = useLang();
   const S = [
-    { img:"walkthrough/poster.png", pos:"top",    label:tr(lang,"Spots your poster","看到你的海报") },
-    { scan:true,                                    label:tr(lang,"Scans, no app","扫码，免下载") },
-    { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Plays YOUR game","玩你的专属游戏") },
-    { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Wins a voucher","赢到一张券") },
-    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Redeems & returns","兑奖，成常客") },
+    { full:"walkthrough/map-3d.png",               label:tr(lang,"They spot you on the map","他们在地图上看到你") },
+    { full:"walkthrough/store-3d.png",             label:tr(lang,"Tap into your 3D shop","点进你的 3D 店") },
+    { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Play your game","玩你的小游戏") },
+    { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Win a voucher","赢到一张券") },
+    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Redeem & come back","到店兑，成常客") },
   ];
   return (
     <section className="sec" id="the-game">
-      <h2 className="sec-h">{tr(lang,"Turn your business into a playground","把你的店变成游乐场")}</h2>
-      <p className="sec-sub">{tr(lang,"With your own branded game, customers play, pay and stay.","你自己的品牌小游戏，让客人来玩、消费、留下来。")}</p>
+      <div className="sec-eye">{tr(lang,"HOW CUSTOMERS FIND YOU","客人怎么找到你")}</div>
+      <h2 className="sec-h">{tr(lang,"They find you on the map, and play their way in","他们在地图上发现你，玩着就进店")}</h2>
+      <p className="sec-sub">{tr(lang,"No ads to buy. Your shop lives on the map players already explore.","不用买广告。你的店就住在玩家本来就在逛的地图上。")}</p>
       <div className="wt-row">
         {S.map((s,i)=>(
           <React.Fragment key={i}>
             <div className="wt-step">
-              <div className="wt-phone"><div className="wt-scr">
-                {s.scan ? <div className="wt-scan"><i></i></div> : <img src={s.img} alt="" style={{ objectPosition:s.pos }}/>}
-              </div></div>
+              {s.full
+                ? <img className="wt-full" src={s.full} alt=""/>
+                : <div className="wt-phone"><div className="wt-scr"><img src={s.img} alt="" style={{ objectPosition:s.pos }}/></div></div>}
               <div className="wt-label">{s.label}</div>
             </div>
             {i < S.length-1 && <div className="wt-arrow">→</div>}
@@ -320,9 +373,9 @@ function Walkthrough() {
         ))}
       </div>
       <div className="ppp">
-        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They play their way in","他们玩着玩着就进店")}</h4><p>{tr(lang,"Your branded game is the hook. No ads to buy.","你的品牌游戏就是钩子，不用买广告。")}</p></div>
-        <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","发的是券不是现金，一次游戏就换来一次真进店消费。")}</p></div>
-        <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","一次次玩、一次次赢、一次次消费，来的都是常客，不是一次性顾客。")}</p></div>
+        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They discover you & play in","他们发现你、玩着进店")}</h4><p>{tr(lang,"Your spot on the map is the hook. Players come to you.","你在地图上的位置就是钩子，玩家自己找上门。")}</p></div>
+        <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","发的是券不是现金，一次游戏换来一次真进店消费。")}</p></div>
+        <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","一次次玩、一次次赢、一次次消费，来的是常客不是过客。")}</p></div>
       </div>
     </section>
   );
@@ -334,17 +387,19 @@ function SeeYourGame({ go }) {
     <section className="sec">
       <div className="wow2">
         <div>
+          <div className="sec-eye" style={{ textAlign:"left" }}>{tr(lang,"MADE IN MINUTES","几分钟做好")}</div>
           <h2 className="wow-h">{tr(lang,"Type your business name","输入你的店名")}<br/><span className="hl">{tr(lang,"See your game in 3 min","3 分钟看到你的游戏")}</span></h2>
-          <p className="wow-sub">{tr(lang,"Our AI matches 1,000+ formats to your trade and auto-brands one with your logo & colors.","AI 从上千种玩法里匹配你的行业，自动套上你的 logo 和品牌色。")}</p>
+          <p className="wow-sub">{tr(lang,"Our AI matches 1,000+ formats to your trade and builds your own branded 3D shop & game, ready for the map.","AI 从上千种玩法里匹配你的行业，自动套上 logo 和品牌色，生成你的品牌 3D 店和小游戏，做好就能上地图。")}</p>
           <div className="wow-form">
             <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
             <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
           </div>
-          <div className="wow-note">{tr(lang,"First 3 months free","前 3 个月免费")}</div>
         </div>
         <div className="wow-visual">
-          <div className="wow-phone">
-            <div className="wow-scr"><img src="walkthrough/play.png" alt="" style={{ objectPosition:"top" }}/></div>
+          <div className="live3d">
+            <img src="walkthrough/store-3d.png" alt=""/>
+            <span className="l3-badge"><i></i>{tr(lang,"LIVE 3D","实时 3D")}</span>
+            <span className="l3-hint">{tr(lang,"↻ Drag to explore your store","↻ 拖动查看你的店")}</span>
           </div>
         </div>
       </div>
@@ -354,14 +409,15 @@ function SeeYourGame({ go }) {
 function WhyGame() {
   const lang = useLang();
   const C = [
-    { ic:Ic.gift,   h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your business, so they walk back in and spend instead of pocketing a discount and leaving.","赢家拿到的是能到你店里兑的券，会专门回店消费，而不是拿个折扣就走人。") },
-    { ic:Ic.shield, h:tr(lang,"Every visit is verified","每一次到店都可验证"),       p:tr(lang,"A door scan proves which plays actually brought someone in. You pay only for real new customers, never for your own regulars.","到店扫一下，就知道哪次游戏真把人带进了门。你只为真正的新客付钱，老客永远不算你账上。") },
-    { ic:Ic.globe,  h:tr(lang,"Every game feeds the network","每个游戏都在壮大网络"), p:tr(lang,"Your players discover other businesses on KiX; theirs discover you. The more businesses join, the bigger every playground.","你的玩家在 KiX 上发现别家店，别家的玩家也发现你。加入的店越多，每个人的游乐场就越大。") },
+    { ic:Ic.gift,  h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your shop, so they walk back in and spend instead of pocketing a discount and leaving.","赢家拿到的是能到你店里兑的券，会专门回店消费，而不是拿个折扣就走人。") },
+    { ic:Ic.globe, h:tr(lang,"Shops send each other customers","店和店互相带客"), p:tr(lang,"Your players discover other shops on KiX; their players discover you. Everyone's map gets busier.","你的玩家在 KiX 上发现别家店，别家的玩家也发现你。每个人的地图都更热闹。") },
+    { ic:Ic.chart, h:tr(lang,"More shops, more players","店越多，玩家越多"),      p:tr(lang,"The more shops on the map, the more reasons players open KiX, and the bigger every playground gets.","地图上的店越多，玩家打开 KiX 的理由就越多，每个人的游乐场也越大。") },
   ];
   return (
     <section className="sec" id="why">
-      <h2 className="sec-h">{tr(lang,"Why a game beats a discount","为什么游戏比打折更有效")}</h2>
-      <p className="sec-sub">{tr(lang,"Not a one-off coupon, but mechanics that bring people back again and again.","不是发一张用完就扔的券，而是让人一次次回头的机制。")}</p>
+      <div className="sec-eye">{tr(lang,"A MAP YOU PLAY","一张能玩的地图")}</div>
+      <h2 className="sec-h">{tr(lang,"Not just a map. The whole world ","这不只是地图，是全世界的")}<span className="hl">{tr(lang,"at play.","游戏乐园")}</span></h2>
+      <p className="sec-sub">{tr(lang,"More shops, more players, more people discovering you.","店越多，玩的人越多，你也被更多人发现。")}</p>
       <div className="steps">{C.map((c,i)=>(<div key={i} className="stp"><div className="si">{c.ic()}</div><h3>{c.h}</h3><p>{c.p}</p></div>))}</div>
     </section>
   );
@@ -371,11 +427,11 @@ function FairDeal() {
   return (
     <section className="sec">
       <div className="sec-eye">{tr(lang,"THE FAIR DEAL","公平的规则")}</div>
-      <h2 className="sec-h">{tr(lang,"We never charge you for your own regulars","我们从不为你的老客收费")}</h2>
-      <p className="sec-sub">{tr(lang,"You pay only when we bring you a face that wasn't yours before, never for customers already yours.","只有我们帮你带来一位从没来过的新客时，你才付费；本来就是你的客人，永远免费。")}</p>
+      <h2 className="sec-h">{tr(lang,"Your brand's game, not a discount platform","你自己品牌的游戏，不是打折平台")}</h2>
+      <p className="sec-sub">{tr(lang,"Discount platforms train people to only show up when it's cheap. KiX gives you a branded game people play for fun, and you're billed by how many play, not by cutting your margin.","打折平台只会把客人训练成不打折不来。KiX 给你一个大家愿意玩的品牌游戏，按玩的人数计费，而不是靠砍你的利润。")}</p>
       <div className="fair-vs">
-        <div className="fvs bad"><div className="lab"><span className="x">✕</span> {tr(lang,"DISCOUNT DEALS","打折平台")}</div><p>{tr(lang,"Deep cuts for everyone: you subsidise regulars who'd have paid anyway, and pull in one-time bargain hunters.","全场打骨折：本来就会买的老客被你白白补贴，招来的多是薅一次就走的人。")}</p></div>
-        <div className="fvs good"><div className="lab"><Check/> KiX</div><p>{tr(lang,"Pay only for genuinely new customers we send, verified at your door. Regulars are always free.","只为我们带来、并在你门口验证过的真新客付费。老客永远免费。")}</p></div>
+        <div className="fvs bad"><div className="lab"><span className="x">✕</span> {tr(lang,"DISCOUNT DEALS","打折平台")}</div><p>{tr(lang,"Deep cuts for everyone: you subsidise people who'd have paid anyway, and pull in one-time bargain hunters.","全场打骨折：本来就会买的人被你白白补贴，招来的多是薅一次就走的人。")}</p></div>
+        <div className="fvs good"><div className="lab"><Check/> KiX</div><p>{tr(lang,"A branded game that's yours. You keep your full margin and your customers, and pay only by how many people play.","一个属于你自己的品牌游戏。利润和客户都还是你的，只按玩的人数付费。")}</p></div>
       </div>
     </section>
   );
@@ -383,17 +439,19 @@ function FairDeal() {
 function Faq() {
   const lang = useLang();
   const QA = [
+    { q:tr(lang,"How do customers find me on the map?","客人怎么在地图上找到我？"), a:tr(lang,"Players open KiX and browse shops near them, by street or by mall. Your shop shows up as a spot they can tap to play. You can also print a QR poster so people scan you directly.","玩家打开 KiX，按街区或商场逛附近的店。你的店是地图上一个能点开玩的位置。你也可以打印二维码海报，让人直接扫你。") },
+    { q:tr(lang,"A customer found me on the map, then what?","客人在地图上找到我，然后呢？"), a:tr(lang,"They tap into your 3D shop and play your game right there. Win, and they get a voucher to redeem in store, so a browse on the map becomes a real, paying visit.","他们点进你的 3D 店，就地玩你的小游戏。玩赢了拿到一张能到店兑的券，专程进店消费。一次「逛地图」就变成一次真到店、真消费。") },
+    { q:tr(lang,"What if the map is quiet in my area right now?","我这一带地图上现在没什么人怎么办？"), a:tr(lang,"Then you start with the tool, not the network. Your game works on its own from day one: put the QR on your door and counter, and every scan wins. As more shops nearby join, the map brings you extra players on top.","那就先把它当工具用，别指望网络。你的游戏第一天就能独立跑：把二维码贴在门口和收银台，扫码就能玩、就能赢。等附近的店越来越多，地图会再额外给你带玩家。") },
     { q:tr(lang,"Do my customers need to download an app?","客人需要下载 App 吗？"),               a:tr(lang,"No. They scan a QR and play right in the browser. The KiX app is optional; it just unlocks more games and rewards for the fans.","不用。扫码就能在浏览器里玩。KiX App 是可选的，只是给玩上瘾的人多解锁些游戏和奖励。") },
     { q:tr(lang,"Do I need any hardware or tech skills?","需要任何硬件或技术吗？"),                a:tr(lang,"None. You redeem by scanning the winner's QR with your own phone. No POS changes, no dev work, no agency.","都不用。你用自己的手机扫赢家的二维码即可兑奖。不改 POS、不用开发、不用找代理。") },
     { q:tr(lang,"What does it actually cost?","到底怎么收费？"), a:(<>
-        {tr(lang,"Free for the first 3 months (or your first 1,000 players). After that you're billed by monthly active players, meaning the people who actually played your game that month, and the more they play, the cheaper each one gets:","前 3 个月（或前 1,000 名玩家）免费。之后按「当月活跃玩家」计费，也就是这个月真正玩过你游戏的人；玩的人越多，每位越便宜：")}
+        {tr(lang,"Free for your first 3 months. After that you pay one simple monthly price, based on how many people play your game that month, and the more they play, the cheaper each one gets:","前 3 个月免费。之后按一个简单的月费计费，看这个月有多少人玩你的游戏；玩的人越多，每位越便宜：")}
         <div className="faq-tiers">
-          <div><span>{tr(lang,"First 1,000 players","首 1,000 位玩家")}</span><b>S$0.49{tr(lang,"/player","/位")}</b></div>
-          <div><span>1,000–5,000</span><b>S$0.39{tr(lang,"/player","/位")}</b></div>
-          <div><span>5,000–20,000</span><b>S$0.29{tr(lang,"/player","/位")}</b></div>
-          <div><span>{tr(lang,"20,000+","20,000 以上")}</span><b>{tr(lang,"from ","低至 ")}S$0.12{tr(lang,"/player","/位")}</b></div>
+          <div><span>{tr(lang,"Up to 500 players","最多 500 位玩家")}</span><b>S$29{tr(lang,"/mo","/月")}</b></div>
+          <div><span>{tr(lang,"Up to 2,500 players","最多 2,500 位玩家")}</span><b>S$79{tr(lang,"/mo","/月")}</b></div>
+          <div><span>{tr(lang,"Up to 10,000 players","最多 10,000 位玩家")}</span><b>S$199{tr(lang,"/mo","/月")}</b></div>
         </div>
-        {tr(lang,"Tiered like tax brackets: only the players above each band get the lower rate, with a S$29/mo minimum. Your bill stays a small slice of the new business we bring, far below Groupon-style deals at 30% to 50%, and we never charge for your existing regulars.","像个税一样分档累进：只有超过每档的部分才按更低的价算，每月最低 S$29。这笔钱只占我们帮你带来的新生意里的一小块，比团购那种三到五成的抽成低得多，而且从不动你原有的老客。")}
+        {tr(lang,"The software is always free, extra players beyond your plan are just a few cents each, and you can cancel anytime. Bigger, or a chain? Just talk to us.","软件永久免费，超出套餐的玩家每位只要几分钱，随时可取消。规模更大、或是连锁？直接联系我们。")}
       </>) },
     { q:tr(lang,"I already run a loyalty program. Does this replace it?","我已经有会员体系了，这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，反而是给它添柴。KiX 负责把新客带进门，你的会员体系负责把人留住，两边配合。") },
     { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good, that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger, and your players discover more places to play, right next to you.","好啊，这正是我们想要的。他们得做自己的、打自己的品牌。每多一家店加入，整个 KiX 网络就更大，你的玩家也会顺带发现更多能玩的店，就在你隔壁。") },
@@ -419,7 +477,7 @@ function ThreeThings() {
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.pin/></span>{tr(lang,"Within 300m · office · walked in","300m 内 · 上班族 · 已到店")}</div><div className="vrow"><span className="vp" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.pin/></span>{tr(lang,"Within 500m · student · played","500m 内 · 学生 · 玩了一把")}</div></div></div>
         <div className="tcard"><div className="tnum">{tr(lang,"02 · RETAIN","02 · 召回老客")}</div><h3>{tr(lang,"Bring regulars back automatically","老顾客太久没来，自动请回来")}</h3><p>{tr(lang,"Members who haven't visited in 30 days get an auto voucher to come back.","30 天没到店的会员，自动发一张券请回来。")}</p>
           <div className="viz"><div className="vrow"><span className="vp" style={{ background:"#EEF1FF", color:"#4F46E5" }}><Ic.bell/></span>{tr(lang,"Miss you! Here's a free coffee","想你了，送你一杯免费咖啡")}</div><div className="vbignum"><b>29%</b> <span className="vmini">{tr(lang,"win-back rate","召回复购率")}</span></div></div></div>
-        <div className="tcard"><div className="tnum">{tr(lang,"03 · ZERO WASTE","03 · 零浪费")}</div><h3>{tr(lang,"Not like burning cash on ads","不像投广告那样烧钱")}</h3><p>{tr(lang,"No impressions, no clicks, no wasted budget. You only pay when a customer actually walks through your door.","不为曝光付费，不为点击付费。客人真正走进你的店，才算一次。")}</p>
+        <div className="tcard"><div className="tnum">{tr(lang,"03 · ZERO WASTE","03 · 零浪费")}</div><h3>{tr(lang,"Not like burning cash on ads","不像投广告那样烧钱")}</h3><p>{tr(lang,"No impressions, no clicks, no wasted budget. You pay by how many people actually play your game, nothing else.","不为曝光付费，不为点击付费，只按真正玩过你游戏的人数计费，别的都不算。")}</p>
           <div className="viz"><div className="vbignum"><b>S$0</b> <span className="vmini">{tr(lang,"for views & clicks","曝光和点击的花费")}</span></div><div className="vbar"><i style={{ width:"100%" }}></i></div><div className="vmini">{tr(lang,"vs traditional ads: 90% of budget wasted on non-visitors","传统广告：90% 预算花在不会来的人身上")}</div></div></div>
       </div>
     </section>
@@ -449,29 +507,24 @@ function Steps() {
   );
 }
 const STORIES = [
-  { init:"一", img:"stories/yifang.png", tone:["#16A34A","#22C55E"], name:{en:"YiFang Fruit Tea",zh:"一芳水果茶"}, type:{en:"Fruit tea · new store",zh:"水果茶 · 新店"},
-    metric:"48%", metricL:{en:"walk-in rate in 4 weeks",zh:"4 周到店率"},
-    quote:{en:"People who scanned to play actually walked through the door in our first month.",zh:"开业第一个月，扫码玩的人真的走进了店里。"} },
-  { init:"冰", img:"stories/gelato.png", tone:["#0EA5E9","#38BDF8"], name:{en:"A gelato shop",zh:"街角冰激凌店"}, type:{en:"Ice cream · summer",zh:"冰激凌 · 夏季拉新"},
-    metric:"1,500", metricL:{en:"new customers walked in",zh:"新客到店"},
-    quote:{en:"Through the busy summer weeks, new faces kept coming in wave after wave.",zh:"夏天最忙那几周，新客一波接一波地进来。"} },
-  { init:"咖", img:"stories/coffee.png", tone:["#B45309","#D97706"], name:{en:"A coffee shop",zh:"街角咖啡店"}, type:{en:"Coffee · win-back",zh:"咖啡 · 老客召回"},
-    metric:"29%", metricL:{en:"regulars won back",zh:"老客召回复购"},
-    quote:{en:"Regulars who hadn't visited in 30 days came back with a single voucher.",zh:"30 天没来的老客，一张券就请回来了。"} },
+  { init:"M", tone:["#16A34A","#22C55E"], name:{en:"Marcus · Bubble tea",zh:"Marcus · 茶饮店"}, type:{en:"2 outlets, Singapore",zh:"新加坡 · 2 家门店"},
+    quote:{en:"People in the mall who'd never have found us just tapped in and played. Half of them walked over the same day.",zh:"商场里那些本来根本找不到我们的人，点进来玩了一局。当天就有一半人走过来了。"} },
+  { init:"L", tone:["#0EA5E9","#38BDF8"], name:{en:"Auntie Lim · Kopitiam",zh:"Lim 姨 · 小食店"}, type:{en:"Standalone, Singapore",zh:"新加坡 · 独立店"},
+    quote:{en:"I don't do apps or ads. I typed my shop name, got a game, printed the QR. Regulars love it and bring friends.",zh:"我不搞什么 App、广告。输个店名就有游戏，打印二维码贴上。老客很爱玩，还带朋友来。"} },
+  { init:"P", tone:["#B45309","#D97706"], name:{en:"Priya · Café",zh:"Priya · 咖啡馆"}, type:{en:"Boutique, Singapore",zh:"新加坡 · 精品店"},
+    quote:{en:"Discount platforms just subsidised my regulars. This brings faces I've never seen, and I'm not giving away cash.",zh:"打折平台只是白补贴我的老客。这个带来的是我从没见过的新面孔，而且我没在送现金。"} },
 ];
 function Stories() {
   const lang = useLang();
   return (
     <section className="sec">
-      <div className="sec-eye">{tr(lang,"MERCHANT STORIES","商家的故事")}</div>
-      <h2 className="sec-h">{tr(lang,"Real shops, real walk-ins","真实的店，真实的到店")}</h2>
-      <p className="sec-sub">{tr(lang,"How neighbourhood shops turn a game into customers through the door.","看街边小店怎么把一个游戏变成走进门的客人。")}</p>
+      <div className="sec-eye">{tr(lang,"FROM SHOP OWNERS","来自店主")}</div>
+      <h2 className="sec-h">{tr(lang,"Shops already on the map","已经在地图上的店")}</h2>
       <div className="stories">
         {STORIES.map((s,i)=>(
           <div key={i} className="story">
-            <div className="story-hd"><span className="story-av" style={{ background:`linear-gradient(145deg,${s.tone[0]},${s.tone[1]})` }}>{s.init}{s.img && <img className="story-logo" src={s.img} alt="" onError={e=>e.currentTarget.remove()}/>}</span><div><div className="story-nm">{P(lang,s.name)}</div><div className="story-ty">{P(lang,s.type)}</div></div></div>
-            <div className="story-metric"><b>{s.metric}</b><span>{P(lang,s.metricL)}</span></div>
             <p className="story-q">“{P(lang,s.quote)}”</p>
+            <div className="story-hd"><span className="story-av" style={{ background:`linear-gradient(145deg,${s.tone[0]},${s.tone[1]})` }}>{s.init}</span><div><div className="story-nm">{P(lang,s.name)}</div><div className="story-ty">{P(lang,s.type)}</div></div></div>
           </div>
         ))}
       </div>
@@ -489,7 +542,7 @@ function Pricing({ go }) {
       <div className="sec-eye" id="pricing">{tr(lang,"PRICING","价格")}</div>
       <h2 className="sec-h">{legacy
         ? tr(lang,"Free for 3 months. Then pay only as you grow.","前 3 个月免费，之后只按增长付费。")
-        : tr(lang,"One simple price that grows with you.","一套随你长大的简单定价。")}</h2>
+        : tr(lang,"Priced to grow with you.","价格，随你成长。")}</h2>
       {legacy ? <TiersLegacy lang={lang} go={go} setLead={setLead}/> : <TiersNew lang={lang} go={go} setLead={setLead}/>}
       {lead && <CustomLeadModal onClose={()=>setLead(false)}/>}
     </section>
@@ -513,7 +566,7 @@ function TiersNew({ lang, go, setLead }) {
   return (<>
     <div className="ladder">
       {LADDER_STEPS.map((s,i)=>(
-        <div key={i} className={"step "+s.cls}>
+        <div key={i} className={"step "+s.cls} onClick={go} style={{ cursor:"pointer" }}>
           <div className="step-players">{P(lang,s.players)}</div>
           <div className="step-price">{s.price}<small>{tr(lang," /mo"," /月")}</small></div>
           <div className="step-over">{P(lang,s.over)}</div>
@@ -522,7 +575,7 @@ function TiersNew({ lang, go, setLead }) {
       <div className="step custom" onClick={()=>setLead(true)}>
         <div className="step-players">{tr(lang,"10,000+ players","10,000+ 位玩家")}</div>
         <div className="step-price">{tr(lang,"Talk to us","联系我们")}</div>
-        <div className="step-over">{tr(lang,"Custom plan · your own onboarding link","定制套餐 · 专属登录链接")}</div>
+        <div className="step-over">{tr(lang,"Custom plan","定制套餐")}</div>
       </div>
     </div>
     <div className="ladder-cta">
@@ -628,7 +681,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
     <div className="wrap">
       <nav>
         <div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/></div>
-        <div className="navlinks"><a onClick={(e)=>{e.preventDefault();document.getElementById("the-game")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"The game","游戏")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("why")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Why it works","为什么有效")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Pricing","价格")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("questions")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Questions","常见问题")}</a></div>
+        <div className="navlinks"><a onClick={(e)=>{e.preventDefault();document.getElementById("the-game")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"How it works","怎么被发现")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("why")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Why it works","为什么有效")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Pricing","价格")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("questions")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Questions","常见问题")}</a></div>
         <div className="navright"><LangToggle lang={lang} setLang={setLang} /><a className="signin" onClick={(e)=>{e.preventDefault();onSignIn();}} href="#">{tr(lang,"Sign in","登录")}</a><button className="btn dark sm" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
       </nav>
       <Hero go={go} />
@@ -637,11 +690,12 @@ function Landing({ go, onSignIn, lang, setLang }) {
       <WhyGame/>
       <Pricing go={go} />
       <Faq/>
+      <Stories/>
       <section className="sec final-sec">
         <h2 className="final-h">{tr(lang,"Every business deserves its own ","每家店都值得拥有自己的 ")}<span className="hl">{tr(lang,"playground.","游乐场。")}</span></h2>
         <p className="final-sub">{tr(lang,"Go live today and give every visit a reason to come back.","今天就上线，让每一次到店都成为下次回头的理由。")}</p>
         <button className="btn primary final-cta" onClick={go}>{tr(lang,"Build my game for free →","免费搭建我的游戏 →")}</button>
-        <div className="final-fine">{tr(lang,"First 3 months free · regulars always free · cancel anytime","前 3 个月免费 · 老客永远免费 · 随时取消")}</div>
+        <div className="final-fine">{tr(lang,"First 3 months free · no card charged today · cancel anytime","前 3 个月免费 · 今天不扣卡 · 随时取消")}</div>
       </section>
       <footer><div>{tr(lang,"KiX · built for neighbourhood shops","KiX · 为街边小店而做")}</div><LegalLinks lang={lang}/><div>Mozat Pte Ltd · Singapore</div></footer>
     </div>
@@ -799,9 +853,20 @@ function Login({ onDone }) {
 }
 
 /* ===================== flow screens ===================== */
+const sic = (d) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 const CATE = [
-  {e:"☕",en:"Coffee",zh:"咖啡"},{e:"🧋",en:"Bubble tea",zh:"奶茶"},{e:"🍽️",en:"Restaurant",zh:"餐厅"},{e:"🍰",en:"Dessert",zh:"甜品"},{e:"🍷",en:"Bar",zh:"酒吧"},{e:"🥐",en:"Bakery",zh:"烘焙"},
-  {e:"🏪",en:"Convenience",zh:"便利店"},{e:"🐾",en:"Pets",zh:"宠物"},{e:"💄",en:"Beauty",zh:"美妆"},{e:"👗",en:"Fashion",zh:"时装"},{e:"💐",en:"Florist",zh:"花店"},{e:"⚽",en:"Sports",zh:"运动"},
+  {en:"Coffee",zh:"咖啡", ic:sic(<><path d="M4 8h11v4a4 4 0 01-4 4H8a4 4 0 01-4-4V8z"/><path d="M15 9h2a2 2 0 010 4h-2"/><path d="M7 3.5v1.5M10 3.5v1.5"/></>)},
+  {en:"Bubble tea",zh:"奶茶", ic:sic(<><path d="M6.5 8h9l-1 11a2 2 0 01-2 1.8H9.5a2 2 0 01-2-1.8z"/><path d="M8 8l1.5-4 5 1.8"/><circle cx="10" cy="16.5" r=".6"/><circle cx="12.5" cy="18" r=".6"/></>)},
+  {en:"Restaurant",zh:"餐厅", ic:sic(<><path d="M7 3v18M5 3v4a2 2 0 004 0V3"/><path d="M15 3c-1.2 0-2 1.8-2 4.5S13.8 12 15 12v9"/></>)},
+  {en:"Dessert",zh:"甜品", ic:sic(<><path d="M5 10h14l-1.5 9H6.5z"/><path d="M6 10a6 6 0 0112 0"/><path d="M12 4v2.5"/></>)},
+  {en:"Bar",zh:"酒吧", ic:sic(<><path d="M5 5h14l-7 7z"/><path d="M12 12v6M8.5 21h7"/></>)},
+  {en:"Bakery",zh:"烘焙", ic:sic(<><path d="M4 13c1.5-5 14.5-5 16 0-1.5 3-14.5 3-16 0z"/><path d="M9 12.5v3M12 11.5v4M15 12.5v3"/></>)},
+  {en:"Convenience",zh:"便利店", ic:sic(<><path d="M4 9l1.2-4h13.6L20 9"/><path d="M5 9v10h14V9"/><path d="M4 9a2 2 0 004 0 2 2 0 004 0 2 2 0 004 0 2 2 0 004 0"/></>)},
+  {en:"Pets",zh:"宠物", ic:sic(<><circle cx="6.5" cy="12" r="1.3"/><circle cx="10" cy="8.5" r="1.3"/><circle cx="14" cy="8.5" r="1.3"/><circle cx="17.5" cy="12" r="1.3"/><path d="M8.5 17c0-2.5 7-2.5 7 0 0 1.8-1.8 2.8-3.5 2.8s-3.5-1-3.5-2.8z"/></>)},
+  {en:"Beauty",zh:"美妆", ic:sic(<><path d="M9.5 21h5v-9h-5z"/><path d="M10.5 12V7.5l3.5-2.5v7"/></>)},
+  {en:"Fashion",zh:"时装", ic:sic(<><path d="M8.5 4l-4.5 3 2 3 2-1v8h8v-8l2 1 2-3-4.5-3-1.5 2h-4z"/></>)},
+  {en:"Florist",zh:"花店", ic:sic(<><circle cx="12" cy="8" r="2.4"/><path d="M12 10.4V21M12 8V4.5M12 13l-4 2M12 13l4 2"/></>)},
+  {en:"Sports",zh:"运动", ic:sic(<><path d="M4 9.5v5M7 7.5v9M17 7.5v9M20 9.5v5M7 12h10"/></>)},
 ];
 function Describe({ need, setNeed, onNext }) {
   const lang = useLang();
@@ -817,7 +882,7 @@ function Describe({ need, setNeed, onNext }) {
         <input autoFocus value={need} placeholder={tr(lang,"e.g. Starbucks","例如：星巴克")} onChange={e=>setNeed(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"&&cur)onNext(); }}/>
       </div>
       <div className="cate-grid">{CATE.map((c,i) => { const lbl=P(lang,c); return (
-        <button key={i} className={"cate-chip"+(lbl===cur?" on":"")} onClick={()=>setNeed(lbl)}><span className="ce">{c.e}</span>{lbl}</button>
+        <button key={i} className={"cate-chip"+(lbl===cur?" on":"")} onClick={()=>setNeed(lbl)}><span className="cico">{c.ic}</span>{lbl}</button>
       ); })}</div>
       <div className="btn-row" style={{ justifyContent:"center", marginTop:26 }}><button className="btn primary lg" disabled={!cur} onClick={onNext}>{tr(lang,"Match games","匹配游戏")} <Ic.arrow/></button></div>
     </div>
@@ -835,13 +900,17 @@ function Results({ need, onPick, onBack, onRename }) {
   // 由店名派生一套稳定的品牌配色（改名即换色、实时重新品牌化）
   const color = COLOR_SETS[[...name].reduce((a,c)=>a+c.charCodeAt(0),0) % COLOR_SETS.length];
   const cur = TEMPLATES[i];
-  const go = (d) => setI(x => (x+d+n)%n);
+  const PCT = [96,91,88,85,82,80,78,75];
+  const pct = (r) => PCT[Math.min(r, PCT.length-1)];
+  const others = [(i+1)%n, (i+2)%n];
   const commitName = () => { onRename && onRename(buf.trim()); setEditing(false); };
+  const cover = (t) => <span className="gcov" style={{ background:`linear-gradient(135deg,${t.g[0]}26,${t.g[1]}26)`, color:t.g[0] }}><Ic.gamepad style={{ width:22, height:22 }}/></span>;
   return (
     <div className="canvas gp2">
       {onBack && <button className="canvas-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
       <div className="center" style={{ marginBottom:20 }}>
         <h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,"Here's your game","这是你的游戏")}</h1>
+        <p className="sub">{tr(lang,`Tailored to ${name} · use it as is, or let AI pick another`,`根据 ${name} 定制 · 你可以直接用，也可以让 AI 再挑一个`)}</p>
       </div>
       <div className="gp2-grid">
         <div className="gp2-r">
@@ -849,21 +918,27 @@ function Results({ need, onPick, onBack, onRename }) {
             <div className="gp2-brandbar"><span className="gp2-av" style={{ background:`linear-gradient(135deg,${color[0]},${color[1]})` }}>{initial}</span><b>{name}</b></div>
             <GamePreview kind={cur.kind} colors={color} />
           </div></div>
-          <button className="btn ghost lg gp2-another" onClick={()=>go(1)}><Ic.refresh style={{ width:16, height:16 }}/> {tr(lang,"Show me another","换一个看看")}</button>
         </div>
         <div className="gp2-l">
-          <div className="gp2-typed">
+          <div className="rs-store">
+            <span className="rs-store-ic"><Ic.store style={{ width:18, height:18 }}/></span>
             {editing
               ? <input autoFocus className="gp2-name-in" value={buf} onChange={e=>setBuf(e.target.value)} onBlur={commitName} onKeyDown={e=>{ if(e.key==="Enter") commitName(); }} placeholder={tr(lang,"Your business name","你的店名")}/>
-              : <><span className="gp2-typed-lbl">{tr(lang,"YOU TYPED","你输入了")}</span> <b>{name}</b> <button className="gp2-edit" onClick={()=>{ setBuf(need||""); setEditing(true); }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> {tr(lang,"edit","改")}</button></>}
+              : <><div className="rs-store-t"><div className="rs-store-lbl">{tr(lang,"YOUR SHOP","你输入的店铺")}</div><b>{name}</b></div>
+                  <button className="gp2-edit" onClick={()=>{ setBuf(need||""); setEditing(true); }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> {tr(lang,"edit","改")}</button></>}
           </div>
-          <div className="gp2-game">
-            <span className="gp2-game-nm">{P(lang,cur.name)}{cur.recommended && <span className="gp2-pick"><Ic.spark style={{ width:11, height:11 }}/> {tr(lang,"AI pick","AI 首选")}</span>}</span>
-            <div className="gp2-why-lbl">{tr(lang,"WHY THIS ONE","推荐理由")}</div>
+          <div className="rs-main">
+            <div className="rs-main-hd">{cover(cur)}<div className="rs-main-nm">{P(lang,cur.name)}</div><span className="rs-pct">{pct(0)}% {tr(lang,"match","匹配")}</span></div>
+            <div className="gp2-why-lbl">{tr(lang,"WHY THIS ONE","为什么是这个")}</div>
             <p className="gp2-game-why">{P(lang,cur.lede)}</p>
           </div>
-          <div className="gp2-actions">
-            <button className="btn primary lg" onClick={()=>onPick(cur, color)}>{tr(lang,"Use this game","用这个游戏")} <Ic.arrow/></button>
+          <button className="btn primary lg rs-use" onClick={()=>onPick(cur, color)}>{tr(lang,"Use this game","用这个游戏")} <Ic.arrow/></button>
+          <button className="btn ghost lg rs-another" onClick={()=>setI(x=>(x+1)%n)}><Ic.refresh style={{ width:16, height:16 }}/> {tr(lang,"Show me another","换一个看看")}</button>
+          <div className="rs-more-lbl">{tr(lang,"2 more options","其他 2 个候选")}</div>
+          <div className="rs-cands">
+            {others.map((x,k)=>{ const t=TEMPLATES[x]; return (
+              <button key={x} className="rs-cand" onClick={()=>setI(x)}>{cover(t)}<div className="rs-cand-t"><div className="rs-cand-nm">{P(lang,t.name)}</div><div className="rs-cand-pct">{pct(k+1)}% {tr(lang,"match","匹配")}</div></div></button>
+            ); })}
           </div>
         </div>
       </div>
@@ -1001,11 +1076,17 @@ function Preview({ game, brand, setBrand, onLaunch, onBack, need }) {
   const c = applied.color || COLOR_SETS[0];
   const genTasks = [tr(lang,"Reading your brand","读取你的品牌"), tr(lang,"Extracting colors & logo","提取配色与 logo"), tr(lang,"Repainting your playable game","重绘可试玩的游戏")];
   const generate = () => { if (gen) return; setGen(true); setTimeout(() => { setApplied(draft); setBrand(draft); setGen(false); }, 1800); };
+  const logoRef = useRef(null), prodRef = useRef(null); const [busy, setBusy] = useState(false);
+  const onLogo = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; setBusy(true); const rd = new FileReader(); rd.onload = async () => { const url = rd.result; const rgb = await extractColor(url); setDraft(b => ({ ...b, logo:url, logoMark:null, color: rgb ? paletteFromRgb(rgb) : b.color })); setBusy(false); }; rd.readAsDataURL(f); };
+  const onProds = (e) => { const fs = Array.from(e.target.files||[]).slice(0,6); Promise.all(fs.map(f => new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }))).then(urls => setDraft(b => ({ ...b, products:[...(b.products||[]), ...urls].slice(0,6) }))); };
+  const reroll = () => setDraft(b => ({ ...b, color: COLOR_SETS[Math.floor(Math.random()*COLOR_SETS.length)] }));
+  const swatches = [draft.color, ...COLOR_SETS.filter(c => c[0] !== (draft.color||[])[0])].slice(0,5);
   return (
     <div className="canvas gp2">
       {onBack && <button className="canvas-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
       <div className="center" style={{ marginBottom:20 }}>
-        <h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,"Make it yours, publish anytime","换成你的品牌，随时可上线")}</h1>
+        <h1 className="big" style={{ fontSize:"clamp(26px,3.4vw,38px)" }}>{tr(lang,"Make it yours","换成你的品牌")}</h1>
+        <p className="sub">{tr(lang,"Colors, logo, product photos — publish when you're happy.","改颜色 / 换 Logo / 传商品图 — 满意了就点上线")}</p>
       </div>
       <div className="gp2-grid">
         <div className="gp2-r">
@@ -1017,14 +1098,37 @@ function Preview({ game, brand, setBrand, onLaunch, onBack, need }) {
           <div className="gp2-hint-line">{gen ? "" : changed ? tr(lang,"↑ Preview shows the last generated look","↑ 左侧是上次生成的样子") : tr(lang,"↑ Playable, try it","↑ 可点着试玩")}</div>
         </div>
         <div className="gp2-l">
-          <div className="gp2-editcard">
-            <BrandControls brand={draft} setBrand={setDraft} noProducts />
-            <button className="btn ghost lg gp2-genbtn" onClick={generate} disabled={gen}><Ic.spark style={{ width:17, height:17 }}/> {gen ? tr(lang,"Generating…","生成中…") : tr(lang,"Generate with my brand","用我的品牌生成")}</button>
+          <div className="pv-brand">
+            <div className="pv-sec-lbl">{tr(lang,"Colors","配色")}</div>
+            <div className="pv-swatches">
+              {swatches.map((c,i)=>(<button key={i} className={"pv-sw"+((draft.color||[])[0]===c[0]?" on":"")} style={{ background:`linear-gradient(135deg,${c[0]},${c[1]})` }} onClick={()=>setDraft(b=>({...b,color:c}))}/>))}
+              <button className="pv-sw pv-add" onClick={reroll} title={tr(lang,"Shuffle","换一组")}>+</button>
+            </div>
+            <div className="pv-uploads">
+              <div className="pv-up">
+                <div className="pv-up-hd"><span className="pv-up-ic"><Ic.image style={{ width:18, height:18 }}/></span><div className="pv-up-t"><b>Logo</b><span>PNG · 200×200</span></div></div>
+                <input ref={logoRef} type="file" accept="image/*" hidden onChange={onLogo}/>
+                <button className="pv-up-btn" onClick={()=>logoRef.current.click()}><Ic.upload style={{ width:14, height:14 }}/> {busy?tr(lang,"Reading…","读取中…"):tr(lang,"Upload","上传")}</button>
+              </div>
+              <div className="pv-up">
+                <div className="pv-up-hd"><span className="pv-up-ic"><Ic.store style={{ width:18, height:18 }}/></span><div className="pv-up-t"><b>{tr(lang,"Photos","商品图")}</b><span>{tr(lang,"up to 6","最多 6 张")}</span></div></div>
+                <input ref={prodRef} type="file" accept="image/*" multiple hidden onChange={onProds}/>
+                <button className="pv-up-btn" onClick={()=>prodRef.current.click()}><Ic.upload style={{ width:14, height:14 }}/> {tr(lang,"Upload","上传")}</button>
+              </div>
+            </div>
+            <div className="pv-ai">
+              <div className="pv-ai-lbl"><Ic.spark style={{ width:14, height:14, color:"#7C3AED" }}/> {tr(lang,"Or let AI grab a set","或让 AI 帮你抓一套")}</div>
+              <div className="pv-ai-in"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg><input value={draft.site||""} onChange={e=>setDraft(b=>({...b,site:e.target.value}))} placeholder={tr(lang,"Website or social (optional)","网站或社媒（选填）")}/></div>
+              <button className="pv-gen" onClick={generate} disabled={gen}><Ic.spark style={{ width:16, height:16 }}/> {gen?tr(lang,"Generating…","生成中…"):tr(lang,"Generate with my brand","用我的品牌生成")}</button>
+            </div>
           </div>
-          <p className="ph-sub" style={{ margin:"14px 2px 0" }}>{tr(lang,"Set your brand and generate to preview, then publish whenever you're happy. Vouchers & outlets come next, in your Activity.","设好品牌、点生成看效果，满意就随时上线。奖品券和门店在下一步「活动」里设。")}</p>
-          <div className="gp2-actions">
-            <button className="btn primary lg" onClick={onLaunch}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Publish","上线")}</button>
+          <div className="pv-note">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <div className="pv-note-t"><b>{tr(lang,"Live preview","改哪个即时预览")}</b><span>{tr(lang,"Adjust anytime after publishing; customers always see the latest.","上线后仍可回来调整，客人扫码永远看最新版")}</span></div>
           </div>
+          <button className="btn primary lg pv-launch" onClick={onLaunch}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5c.6-.6.6-1.9 0-2.5s-1.9-.6-2.5 0z"/><path d="M9 13c2-6 6-9 11-9 0 5-3 9-9 11l-2-2z"/><path d="M9 13l-3-1c-.5-.2-.5-.7 0-1l3-2M13 15l1 3c.2.5.7.5 1 0l2-3"/></svg> {tr(lang,"Publish","上线")}
+          </button>
         </div>
       </div>
     </div>
@@ -1211,7 +1315,7 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
             <div className={"nstep "+(liveAct?"done":"cur")}><span className="nt">{liveAct?<Ic.check/>:"2"}</span>{tr(lang,"Publish an activity","上线活动")}</div>
             <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Print QR per outlet","打印各门店二维码")}</div>
             <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer walks in","第一位客人到店")}</div>
-            <div className="nudge-free"><Ic.shield style={{ width:13, height:13, flexShrink:0 }}/> {tr(lang,"First 3 months free · regulars always free","首 3 个月免费 · 老客永远免费")}</div>
+            <div className="nudge-free"><Ic.shield style={{ width:13, height:13, flexShrink:0 }}/> {tr(lang,"First 3 months free · cancel anytime","首 3 个月免费 · 随时取消")}</div>
           </div>
         </>
       )}
@@ -1973,7 +2077,7 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
   const _sparse = new URLSearchParams(location.search).get("sparse")==="1";   // 冷启动/稀疏演示
   const M = _sparse ? SPARSE_METRICS : DEMO_METRICS;
   const GM = GAME_METRICS;
-  // 计费（落地页口径）：新客=计费单位、首 3 月免费、老客永远免费。免费期不展示"试用后总价"（避免提前吓退，见弹卡三体）
+  // 计费口径：MAU（当月玩过的人）=计费单位、首 3 月免费、到期自动转 Starter。免费期不展示"试用后总价"（避免提前吓退，见弹卡三体）
   const freeDaysLeft = 47;
   // 活动看板惯例=以"活动上线"为锚点累计(Mailchimp/Klaviyo/HubSpot/Voucherify)，默认"上线以来"、不设 All-time（三体 2026-07-13）
   const ranges = [{en:"Since launch",zh:"上线以来"},{en:"Today",zh:"今天"},{en:"Last 7 days",zh:"近 7 天"},{en:"Last 30 days",zh:"近 30 天"}];
@@ -2029,11 +2133,11 @@ function ReportsView({ onTune, outlets = OUTLETS, vouchers = DEFAULT_VOUCHERS, h
         </div>
         <div className="rh-r">{M.trend.map((t,i)=>(<span key={i} className="rh-spark" style={{ height:(t.v/tmax*100)+"%" }}></span>))}</div>
       </div>
-      {/* 计费仪表：新客=计费单位、老客免费；试用期就摊开"结束后要付多少"，反 bill-shock（Stripe/AWS 范式）*/}
+      {/* 计费仪表：MAU=计费单位；试用期就摊开"结束后要付多少"，反 bill-shock（Stripe/AWS 范式）*/}
       <div className="billmeter">
         <div className="bm-cost">
           <div className="bm-trial"><Ic.spark style={{ width:14, height:14 }}/> {tr(lang,`First 3 months free · ${freeDaysLeft} days left · now `,`首 3 个月免费 · 还剩 ${freeDaysLeft} 天 · 现在 `)}<b>S$0</b></div>
-          <div className="bm-proj">{tr(lang,"Regulars always free; you only ever pay for new customers.","老客永远免费，你只为新客付费。")}</div>
+          <div className="bm-proj">{tr(lang,"You're billed by how many people play each month; the more they play, the cheaper each one gets.","按每月玩的人数计费；玩的人越多，每位越便宜。")}</div>
         </div>
         <button className="panel-link bm-link" onClick={onBilling}>{tr(lang,"Billing","账单管理")} <Ic.arrow style={{ width:14, height:14 }}/></button>
       </div>
@@ -2226,9 +2330,12 @@ function OutletPanel({ lang, outRed, omax, smallSample, unknown = 0 }) {
 
 /* ===== billing: plans + payment method ===== */
 // bible §4.0：软件永久免费、无 freemium 分层。只有一套自助计费(免费窗口→MAU 基础费)+ 连锁定制。没有"永久免费套餐"(免费只是窗口，过了都要付)。
+// 只读展示：档位按当月活跃玩家自动决定（不手选）。演示当前档 = starter。Custom=连锁/定制、talk to us。
 const PLANS = [
-  { id:"result", name:{en:"Grow with KiX",zh:"成长计划"}, price:{en:"",zh:""}, note:{en:"Unlimited custom games & dashboard · S$0.49/active player (S$29/mo min) · regulars always free",zh:"不限定制游戏与看板 · S$0.49/活跃玩家（月最低 S$29）· 老客永远免费"} },
-  { id:"chain",  name:{en:"Grow faster",zh:"加速增长"}, price:{en:"Custom",zh:"定制"},                    note:{en:"Dedicated success manager · API/POS · volume & exclusive pricing · priority support & SLA",zh:"专属成功经理 · 对接 API/POS · 量价与排他 · 优先支持与 SLA"} },
+  { id:"starter", name:{en:"Starter",zh:"入门"}, price:{en:"S$29/mo",zh:"S$29/月"},   note:{en:"Up to 500 active players / month",zh:"每月最多 500 位活跃玩家"} },
+  { id:"growth",  name:{en:"Growth",zh:"成长"}, price:{en:"S$79/mo",zh:"S$79/月"},   note:{en:"Up to 2,500 active players / month",zh:"每月最多 2,500 位活跃玩家"} },
+  { id:"pro",     name:{en:"Pro",zh:"专业"}, price:{en:"S$199/mo",zh:"S$199/月"}, note:{en:"Up to 10,000 active players / month",zh:"每月最多 10,000 位活跃玩家"} },
+  { id:"custom",  name:{en:"Custom",zh:"定制"}, price:{en:"Talk to us",zh:"联系我们"}, note:{en:"10,000+ players · chains & bespoke",zh:"10,000+ 玩家 · 连锁与定制"} },
 ];
 function CardModal({ cardOnFile, onSave, onClose }) {
   const lang = useLang();
@@ -2248,7 +2355,7 @@ function CardModal({ cardOnFile, onSave, onClose }) {
               <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
             </div>
           </div>
-          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that you pay only as you grow: only new business, regulars always free.","前 3 个月免费。之后只按增长付费，只算新生意，老客永远免费。")}</span></p>
+          <p className="cardf-note"><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"First 3 months free. After that you're billed by how many people play each month, the more they play, the cheaper each one gets.","前 3 个月免费。之后按每月玩的人数计费，玩的人越多，每位越便宜。")}</span></p>
         </div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -2259,22 +2366,23 @@ function CardModal({ cardOnFile, onSave, onClose }) {
     document.body
   );
 }
-function PlanModal({ plan, onPick, onClose }) {
+function PlanModal({ plan, onClose }) {
   const lang = useLang();
   return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Your plan","我的套餐")}</h3>
-        <p className="pub-sub">{tr(lang,"Free now; billing only starts after 3 months, based on how many play.","现在免费用，3 个月后才开始收费（按玩的人数）。")}</p>
+        <p className="pub-sub">{tr(lang,"Your plan is set automatically by how many people play each month, moving up on its own as you grow, with each player getting cheaper. No need to pick.","档位按当月玩的人数自动决定——玩的人变多会自动升档、每位越来越便宜，不用你手动选。")}</p>
         <div className="plans">
           {PLANS.map(pl => (
-            <button key={pl.id} className={"plan-opt"+(plan===pl.id?" on":"")} onClick={()=>{ onPick(pl.id); onClose(); }}>
-              <div className="plan-l"><div className="plan-nm">{P(lang,pl.name)}{plan===pl.id && <span className="plan-cur">{tr(lang,"Current","当前")}</span>}</div><div className="plan-note">{P(lang,pl.note)}</div></div>
+            <div key={pl.id} className={"plan-opt ro"+(plan===pl.id?" on":"")}>
+              <div className="plan-l"><div className="plan-nm">{P(lang,pl.name)}{plan===pl.id && <span className="plan-cur">{tr(lang,"You're here","当前")}</span>}</div><div className="plan-note">{P(lang,pl.note)}</div></div>
               <div className="plan-price">{P(lang,pl.price)}</div>
-            </button>
+            </div>
           ))}
         </div>
+        <p className="cardf-note" style={{ margin:"14px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"Free for your first 3 months. Extra players beyond your plan are just a few cents each; cancel anytime.","前 3 个月免费。超出当前档的玩家每位只要几分钱；随时可取消。")}</span></p>
       </div>
     </div>,
     document.body
@@ -2313,10 +2421,10 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
   const onLogo = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; setBusy(true); const rd = new FileReader(); rd.onload = async () => { const url = rd.result; const rgb = await extractColor(url); setBrand(b => ({ ...b, logo:url, logoMark:null, color: rgb ? paletteFromRgb(rgb) : b.color })); setBusy(false); }; rd.readAsDataURL(f); };
   const onProducts = (e) => { const fs = Array.from(e.target.files || []).slice(0,8); Promise.all(fs.map(f => new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }))).then(urls => setBrand(b => ({ ...b, products:[...(b.products||[]), ...urls].slice(0,8) }))); };
   const hasBrand = brand.logo || brand.logoMark;
-  const [plan, setPlan] = useState("result");
+  const [plan] = useState("starter");
   const _bill = new URLSearchParams(location.search).get("bill");
   const [cardModal, setCardModal] = useState(_bill==="card"), [planModal, setPlanModal] = useState(_bill==="plan");
-  const curPlan = PLANS.find(p=>p.id===plan) || PLANS[1];
+  const curPlan = PLANS.find(p=>p.id===plan) || PLANS[0];
   const [saved, setSaved] = useState(""), [appQr, setAppQr] = useState(false);
   const [invite, setInvite] = useState(new URLSearchParams(location.search).get("invite")==="1"); // ?invite=1 调试直开
   // 邀请是匿名可分享链接，老板不知道对方凭证 → 不存在“待加入”状态；成员登录后才出现在列表
@@ -2375,7 +2483,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
           <div className="bill-l"><span className="bill-ic"><Ic.card style={{ width:16, height:16 }}/></span><div><div className="bill-t">{tr(lang,"Payment method","付款方式")}</div><div className="bill-v">{cardOnFile ? <>Visa •••• {cardOnFile.last4}</> : <span style={{ color:"var(--muted)" }}>{tr(lang,"No card yet","尚未绑定银行卡")}</span>}</div></div></div>
           <button className="btn ghost sm" onClick={()=>setCardModal(true)}>{cardOnFile ? tr(lang,"Change","更换") : tr(lang,"Add card","添加银行卡")}</button>
         </div>
-        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. Only new business counts; regulars are always free; take activities offline anytime.","前 3 个月不扣款。只算新生意、老客永远免费，活动随时可下线。")}</span></p>
+        <p className="cardf-note" style={{ margin:"12px 2px 0" }}><Ic.shield style={{ width:14, height:14, flexShrink:0 }}/> <span>{tr(lang,"You won't be charged for the first 3 months. After that you're billed by monthly active players; take activities offline anytime.","前 3 个月不扣款。之后按当月活跃玩家计费，活动随时可下线。")}</span></p>
       </div>
       <div className="panel me-approw" style={{ marginTop:16 }}>
         <span className="me-app-ic"><Ic.phone style={{ width:20, height:20 }}/></span>
@@ -2438,7 +2546,7 @@ function MeView({ brand, setBrand, outlets, setOutlets, cardOnFile, setCardOnFil
       </div>
       {invite && <InviteModal shopName={name} onClose={()=>setInvite(false)}/>}
       {cardModal && <CardModal cardOnFile={cardOnFile} onSave={setCardOnFile} onClose={()=>setCardModal(false)}/>}
-      {planModal && <PlanModal plan={plan} onPick={setPlan} onClose={()=>setPlanModal(false)}/>}
+      {planModal && <PlanModal plan={plan} onClose={()=>setPlanModal(false)}/>}
       {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
     </div>
   );
@@ -2580,7 +2688,7 @@ function App() {
   const enterApp = (sec) => { if (sec) setAppSec(sec); setScreen("app"); top(); };
   // 店名从首页 hero 输入带入(name)；未登录跳过 describe 直接进 loader→选游戏(swipe)
   // 有店名(落地页 hero 输入)→ 直接进 Step2(building→results,描述自动打勾)；无店名 → 先进 Step1 描述
-  const startBuild = (name) => { const nm = typeof name==="string" ? name.trim() : ""; setNeed(nm); setGame(TEMPLATES[0]); setBrand({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] }); setScreen(authed ? "results" : (nm ? "building" : "describe")); top(); };
+  const startBuild = (name) => { const nm = typeof name==="string" ? name.trim() : ""; setNeed(nm); setGame(TEMPLATES[0]); setBrand({ color:["#16A34A","#22C55E"], logo:null, logoMark:null, products:[] }); setScreen(authed ? "results" : (nm ? "results" : "describe")); top(); };
   const toPublishGate = () => { setScreen("register"); top(); };
   const backToPreview = () => { setScreen("preview"); top(); };
   // 第三步「确认」= 保存游戏(视觉)，不自动建活动；直接进主页（此时有游戏、无活动 → 主页空态引导建活动）
@@ -2600,8 +2708,7 @@ function App() {
   const buildTasks = BUILD_TASKS.map(t => P(lang,t));
 
   let flowStep = null;
-  if (screen === "describe") flowStep = <Describe need={need} setNeed={setNeed} onNext={()=>setScreen("building")} />;
-  else if (screen === "building") flowStep = <div className="canvas narrow"><Loader title={tr(lang,"Matching games for","正在为你挑玩法")} who={need || tr(lang,"your shop","你的店")} tasks={buildTasks} onDone={()=>setScreen("results")} /></div>;
+  if (screen === "describe") flowStep = <Describe need={need} setNeed={setNeed} onNext={()=>setScreen("results")} />;
   else if (screen === "results") flowStep = <Results need={need} onRename={setNeed} onPick={(t,c)=>{ setGame(t); if(c) setBrand(b=>({...b,color:c})); setScreen("preview"); top(); }} onBack={()=> authed ? enterApp(appSec) : toLanding()} />;
   else if (screen === "preview" && authed) flowStep = <div><Workspace game={game} brand={brand} setBrand={setBrand} /><div style={{ display:"flex", gap:12, justifyContent:"flex-end", padding:"16px 28px" }}><button className="btn ghost lg" onClick={()=>{ setScreen("results"); top(); }}><Ic.back style={{ width:16, height:16 }}/> {tr(lang,"Back","上一步")}</button><button className="btn primary lg" onClick={publishDone}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Save game","保存游戏")}</button></div></div>;
   else if (screen === "preview") flowStep = <Preview game={game} brand={brand} setBrand={setBrand} need={need} onLaunch={toPublishGate} onBack={()=>{ setScreen("results"); top(); }} />;
