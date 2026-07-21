@@ -338,12 +338,15 @@ function Hero({ go }) {
         </div>
       </div>
       <div className="visual">
-        <div className="float f1"><span className="ic" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.spark/></span><div><div className="ft">{tr(lang,"Someone just played","又有人玩了一局")}</div><div className="fs">{tr(lang,"won a free coffee","赢到一杯免费咖啡")}</div></div></div>
-        <div className="float f2"><span className="ic" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.ret/></span><div><div className="ft">{tr(lang,"A regular came back","老顾客回来了")}</div><div className="fs">{tr(lang,"won back after 30 days","30 天没来 · 已召回")}</div></div></div>
-        <div className="phone"><div className="screen">
-          <div className="appbar"><span className="blogo"><Ic.cup/></span><div><div className="bt">Kopi Corner</div><div className="bs">{tr(lang,"Play to win today's coffee","来玩一把，赢今天的咖啡")}</div></div><span className="livechip"><span className="b"></span>LIVE</span></div>
-          <div className="gamearea"><div className="gametitle"><span>Kopi Corner</span> · {tr(lang,"Lucky Spin","幸运大转盘")}</div><MiniWheel/></div>
-        </div></div>
+        <div className="hv-wrap">
+          <div className="float f1"><span className="ic" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.spark/></span><div><div className="ft">{tr(lang,"Someone just played","又有人玩了一局")}</div><div className="fs">{tr(lang,"won a free coffee","赢到一杯免费咖啡")}</div></div></div>
+          <div className="float f2"><span className="ic" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.ret/></span><div><div className="ft">{tr(lang,"A regular came back","老顾客回来了")}</div><div className="fs">{tr(lang,"won back after 30 days","30 天没来 · 已召回")}</div></div></div>
+          <div className="herovid">
+            <span className="hv-badge"><span className="b"></span>{tr(lang,"Live demo","实拍演示")}</span>
+            <button className="hv-play" aria-label="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <span className="hv-cap">{tr(lang,"See how it plays · 30s","看 30 秒怎么玩")}</span>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -391,17 +394,15 @@ function SeeYourGame({ go }) {
         <div>
           <div className="sec-eye" style={{ textAlign:"left" }}>{tr(lang,"MADE IN MINUTES","几分钟做好")}</div>
           <h2 className="wow-h">{tr(lang,"Type your business name","输入你的店名")}<br/><span className="hl">{tr(lang,"See your game in 3 min","3 分钟看到你的游戏")}</span></h2>
-          <p className="wow-sub">{tr(lang,"Our AI matches 1,000+ formats to your trade and builds your own branded 3D shop & game, ready for the map.","AI 从上千种玩法里匹配你的行业，自动套上 logo 和品牌色，生成你的品牌 3D 店和小游戏，做好就能上地图。")}</p>
+          <p className="wow-sub">{tr(lang,"Our AI matches 1,000+ formats to your trade and auto-brands one with your logo & colors.","AI 从上千种玩法里匹配你的行业，自动套上你的 logo 和品牌色。")}</p>
           <div className="wow-form">
             <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
             <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
           </div>
         </div>
         <div className="wow-visual">
-          <div className="live3d">
-            <img src="walkthrough/store-3d.png" alt=""/>
-            <span className="l3-badge"><i></i>{tr(lang,"LIVE 3D","实时 3D")}</span>
-            <span className="l3-hint">{tr(lang,"↻ Drag to explore your store","↻ 拖动查看你的店")}</span>
+          <div className="wow-phone">
+            <div className="wow-scr"><img src="walkthrough/play.png" alt="" style={{ objectPosition:"top" }}/></div>
           </div>
         </div>
       </div>
@@ -410,19 +411,20 @@ function SeeYourGame({ go }) {
 }
 function WhyGame() {
   const lang = useLang();
-  const C = [
-    { ic:Ic.pin,   h:tr(lang,"Nearby players find you","附近的玩家发现你"),      p:tr(lang,"People browsing shops around them spot yours on the map and tap in to play, no ad spend from you.","在附近逛店的人，在地图上看到你、点进来玩，你一分广告费都不用花。") },
-    { ic:Ic.globe, h:tr(lang,"Shops send each other customers","店和店互相带客"), p:tr(lang,"Your players discover other shops on KiX; their players discover you. Everyone's map gets busier.","你的玩家在 KiX 上发现别家店，别家的玩家也发现你。每个人的地图都更热闹。") },
-    { ic:Ic.chart, h:tr(lang,"More shops, more players","店越多，玩家越多"),      p:tr(lang,"The more shops on the map, the more reasons players open KiX, and the bigger it gets for you.","地图上的店越多，玩家打开 KiX 的理由就越多，对你的带客也越大。") },
+  const F = [
+    { h:tr(lang,"Players browse the map","玩家逛地图"),      p:tr(lang,"They open KiX to explore shops around them.","打开 KiX 逛附近有什么好玩的店。") },
+    { h:tr(lang,"They spot your shop","刷到你的店"),          p:tr(lang,"Yours is a spot they can tap and play, no ads from you.","你的店是能点开就玩的一个点，你不用投广告。") },
+    { h:tr(lang,"They play & win","玩一局、赢到券"),          p:tr(lang,"A round of your branded game wins them a voucher.","玩一把你的品牌游戏，赢到一张券。") },
+    { h:tr(lang,"They walk in","到店消费、成常客"),           p:tr(lang,"They redeem in store and keep coming back.","到店兑券消费，一次次回头。") },
   ];
   return (
     <section className="sec" id="why">
       <div className="sec-eye">{tr(lang,"AND YOU'RE ON THE MAP","还有：你在地图上")}</div>
       <h2 className="sec-h">{tr(lang,"Put your shop's game on the map, ","把你的店铺小游戏放上地图，")}<span className="hl">{tr(lang,"discovered worldwide","让全球人发现")}</span></h2>
-      <p className="sec-sub">{tr(lang,"Your finished game lives on the KiX map. Players browsing shops discover you, tap in to play, win a voucher and walk in, with no ad spend from you.","做好的品牌游戏会挂上 KiX 地图。玩家逛店时就能发现你、点进来玩、赢券进店，你一分广告费都不用花。")}</p>
+      <p className="sec-sub">{tr(lang,"Players browsing the map find you and tap in to play, with zero ad spend from you.","玩家在地图上逛店，顺手就发现你、点进来玩，你不花一分广告费。")}</p>
       <div className="mapsec">
         <div className="mapsec-vis"><MapHero lang={lang} /></div>
-        <div className="mapsec-list">{C.map((c,i)=>(<div key={i} className="mapsec-card"><div className="mi">{c.ic()}</div><div><h3>{c.h}</h3><p>{c.p}</p></div></div>))}</div>
+        <ol className="mapflow">{F.map((s,i)=>(<li key={i} className="mapflow-step"><span className="mf-n">{i+1}</span><div><h3>{s.h}</h3><p>{s.p}</p></div></li>))}</ol>
       </div>
     </section>
   );
