@@ -461,7 +461,7 @@ function Faq() {
         {tr(lang,"The software is always free, extra players beyond your plan are just a few cents each, and you can cancel anytime. Bigger, or a chain? Just talk to us.","软件永久免费，超出套餐的玩家每位只要几分钱，随时可取消。规模更大、或是连锁？直接联系我们。")}
       </>) },
     { q:tr(lang,"I already run a loyalty program. Does this replace it?","我已经有会员体系了，这会取代它吗？"), a:tr(lang,"No, it feeds it. KiX brings new faces through the door; your loyalty program keeps them. They work together.","不会，反而是给它添柴。KiX 负责把新客带进门，你的会员体系负责把人留住，两边配合。") },
-    { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good, that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger, and your players discover more places to play, right next to you.","好啊，这正是我们想要的。他们得做自己的、打自己的品牌。每多一家店加入，整个 KiX 网络就更大，你的玩家也会顺带发现更多能玩的店，就在你隔壁。") },
+    { q:tr(lang,"What if a competitor copies my game?","竞争对手抄我的游戏怎么办？"),               a:tr(lang,"Good, that's the point. They'll need their own, branded to them. Every business that joins makes the whole KiX network bigger, and your players discover more places to play, right next to you.","好啊，我们巴不得。他们得做自己的游戏、打自己的品牌。每多一家店加入，KiX 网络就更大，你的玩家也会顺手发现附近更多能玩的店。") },
     { q:tr(lang,"Is my customer data safe?","我的客户数据安全吗？"),                             a:tr(lang,"Yes. Your customers and their data stay with your business. KiX is the invisible engine; we never take your customers away.","安全。你的客户和数据都留在你自己店里。KiX 只是背后那台隐形引擎，从不把客户带走。") },
   ];
   return (
