@@ -419,7 +419,6 @@ function WhyGame() {
   ];
   return (
     <section className="sec" id="why">
-      <div className="sec-eye">{tr(lang,"AND YOU'RE ON THE MAP","还有：你在地图上")}</div>
       <h2 className="sec-h">{tr(lang,"Put your shop's game on the map, ","把你的店铺小游戏放上地图，")}<span className="hl">{tr(lang,"discovered worldwide","让全球人发现")}</span></h2>
       <p className="sec-sub">{tr(lang,"Players browsing the map find you and tap in to play, with zero ad spend from you.","玩家在地图上逛店，顺手就发现你、点进来玩，你不花一分广告费。")}</p>
       <div className="mapsec">
