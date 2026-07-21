@@ -351,23 +351,23 @@ function Hero({ go }) {
 function Walkthrough() {
   const lang = useLang();
   const S = [
-    { full:"walkthrough/store-3d.png",             label:tr(lang,"Tap into your shop","点进你的店") },
-    { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Play your game","玩你的小游戏") },
-    { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Win a voucher","赢到一张券") },
-    { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Redeem & come back","到店兑，成常客") },
+    { img:"walkthrough/poster.png", pos:"top",    label:tr(lang,"Spots your poster","看到你的海报") },
+    { scan:true,                                   label:tr(lang,"Scans, no app","扫码，免下载") },
+    { img:"walkthrough/play.png",   pos:"top",    label:tr(lang,"Plays YOUR game","玩你的专属游戏") },
+    { img:"walkthrough/win.png",    pos:"center", label:tr(lang,"Wins a voucher","赢到一张券") },
+    { img:"walkthrough/redeem.png", pos:"top",    label:tr(lang,"Redeems & returns","兑奖，成常客") },
   ];
   return (
     <section className="sec" id="the-game">
-      <div className="sec-eye">{tr(lang,"HOW IT PLAYS OUT","客人怎么玩起来")}</div>
-      <h2 className="sec-h">{tr(lang,"They play your game, win, and walk in","他们玩你的游戏、赢券、进店")}</h2>
-      <p className="sec-sub">{tr(lang,"Put your QR on the door and counter. Every scan is a play, every play a chance to win and walk in.","把二维码贴在门口和收银台。扫一下就能玩，玩一把就有机会赢券、进店。")}</p>
+      <h2 className="sec-h">{tr(lang,"Turn your business into a playground","把你的店变成游乐场")}</h2>
+      <p className="sec-sub">{tr(lang,"With your own branded game, customers play, pay and stay.","你自己的品牌小游戏，让客人来玩、消费、留下来。")}</p>
       <div className="wt-row">
         {S.map((s,i)=>(
           <React.Fragment key={i}>
             <div className="wt-step">
-              {s.full
-                ? <img className="wt-full" src={s.full} alt=""/>
-                : <div className="wt-phone"><div className="wt-scr"><img src={s.img} alt="" style={{ objectPosition:s.pos }}/></div></div>}
+              <div className="wt-phone"><div className="wt-scr">
+                {s.scan ? <div className="wt-scan"><i></i></div> : <img src={s.img} alt="" style={{ objectPosition:s.pos }}/>}
+              </div></div>
               <div className="wt-label">{s.label}</div>
             </div>
             {i < S.length-1 && <div className="wt-arrow">→</div>}
@@ -375,7 +375,7 @@ function Walkthrough() {
         ))}
       </div>
       <div className="ppp">
-        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They scan & play in","扫一下就能玩")}</h4><p>{tr(lang,"Your branded game is the hook. No ads to buy.","你的品牌游戏就是钩子，不用买广告。")}</p></div>
+        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They play their way in","他们玩着玩着就进店")}</h4><p>{tr(lang,"Your branded game is the hook. No ads to buy.","你的品牌游戏就是钩子，不用买广告。")}</p></div>
         <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","发的是券不是现金，一次游戏换来一次真进店消费。")}</p></div>
         <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","一次次玩、一次次赢、一次次消费，来的是常客不是过客。")}</p></div>
       </div>
@@ -418,8 +418,8 @@ function WhyGame() {
   return (
     <section className="sec" id="why">
       <div className="sec-eye">{tr(lang,"AND YOU'RE ON THE MAP","还有：你在地图上")}</div>
-      <h2 className="sec-h">{tr(lang,"Your shop also lives on a map players ","你的店，还住在玩家爱逛的")}<span className="hl">{tr(lang,"explore","地图上")}</span></h2>
-      <p className="sec-sub">{tr(lang,"On top of your own QR, nearby players discover you on the KiX map and tap in to play. An extra channel, working while you don't.","在你自己的二维码之外，附近的玩家还能在 KiX 地图上发现你、点进来玩。多一条不用你操心的获客路。")}</p>
+      <h2 className="sec-h">{tr(lang,"Put your shop's game on the map, ","把你的店铺小游戏放上地图，")}<span className="hl">{tr(lang,"discovered worldwide","让全球人发现")}</span></h2>
+      <p className="sec-sub">{tr(lang,"Your finished game lives on the KiX map. Players browsing shops discover you, tap in to play, win a voucher and walk in, with no ad spend from you.","做好的品牌游戏会挂上 KiX 地图。玩家逛店时就能发现你、点进来玩、赢券进店，你一分广告费都不用花。")}</p>
       <div className="mapsec">
         <div className="mapsec-vis"><MapHero lang={lang} /></div>
         <div className="mapsec-list">{C.map((c,i)=>(<div key={i} className="mapsec-card"><div className="mi">{c.ic()}</div><div><h3>{c.h}</h3><p>{c.p}</p></div></div>))}</div>
@@ -695,7 +695,6 @@ function Landing({ go, onSignIn, lang, setLang }) {
       <WhyGame/>
       <Pricing go={go} />
       <Faq/>
-      <Stories/>
       <section className="sec final-sec">
         <h2 className="final-h">{tr(lang,"Every business deserves its own ","每家店都值得拥有自己的 ")}<span className="hl">{tr(lang,"playground.","游乐场。")}</span></h2>
         <p className="final-sub">{tr(lang,"Go live today and give every visit a reason to come back.","今天就上线，让每一次到店都成为下次回头的理由。")}</p>
