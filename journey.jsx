@@ -327,7 +327,7 @@ function Hero({ go }) {
     <section className="hero">
       <div>
         <h1 className="hero-h">{tr(lang,"They play.","他们来玩。")}<br/>{tr(lang,"They pay.","他们消费。")}<br/>{tr(lang,"They ","他们")}<span className="hl">{tr(lang,"stay.","留下来。")}</span></h1>
-        <p style={{ fontSize:18, color:"var(--ink-2)", margin:"18px 0 0", maxWidth:"22em" }}>{tr(lang,"Turn your shop into a game on the map, discovered worldwide.","把你的店做成游戏放进地图，被全球发现。")}</p>
+        <p style={{ fontSize:18, color:"var(--ink-2)", margin:"18px 0 0", maxWidth:"22em" }}>{tr(lang,"Your own branded game that customers play to win, then walk in to spend.","一个你自己品牌的小游戏，客人来玩、赢券，进店消费。")}</p>
         <div className="wow-form">
           <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
           <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
@@ -338,9 +338,12 @@ function Hero({ go }) {
         </div>
       </div>
       <div className="visual">
-        <div className="visual-col">
-          <MapHero lang={lang} />
-        </div>
+        <div className="float f1"><span className="ic" style={{ background:"var(--green-50)", color:"var(--green-d)" }}><Ic.spark/></span><div><div className="ft">{tr(lang,"Someone just played","又有人玩了一局")}</div><div className="fs">{tr(lang,"won a free coffee","赢到一杯免费咖啡")}</div></div></div>
+        <div className="float f2"><span className="ic" style={{ background:"#FFF3DA", color:"var(--amber)" }}><Ic.ret/></span><div><div className="ft">{tr(lang,"A regular came back","老顾客回来了")}</div><div className="fs">{tr(lang,"won back after 30 days","30 天没来 · 已召回")}</div></div></div>
+        <div className="phone"><div className="screen">
+          <div className="appbar"><span className="blogo"><Ic.cup/></span><div><div className="bt">Kopi Corner</div><div className="bs">{tr(lang,"Play to win today's coffee","来玩一把，赢今天的咖啡")}</div></div><span className="livechip"><span className="b"></span>LIVE</span></div>
+          <div className="gamearea"><div className="gametitle"><span>Kopi Corner</span> · {tr(lang,"Lucky Spin","幸运大转盘")}</div><MiniWheel/></div>
+        </div></div>
       </div>
     </section>
   );
@@ -348,17 +351,16 @@ function Hero({ go }) {
 function Walkthrough() {
   const lang = useLang();
   const S = [
-    { full:"walkthrough/map-3d.png",               label:tr(lang,"They spot you on the map","他们在地图上看到你") },
-    { full:"walkthrough/store-3d.png",             label:tr(lang,"Tap into your 3D shop","点进你的 3D 店") },
+    { full:"walkthrough/store-3d.png",             label:tr(lang,"Tap into your shop","点进你的店") },
     { img:"walkthrough/play.png",   pos:"top",     label:tr(lang,"Play your game","玩你的小游戏") },
     { img:"walkthrough/win.png",    pos:"center",  label:tr(lang,"Win a voucher","赢到一张券") },
     { img:"walkthrough/redeem.png", pos:"top",     label:tr(lang,"Redeem & come back","到店兑，成常客") },
   ];
   return (
     <section className="sec" id="the-game">
-      <div className="sec-eye">{tr(lang,"HOW CUSTOMERS FIND YOU","客人怎么找到你")}</div>
-      <h2 className="sec-h">{tr(lang,"They find you on the map, and play their way in","他们在地图上发现你，玩着就进店")}</h2>
-      <p className="sec-sub">{tr(lang,"No ads to buy. Your shop lives on the map players already explore.","不用买广告。你的店就住在玩家本来就在逛的地图上。")}</p>
+      <div className="sec-eye">{tr(lang,"HOW IT PLAYS OUT","客人怎么玩起来")}</div>
+      <h2 className="sec-h">{tr(lang,"They play your game, win, and walk in","他们玩你的游戏、赢券、进店")}</h2>
+      <p className="sec-sub">{tr(lang,"Put your QR on the door and counter. Every scan is a play, every play a chance to win and walk in.","把二维码贴在门口和收银台。扫一下就能玩，玩一把就有机会赢券、进店。")}</p>
       <div className="wt-row">
         {S.map((s,i)=>(
           <React.Fragment key={i}>
@@ -373,7 +375,7 @@ function Walkthrough() {
         ))}
       </div>
       <div className="ppp">
-        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They discover you & play in","他们发现你、玩着进店")}</h4><p>{tr(lang,"Your spot on the map is the hook. Players come to you.","你在地图上的位置就是钩子，玩家自己找上门。")}</p></div>
+        <div className="pppc"><div className="k">PLAY</div><h4>{tr(lang,"They scan & play in","扫一下就能玩")}</h4><p>{tr(lang,"Your branded game is the hook. No ads to buy.","你的品牌游戏就是钩子，不用买广告。")}</p></div>
         <div className="pppc"><div className="k">PAY</div><h4>{tr(lang,"They win, walk in & spend","他们赢券、进店、消费")}</h4><p>{tr(lang,"A voucher, never cash, turns a play into a paying visit.","发的是券不是现金，一次游戏换来一次真进店消费。")}</p></div>
         <div className="pppc"><div className="k">STAY</div><h4>{tr(lang,"They keep coming back","他们一再回头")}</h4><p>{tr(lang,"Play again, win again, spend again. Regulars, not one-offs.","一次次玩、一次次赢、一次次消费，来的是常客不是过客。")}</p></div>
       </div>
@@ -409,16 +411,19 @@ function SeeYourGame({ go }) {
 function WhyGame() {
   const lang = useLang();
   const C = [
-    { ic:Ic.gift,  h:tr(lang,"Rewards, never cash","奖励是券，不是现金"),        p:tr(lang,"Winners get a voucher to redeem in your shop, so they walk back in and spend instead of pocketing a discount and leaving.","赢家拿到的是能到你店里兑的券，会专门回店消费，而不是拿个折扣就走人。") },
+    { ic:Ic.pin,   h:tr(lang,"Nearby players find you","附近的玩家发现你"),      p:tr(lang,"People browsing shops around them spot yours on the map and tap in to play, no ad spend from you.","在附近逛店的人，在地图上看到你、点进来玩，你一分广告费都不用花。") },
     { ic:Ic.globe, h:tr(lang,"Shops send each other customers","店和店互相带客"), p:tr(lang,"Your players discover other shops on KiX; their players discover you. Everyone's map gets busier.","你的玩家在 KiX 上发现别家店，别家的玩家也发现你。每个人的地图都更热闹。") },
-    { ic:Ic.chart, h:tr(lang,"More shops, more players","店越多，玩家越多"),      p:tr(lang,"The more shops on the map, the more reasons players open KiX, and the bigger every playground gets.","地图上的店越多，玩家打开 KiX 的理由就越多，每个人的游乐场也越大。") },
+    { ic:Ic.chart, h:tr(lang,"More shops, more players","店越多，玩家越多"),      p:tr(lang,"The more shops on the map, the more reasons players open KiX, and the bigger it gets for you.","地图上的店越多，玩家打开 KiX 的理由就越多，对你的带客也越大。") },
   ];
   return (
     <section className="sec" id="why">
-      <div className="sec-eye">{tr(lang,"A MAP YOU PLAY","一张能玩的地图")}</div>
-      <h2 className="sec-h">{tr(lang,"Not just a map. The whole world ","这不只是地图，是全世界的")}<span className="hl">{tr(lang,"at play.","游戏乐园")}</span></h2>
-      <p className="sec-sub">{tr(lang,"More shops, more players, more people discovering you.","店越多，玩的人越多，你也被更多人发现。")}</p>
-      <div className="steps">{C.map((c,i)=>(<div key={i} className="stp"><div className="si">{c.ic()}</div><h3>{c.h}</h3><p>{c.p}</p></div>))}</div>
+      <div className="sec-eye">{tr(lang,"AND YOU'RE ON THE MAP","还有：你在地图上")}</div>
+      <h2 className="sec-h">{tr(lang,"Your shop also lives on a map players ","你的店，还住在玩家爱逛的")}<span className="hl">{tr(lang,"explore","地图上")}</span></h2>
+      <p className="sec-sub">{tr(lang,"On top of your own QR, nearby players discover you on the KiX map and tap in to play. An extra channel, working while you don't.","在你自己的二维码之外，附近的玩家还能在 KiX 地图上发现你、点进来玩。多一条不用你操心的获客路。")}</p>
+      <div className="mapsec">
+        <div className="mapsec-vis"><MapHero lang={lang} /></div>
+        <div className="mapsec-list">{C.map((c,i)=>(<div key={i} className="mapsec-card"><div className="mi">{c.ic()}</div><div><h3>{c.h}</h3><p>{c.p}</p></div></div>))}</div>
+      </div>
     </section>
   );
 }
@@ -681,7 +686,7 @@ function Landing({ go, onSignIn, lang, setLang }) {
     <div className="wrap">
       <nav>
         <div className="logo"><img className="logo-img" src="logo.png" alt="KiX"/></div>
-        <div className="navlinks"><a onClick={(e)=>{e.preventDefault();document.getElementById("the-game")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"How it works","怎么被发现")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("why")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Why it works","为什么有效")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Pricing","价格")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("questions")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Questions","常见问题")}</a></div>
+        <div className="navlinks"><a onClick={(e)=>{e.preventDefault();document.getElementById("the-game")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"How it works","怎么运作")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("why")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Why it works","为什么有效")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Pricing","价格")}</a><a onClick={(e)=>{e.preventDefault();document.getElementById("questions")?.scrollIntoView({behavior:"smooth"});}} href="#">{tr(lang,"Questions","常见问题")}</a></div>
         <div className="navright"><LangToggle lang={lang} setLang={setLang} /><a className="signin" onClick={(e)=>{e.preventDefault();onSignIn();}} href="#">{tr(lang,"Sign in","登录")}</a><button className="btn dark sm" onClick={go}>{tr(lang,"Start free","免费开始")}</button></div>
       </nav>
       <Hero go={go} />
