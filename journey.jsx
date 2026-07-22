@@ -2066,7 +2066,7 @@ function MedalLadderEditor({ kind, ladder, setLadder, days }) {
             <button className="btn ghost sm" onClick={addRow}><span style={{ fontSize:16, lineHeight:1 }}>+</span> {grand ? tr(lang,"Add a grand prize","加一个总冠军奖") : tr(lang,"Add a daily prize","加一个每日奖")}</button>
           </div>
         : <div className="ladder-rows">
-        {rows.map((r,i) => { const m=DT_MEDAL(r.medal); const iron=r.medal==="iron"; const total=cashTotal(r.prize); return (
+        {rows.map((r,i) => { const m=DT_MEDAL(r.medal); const iron=r.medal==="iron"; const total=cashTotal(r.prize); const req=(iron&&r.mode==="all")?null:(r.count||0)*(grand?1:days); return (
           <div className="lcard" key={i}>
             <div className="lrow-top">
               <span className="medal-pill" style={{ background:m.pill, color:m.txt }}>{m.ic} {tr(lang,m.en,m.zh)}</span>
@@ -2079,6 +2079,7 @@ function MedalLadderEditor({ kind, ladder, setLadder, days }) {
                 <select value={r.prize.type} onChange={e=>updPrize(i,{ type:e.target.value })}>{PRIZE_TYPES.map(pt=>(<option key={pt.k} value={pt.k}>{tr(lang,pt.en,pt.zh)}</option>))}</select>
                 {r.prize.type==="cash"     && <div className="pfield pcash">{tr(lang,"S$","S$")}<input type="number" min="0" value={r.prize.denom||""} onChange={e=>updPrize(i,{denom:+e.target.value})}/><span className="pcash-x">×</span><input type="number" min="1" value={r.prize.count||""} onChange={e=>updPrize(i,{count:+e.target.value})}/>{tr(lang,"vouchers","张")}{total>0 && <span className="cash-split">= S${total}</span>}</div>}
                 {r.prize.type==="discount" && <div className="pfield"><input type="number" min="0" max="100" value={r.prize.pct||""} onChange={e=>updPrize(i,{pct:+e.target.value})}/>%</div>}
+                {(r.prize.type==="item"||r.prize.type==="custom") && <div className="pfield pf-unit">{tr(lang,"Unit S$","单价 S$")}<input type="number" min="0" placeholder={tr(lang,"opt.","选填")} value={r.prize.unitPrice==null?"":r.prize.unitPrice} onChange={e=>updPrize(i,{unitPrice:e.target.value===""?null:+e.target.value})}/></div>}
               </div>
               <div className="lact">
                 <button type="button" title={tr(lang,"Remove","删除")} onClick={()=>delRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -2094,6 +2095,9 @@ function MedalLadderEditor({ kind, ladder, setLadder, days }) {
                   : <><span className="pc-status ok">✓ {r.prize.codeFile||tr(lang,"custom codes","自有码")}</span><button type="button" className="pc-upload" onClick={()=>updPrize(i,{ codeSource:"auto", codeFile:null })}>{tr(lang,"Use auto","改回自动")}</button></>}
               </div>
             </div>
+            {r.prize.codeSource==="custom" && <div className="ml-note pc-req">{req==null
+              ? tr(lang,"One image per voucher. Iron 'everyone' has no fixed number, upload enough for the turnout you expect; a ZIP works too.","一张券配一个二维码/图；铁档「人人有份」人数不定，按预计到场量多传些，多张可打包成 ZIP 一次传。")
+              : tr(lang,`One image per voucher, at least ${req}${grand?"":` (${r.count}/day × ${days} days)`}. Zip multiple into one upload.`,`一张券配一个二维码/图，需上传 ≥ ${req} 个${grand?"":`（每天 ${r.count} 名 × ${days} 天）`}；多张可打包成 ZIP 一次传。`)}</div>}
           </div>
         ); })}
       </div>}
@@ -2136,13 +2140,15 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
         <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely; take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
       </div>
       {isDT
-        ? (()=>{ const _days=(activity.duration&&activity.duration.days)||7; const dS=medalStats(activity.dailyLadder,_days), gS=medalStats(activity.grandLadder,1); const _prizes=dS.slotsTot+gS.slots; const _cash=dS.cashTot+gS.cashTot; const cashSlots=(arr,mult)=>(arr||[]).reduce((s,r)=>s+((r.prize&&r.prize.type==="cash"&&!(r.medal==="iron"&&r.mode==="all"))?(r.count||0)*(mult||1):0),0); const _nonCash=_prizes-(cashSlots(activity.dailyLadder,_days)+cashSlots(activity.grandLadder,1)); const _est=activity.estCost!=null?activity.estCost:(_cash+_nonCash*5); return <>
+        ? (()=>{ const _days=(activity.duration&&activity.duration.days)||7; const dS=medalStats(activity.dailyLadder,_days), gS=medalStats(activity.grandLadder,1); const _prizes=dS.slotsTot+gS.slots; const _cash=dS.cashTot+gS.cashTot;
+            const prizeVal=(arr,mult)=>(arr||[]).reduce((s,r)=>{ if(r.medal==="iron"&&r.mode==="all") return s; const n=(r.count||0)*(mult||1); const p=r.prize||{}; if(p.type==="cash") return s+n*((+p.denom||0)*(+p.count||0)); if((p.type==="item"||p.type==="custom")&&p.unitPrice!=null) return s+n*(+p.unitPrice||0); return s; },0);
+            const _auto=prizeVal(activity.dailyLadder,_days)+prizeVal(activity.grandLadder,1); const _est=activity.estCost!=null?activity.estCost:_auto; return <>
             <DurationEditor duration={activity.duration} setDuration={d => upd("duration", d)} />
             <MedalLadderEditor kind="daily" ladder={activity.dailyLadder} setLadder={l => upd("dailyLadder", l)} days={_days} />
             <MedalLadderEditor kind="grand" ladder={activity.grandLadder} setLadder={l => upd("grandLadder", l)} days={_days} />
             <div className="dt-costsum">
-              <div className="cs-txt"><div className="cs-h">{tr(lang,"What this tournament costs you","这场活动的成本")}</div><div className="cs-sub">{_prizes} {tr(lang,"prizes","份奖")}{_cash>0?` · ${tr(lang,"cash","现金")} S$${_cash}`:""}{gS.hasAll?tr(lang," · Iron for all"," · 铁牌人人有份"):""} · {tr(lang,"unclaimed ranks cost nothing","空名次不花钱")}</div></div>
-              <div className="cs-est"><label>{tr(lang,"Est. total value","预估总价值")}</label><div className="cs-inp"><span>S$</span><input type="number" min="0" value={_est} onChange={e=>upd("estCost", e.target.value===""?null:+e.target.value)}/></div></div>
+              <div className="cs-txt"><div className="cs-count"><b>{_prizes}</b> {tr(lang,"prizes","份奖")}<span className="cs-days"> · {_days} {tr(lang,"days","天")}</span></div><div className="cs-sub">{_cash>0?`${tr(lang,"cash","现金")} S$${_cash} · `:""}{tr(lang,"unclaimed ranks cost nothing","空名次不发不花钱")}{gS.hasAll?tr(lang," · Iron for all"," · 铁牌人人有份"):""}</div></div>
+              <div className="cs-est"><label>{tr(lang,"Est. total cost","预估总成本")}</label><div className="cs-inp"><span>S$</span><input type="number" min="0" value={_est} onChange={e=>upd("estCost", e.target.value===""?null:+e.target.value)}/></div></div>
             </div>
           </>; })()
         : isChal

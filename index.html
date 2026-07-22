@@ -1316,7 +1316,7 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .ml-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:26px 22px;border:1.5px dashed var(--line);border-radius:12px}
 .ml-empty-ic{width:44px;height:44px;border-radius:50%;background:var(--line-2);color:var(--muted);display:grid;place-items:center}
 .ml-empty-t{font-size:15px;font-weight:800;color:var(--ink)}
-.ml-empty p{font-size:12.5px;line-height:1.5;color:var(--muted);max-width:400px;margin:0 auto 4px}
+.ml-empty p{font-size:12.5px;line-height:1.5;color:var(--muted);max-width:none;margin:0 auto 4px}
 .ml-fold{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .ml-fold .mlfold-h{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--ink)}
 .ml-fold .mlfold-txt p{color:var(--muted)}
@@ -1347,8 +1347,12 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .dt-endtxt.ph{color:var(--muted-2)}
 /* 底部成本小结（中性、含可编辑预估总价值）*/
 .dt-costsum{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:14px 18px;border-radius:12px;background:var(--line-2);border:1px solid var(--line);flex-wrap:wrap}
-.dt-costsum .cs-h{font-size:14px;font-weight:800;color:var(--ink)}
-.dt-costsum .cs-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.dt-costsum .cs-count{font-size:14px;color:var(--ink-2);font-weight:600}
+.dt-costsum .cs-count b{font-size:21px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;margin-right:2px}
+.dt-costsum .cs-days{color:var(--muted);font-weight:500}
+.dt-costsum .cs-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.ml-daily .pf-unit input,.ml-grand .pf-unit input{flex:none;width:74px}
+.ml-daily .pf-unit input::placeholder,.ml-grand .pf-unit input::placeholder{font-size:12px}
 .dt-costsum .cs-est{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
 .cs-est label{font-size:12px;font-weight:700;color:var(--ink-2)}
 .cs-inp{display:flex;align-items:center;gap:5px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px}
