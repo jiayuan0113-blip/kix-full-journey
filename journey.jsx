@@ -1236,11 +1236,29 @@ function EmptyState({ icon, title, sub, actLabel, onAct, ghostLabel, onGhost }) 
   );
 }
 
+/* 首页"开业跑道"进度条（纯状态、不可点）：做好游戏→上线活动→贴门店码→到店兑奖 */
+function HomeRunway({ cur, lang }) {
+  const steps = [tr(lang,"Game ready","做好游戏"), tr(lang,"Publish activity","上线活动"), tr(lang,"Post QR","贴门店码"), tr(lang,"In-store redeem","到店兑奖")];
+  return (
+    <div className="runway">
+      {steps.map((s,i)=>(
+        <React.Fragment key={i}>
+          <div className={"rnode "+(i<cur?"done":i===cur?"cur":"")}>
+            <div className="dot">{i<cur ? <Ic.check style={{ width:15, height:15 }}/> : (i+1)}</div>
+            <div className="lbl">{s}</div>
+          </div>
+          {i<steps.length-1 && <div className={"rline "+(i<cur?"done":"")}/>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
 function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewAct, onRedeem, onGoActivity, onGoActivities, onGoGames, onGoReports, outlets = OUTLETS }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
   const [scanOk, setScanOk] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [qrDownloaded, setQrDownloaded] = useState(new URLSearchParams(location.search).get("qr")==="1"); // A1↔A2 分水岭：门店码是否已下载（一次性）
   const doScan = () => { setScanning(true); setTimeout(() => { setScanning(false); setScanOk(true); setTimeout(() => setScanOk(false), 2800); }, 1700); };
   const liveAct = activities && activities.find(a => a.status === "live");
   const hasActs = activities && activities.length > 0;
@@ -1258,14 +1276,9 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
   // 当前 live 活动的券剩余（hero 第三个生命体征）
   const _lv = liveAct && liveAct.vouchers && liveAct.vouchers[0];
   const vQty = (_lv&&+_lv.qty)||0, vRem = _lv ? Math.max(0, vQty-((+_lv.awarded)||0)) : 0, vLow = vQty>0 && vRem/vQty<=0.15;
-  // 启动态 hero：按进度只给一个下一步动作
-  const sh = liveAct
-    ? { badge:tr(lang,"Live · waiting for the first redemption","已上线 · 等第一笔到店兑奖"), dark:true, title:P(lang,liveAct.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Print your outlet QR and put it where customers can scan it.","把门店二维码打印出来，贴在客人扫得到的地方。"), cta:tr(lang,"Download outlet QR","下载门店二维码"), on:onGoActivities }
-    : liveGame
-    ? { badge:"LIVE", dark:true, title:P(lang,liveGame.name)+" · "+tr(lang,"up and running","进行中"), sub:tr(lang,"Customers scan and play. Want to hand out prizes and turn them into store visits? Add an activity.","客人扫码就能玩。想送奖品、把人变成到店客？加一个活动。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct }
-    : hasActs
-    ? { badge:tr(lang,"Draft","修改中"), dark:false, title:tr(lang,"Finish and publish your activity","完善并上线你的活动"), sub:tr(lang,"Set a voucher, pick outlets, then go live, and customers scan to play.","设一张券、选门店、点上线，客人扫码就能玩。"), cta:tr(lang,"Finish activity","去完善"), on:onGoActivity }
-    : { badge:tr(lang,"No activity yet","暂时还没有活动"), dark:false, title:tr(lang,"Create an activity to open for business","建个活动，就能开门营业"), sub:tr(lang,"Pick outlets, set a voucher, link your game, and customers scan to play.","选门店、设一张券、绑上你的游戏，客人扫码就能玩。"), cta:"+ "+tr(lang,"New activity","新建活动"), on:onNewAct };
+  // 非营业态分水岭：liveAct→(qr已下?A2收银台:A1下载码) / liveGame→B / 都无→C 全空态
+  const _noGame = _p.get("nogame") === "1";   // 调试：演示 C 全空态（无 live 游戏）
+  const lg = _noGame ? null : liveGame;
   return (
     <div className="app-body">
       {hasWalkins ? (
@@ -1314,27 +1327,79 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
                 <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
           </div>
         </>
-      ) : (
-        /* ===== S1 启动态：唯一 CTA 在 hero + 进度清单(无按钮) + 计费心智 ===== */
+      ) : liveAct ? (
+        qrDownloaded ? (
+          /* ===== A2 收银台待客：门店码已下载、还没到店兑奖 → home 永久锚定"扫码兑奖"（无跑道）===== */
+          <div className="home-hero">
+            <div style={{ flex:1 }}>
+              <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
+              <h3 style={{ marginTop:12 }}>{P(lang, liveAct.name)}</h3>
+              <div className="live3" style={{ marginTop:16 }}>
+                <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
+                <div className="lc"><div className="n">{walkins}</div><div className="l">{tr(lang,"redeemed in store","到店兑奖")}</div></div>
+              </div>
+            </div>
+            <button className="btn primary lg" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
+              <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码兑奖")}
+            </button>
+          </div>
+        ) : (
+          /* ===== A1 活动刚上线：先下载门店码（一次性 bootstrap）===== */
+          <>
+            <div className="home-hero">
+              <div style={{ flex:1 }}>
+                <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
+                <h3 style={{ marginTop:12 }}>{P(lang, liveAct.name)}</h3>
+              </div>
+              <div className="hh-action">
+                <button className="btn primary lg" onClick={()=>setQrDownloaded(true)}>{tr(lang,"Download outlet QR","下载门店二维码")}</button>
+                <span className="hmicro">{tr(lang,"One per outlet · post where customers can scan","每家店一张，贴在客人扫得到处")}</span>
+              </div>
+            </div>
+            <HomeRunway cur={2} lang={lang}/>
+          </>
+        )
+      ) : lg ? (
+        /* ===== B 游戏已上线、还没活动：庆祝在跑 + 引导加活动 ===== */
         <>
-          <div className={"home-hero" + (sh.dark ? "" : " empty")}>
+          <div className="home-hero">
+            <div style={{ flex:1 }}>
+              <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
+              <h3 style={{ marginTop:12 }}>{P(lang, lg.name)}</h3>
+              <div className="live3" style={{ marginTop:16 }}>
+                <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
+              </div>
+            </div>
+            <div className="hh-action">
+              <button className="btn primary lg" onClick={onNewAct}>+ {tr(lang,"New activity","上线活动")}</button>
+              <span className="hmicro">{tr(lang,"Publish an activity, bring customers in","上线活动，把客人请到店")}</span>
+            </div>
+          </div>
+          <HomeRunway cur={1} lang={lang}/>
+        </>
+      ) : (
+        /* ===== C 全空态：游戏做好了、还没上线任何东西 → 两条路(上线活动 / 只上线游戏) ===== */
+        <>
+          <div className="home-hero">
+            <div style={{ flex:1 }}>
+              <span className="hl-ready">{tr(lang,"Game ready","游戏做好了")} · {P(lang, game.name)}</span>
+              <h3 style={{ marginTop:12 }}>{tr(lang,"Publish an activity, bring customers in","上线活动，把客人请到店")}</h3>
+            </div>
+            <div className="hh-action">
+              <button className="btn primary lg" onClick={hasActs?onGoActivity:onNewAct}>{tr(lang,"Publish activity","上线活动")}</button>
+              <span className="hmicro">{tr(lang,"Send vouchers, bring them in to redeem","送券引客，到店兑奖")}</span>
+            </div>
+          </div>
+          <div className="subrow">
+            <span className="sr-ic"><Ic.gamepad style={{ width:22, height:22 }}/></span>
             <div>
-              <span className="hl-live" style={sh.dark ? {} : { background:"rgba(255,255,255,.12)", color:"#cdd8e4" }}>{sh.badge==="LIVE" ? <><span className="b"></span>LIVE</> : sh.badge}</span>
-              <h3 style={{ marginTop:12 }}>{sh.title}</h3>
-              <p style={{ color:"#9fb0c4", fontSize:14, margin:"6px 0 0", maxWidth:"42ch" }}>{sh.sub}</p>
+              <div className="sr-t">{tr(lang,"Not sure yet? Let customers play first","还没想好？先让客人玩玩看")}</div>
+              <div className="sr-s">{tr(lang,"Just the game, no vouchers. Add an activity anytime.","只上线游戏、不送券，随时能再加活动。")}</div>
             </div>
-            <div style={{ marginLeft:"auto", alignSelf:"center" }}>
-              <button className="btn primary lg" onClick={sh.on}>{sh.cta}</button>
-            </div>
+            <button className="btn ghost lg" onClick={onGoGames}>{tr(lang,"Publish game only","只上线游戏")}</button>
           </div>
-          <div className="panel nudge" style={{ marginTop:18 }}>
-            <h4 style={{ marginBottom:14 }}>{tr(lang,"Get your first wave playing","让第一波人玩起来")}</h4>
-            <div className="nstep done"><span className="nt"><Ic.check/></span>{tr(lang,"Game created","游戏已创建")}</div>
-            <div className={"nstep "+(liveAct?"done":"cur")}><span className="nt">{liveAct?<Ic.check/>:"2"}</span>{tr(lang,"Publish an activity","上线活动")}</div>
-            <div className={"nstep "+(liveAct?"cur":"")}><span className="nt">3</span>{tr(lang,"Print QR per outlet","打印各门店二维码")}</div>
-            <div className="nstep"><span className="nt">4</span>{tr(lang,"First customer walks in","第一位客人到店")}</div>
-            <div className="nudge-free"><Ic.shield style={{ width:13, height:13, flexShrink:0 }}/> {tr(lang,"First 3 months free · cancel anytime","首 3 个月免费 · 随时取消")}</div>
-          </div>
+          <div className="home-cmicro"><Ic.shield style={{ width:14, height:14 }}/> {tr(lang,"First 3 months free · cancel anytime","首 3 个月免费 · 随时取消")}</div>
+          <HomeRunway cur={1} lang={lang}/>
         </>
       )}
     </div>
