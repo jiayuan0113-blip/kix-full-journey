@@ -1140,9 +1140,9 @@ function Preview({ game, brand, setBrand, onLaunch, onBack, need }) {
               <button className="pv-gen" onClick={generate} disabled={gen}><Ic.spark style={{ width:16, height:16 }}/> {gen?tr(lang,"Generating…","生成中…"):tr(lang,"Generate with my brand","用我的品牌生成")}</button>
             </div>
           </div>
-          <div className="pv-note">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-            <div className="pv-note-t"><b>{tr(lang,"Live preview","改哪个即时预览")}</b><span>{tr(lang,"Adjust anytime after publishing; customers always see the latest.","上线后仍可回来调整，客人扫码永远看最新版")}</span></div>
+          <div className="pv-more">
+            <Ic.spark style={{ width:17, height:17, color:"#7C3AED" }}/>
+            <div className="pv-more-t"><b>{tr(lang,"More AI once you're in","登录后,AI 还能做更多")}</b><span>{tr(lang,"Keep tuning by chatting: difficulty, game style, seasonal themes.","进后台用对话接着改:调难度、换玩法风格、加节日主题")}</span></div>
           </div>
           <button className="btn primary lg pv-launch" onClick={onLaunch}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 15c-1 1-1.5 4-1.5 4s3-.5 4-1.5c.6-.6.6-1.9 0-2.5s-1.9-.6-2.5 0z"/><path d="M9 13c2-6 6-9 11-9 0 5-3 9-9 11l-2-2z"/><path d="M9 13l-3-1c-.5-.2-.5-.7 0-1l3-2M13 15l1 3c.2.5.7.5 1 0l2-3"/></svg> {tr(lang,"Publish","上线")}
