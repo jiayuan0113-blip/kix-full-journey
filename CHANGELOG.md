@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-07-22
+
+### 103. 收卡时机 v2：账号门/卡门解耦 + 任何上线（游戏或活动）都判卡（本地已实现，未 push）
+- **背景/决策**：收卡从"注册最后一步（发布闸门两子步 验证→绑卡）"改为**两道门解耦**。真分界线＝**"给自己用 vs 给客人玩"**：建游戏/预览/逛后台/进后台**免费不收卡**；**任何"上线给客人玩"（游戏 or 活动，客人扫码玩＝产生 MAU）首次都要绑卡**。**「上线游戏不收卡」已废**——纯游戏被客人玩也算计费 MAU（Joyce 2026-07-22 拍板）。设计流水线全程 `design-runs/上线收卡新流程/`（00方向/02示意图/03评审清单/04研发PRD）；决策 `Desktop/Mozat/kix/[决策] 2026-07-20-KiX注册收卡时机-三体.md`（含 07-21/22 修正）。
+- **共享组件**：抽 **`CardForm`**（卡 UI：前3月免费+3条安心[7天提醒/随时取消/Stripe]+consent+Stripe 卡输入+「绑卡并上线」+「今天不会扣款」，从旧 Register 卡步提取）+ **`CardGate`**（`CardForm` 的独立弹窗，给绕过发布弹窗的直接上线用）。
+- **`Register`（账号门）去卡步 → 只验证**：删 `rstep`/卡 state，`AuthEntry` 验证即建号进后台；标题「登录或注册」；footer「免费进入，随时可退出」（**不提"信用卡"，避粉色大象**）。建游戏第三步仍是存草稿+进后台（canon 不自动上线）→ 故账号门不是 go-live、不收卡。
+- **`PublishGameModal` + `ActivityPublishModal` 内置卡步**：确认 → `!cardOnFile` 则 `setStep("card")` 渲染 `CardForm`（绑卡→onConfirm→done）；有卡直接上线。确认按钮无卡时文案「下一步：绑卡并上线」、有卡「确认上线」。`PublishGameModal` 新增 `cardOnFile`/`onSaveCard` props（`MyGamesView` 透传）。
+- **集中闸门 `requireCard`（`AppShell`）**：`const requireCard = (proceed)=> cardOnFile ? proceed() : setCardGate(()=>proceed)`；渲染 `{cardGate && <CardGate onSave=…/>}`。**覆盖绕过弹窗的直接上线**——活动管理页卡片「上线」按钮（`ActivitiesView` offline→live `onSetStatus`）现走 `requireCard`。所有 go-live 路径（游戏发布/活动发布/活动管理页直接上线/Register 后台首发）统一判卡。
+- **CSS（`index.html`）**：`.card-gate-modal`（h1/按钮在 pub-modal 里走 reg-card 排版）。
+- **⚠️ 研发**：卡＝Stripe SetupIntent（off_session、tokenize 不扣款）；MAU 定义须含**独立游戏玩家**（bible §4.0 待改）；90 天卡衰减用 Stripe Account Updater + dunning（见 04-研发PRD §5）。**调试**：`?card=0` 强制无卡（点任何上线弹卡门）；`?rstep=card` **已废**（Register 无卡步了）。
+
 ## 2026-07-21
 
 ### 102. 每日锦标赛 DT（`form:'dt'`）替换旧限时挑战赛；旧 challenge 存支线 `kc-challenge`（本地已实现，未 push）

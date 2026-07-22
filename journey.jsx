@@ -741,7 +741,7 @@ function AuthEntry({ onVerified, footer, title }) {
         <button className="sso-btn" onClick={onVerified}> {tr(lang,"Continue with Apple","用 Apple 继续")}</button>
       </>}
       {footer}
-      <div className="demo-flip">demo · <a onClick={()=>{ setRegion(region==="cn"?"intl":"cn"); setVal(""); }}>{region==="cn" ? tr(lang,"switch to overseas view","切换到海外视图") : tr(lang,"switch to China view","切换到国内视图")}</a></div>
+      <div className="demo-flip"><a onClick={()=>{ setRegion(region==="cn"?"intl":"cn"); setVal(""); }}>{region==="cn" ? tr(lang,"Switch to overseas view","切换到海外视图") : tr(lang,"Switch to China view","切换到国内视图")}</a></div>
     </> : <>
       <h1>{tr(lang,"Enter the code","输入验证码")}</h1>
       <p className="login-sub">{tr(lang,`We sent a 6-digit code to ${sentTo}`,`6 位验证码已发送至 ${sentTo}`)}</p>
@@ -805,48 +805,61 @@ function AccountPicker({ onPick }) {
   );
 }
 
-/* ===================== register (publish gate) · 验证即建号 → 绑卡 → 恭喜补资料 ===================== */
+/* ===================== register (账号门) · 只验证即建号进后台，不收卡 =====================
+   账号门=给自己用(建/预览/逛后台)免费，不收卡。卡在真正"上线给客人玩"时才收（见 CardGate + 发布弹窗卡步）。
+   建游戏第三步=存草稿+进后台（canon：不自动上线），故此处不是 go-live、不收卡。 */
 function Register({ onDone, onSignIn, onSaveCard, onBack, need }) {
   const lang = useLang();
-  const _p = new URLSearchParams(location.search);
-  const [rstep, setRstep] = useState(_p.get("rstep")==="card" ? "card" : "auth");
+  const footer = <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>{tr(lang,". Free to enter, leave anytime.","。免费进入，随时可退出。")}</div>;
+  return (
+    <div className="reg-wrap">
+      <button className="canvas-back reg-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>
+      <div className="reg-card">
+        <AuthEntry title={tr(lang,"Log in or sign up","登录或注册")} onVerified={onDone} footer={footer} />
+      </div>
+    </div>
+  );
+}
+
+/* ===================== card gate · 任何"给客人玩"的上线(游戏/活动)首次共用的收卡闸门 =====================
+   卡=计费功能：给自己用(建/预览/逛后台)免费；一旦上线给客人玩＝产生 MAU→绑卡。纯游戏玩家也算 MAU(2026-07-21 定)。 */
+function CardForm({ lang, onSave }) {
   const [num, setNum] = useState(""), [exp, setExp] = useState(""), [cvc, setCvc] = useState("");
   const cardOk = num.replace(/\s/g,"").length >= 12 && exp.trim().length >= 4 && cvc.trim().length >= 3;
   const chargeDate = (() => { const d = new Date(); d.setMonth(d.getMonth()+3); return d.toLocaleDateString(lang==="zh"?"zh-CN":"en-GB",{ year:"numeric", month:"short", day:"numeric" }); })();
-  // 绑卡完成即进主页；「恭喜+补资料」由 App 在主页上叠加遮罩弹窗（首次商家）
-  const saveCard = () => { onSaveCard && onSaveCard({ last4: num.replace(/\s/g,"").slice(-4) || "4242" }); onDone(); };
-  return (
-    <div className="reg-wrap">
-      {/* 返回只在验证步(回预览)；绑卡步不给返回——卡要绑定刚建的账户，不可回退 */}
-      {rstep === "auth" && <button className="canvas-back reg-back" onClick={onBack}><Ic.back style={{ width:15, height:15 }}/> {tr(lang,"Back","上一步")}</button>}
-      <div className="reg-card">
-      <div className="reg-steps"><span className={rstep==="auth"?"on":"done"}>1 · {tr(lang,"Verify","验证")}</span><i></i><span className={rstep==="card"?"on":""}>2 · {tr(lang,"Card","绑卡")}</span></div>
-      {rstep === "auth" ?
-        <AuthEntry title={tr(lang,"Last step: verify to go live","最后一步，验证一下就上线")} onVerified={()=>setRstep("card")} footer={
-          <div className="reg-fine">{tr(lang,"By continuing you agree to our ","继续即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," & ","与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>。</div>
-        } />
-      : <>
-        <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
-        <p className="login-sub">{tr(lang,"Free for 3 months, then pay only as you grow.","前 3 个月免费，之后只按增长付费。")}</p>
-        <div className="trust-list">
-          <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends, around ${chargeDate}.`,`快到期时提前 7 天提醒你，大约在 ${chargeDate}。`)}</span></div>
-          <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime.","随时下线或取消。")}</span></div>
-          <div className="trust-row"><Ic.shield/><span>{tr(lang,"Stripe-encrypted, we never see your card number.","卡号交给 Stripe 加密，我们看不到。")}</span></div>
+  const save = () => onSave && onSave({ last4: num.replace(/\s/g,"").slice(-4) || "4242" });
+  return (<>
+    <h1>{tr(lang,"Add a card to go live","绑张卡就能上线")}</h1>
+    <p className="login-sub">{tr(lang,"Free for 3 months, then pay only as you grow.","前 3 个月免费，之后只按增长付费")}</p>
+    <div className="trust-list">
+      <div className="trust-row"><Ic.bell/><span>{tr(lang,`We'll remind you 7 days before it ends, around ${chargeDate}.`,`快到期时提前 7 天提醒你，大约在 ${chargeDate}。`)}</span></div>
+      <div className="trust-row"><Ic.check/><span>{tr(lang,"Pause or cancel anytime.","随时下线或取消。")}</span></div>
+      <div className="trust-row"><Ic.shield/><span>{tr(lang,"Stripe-encrypted, we never see your card number.","卡号交给 Stripe 加密，我们看不到。")}</span></div>
+    </div>
+    <div className="reg-fine card-consent">{tr(lang,"By adding your card you agree to our ","绑卡即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," and "," 与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>{tr(lang,", and authorize KiX to charge this card monthly after your free period (from S$29/mo, based on active players). Cancel anytime.","，并授权 KiX 在免费期结束后按月从此卡扣费（S$29/月起，按活跃玩家计）；可随时取消。")}</div>
+    <div className="cardf">
+      <div className="cardf-input">
+        <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
+        <div className="cardf-row">
+          <input placeholder={tr(lang,"MM / YY","有效期 MM/YY")} value={exp} onChange={e=>setExp(e.target.value.replace(/[^\d/]/g,"").slice(0,5))} inputMode="numeric"/>
+          <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
         </div>
-        <div className="reg-fine card-consent">{tr(lang,"By adding your card you agree to our ","绑卡即表示同意 ")}<a onClick={()=>openLegal("tos")}>{tr(lang,"Terms","服务条款")}</a>{tr(lang," and "," 与 ")}<a onClick={()=>openLegal("privacy")}>{tr(lang,"Privacy","隐私政策")}</a>{tr(lang,", and authorize KiX to charge this card monthly after your free period (from S$29/mo, based on active players). Cancel anytime.","，并授权 KiX 在免费期结束后按月从此卡扣费（S$29/月起，按活跃玩家计）；可随时取消。")}</div>
-        <div className="cardf">
-          <div className="cardf-input">
-            <input placeholder={tr(lang,"Card number","卡号")} value={num} onChange={e=>setNum(fmtCard(e.target.value))} inputMode="numeric"/>
-            <div className="cardf-row">
-              <input placeholder={tr(lang,"MM / YY","有效期 MM/YY")} value={exp} onChange={e=>setExp(e.target.value.replace(/[^\d/]/g,"").slice(0,5))} inputMode="numeric"/>
-              <input placeholder="CVC" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} inputMode="numeric"/>
-            </div>
-          </div>
-        </div>
-        <button className="btn primary" disabled={!cardOk} onClick={saveCard}>{tr(lang,"Add card & go live","绑卡并上线")}</button>
-        <div className="charge-note">{tr(lang,"You won't be charged today.","今天不会扣款。")}</div>
-      </>}
-    </div></div>
+      </div>
+    </div>
+    <button className="btn primary" disabled={!cardOk} onClick={save}>{tr(lang,"Add card & go live","绑卡并上线")}</button>
+    <div className="charge-note">{tr(lang,"You won't be charged today.","今天不会扣款")}</div>
+  </>);
+}
+// 独立卡门弹窗：给"绕过发布弹窗的直接上线"用（如活动管理页卡片「上线」按钮）
+function CardGate({ lang, onSave, onClose }) {
+  return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal card-gate-modal" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <CardForm lang={lang} onSave={onSave} />
+      </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1379,13 +1392,25 @@ function AppQRModal({ onClose }) {
   );
 }
 const fmtCard = (v) => v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
-function PublishGameModal({ game, onClose, onConfirm }) {
+function PublishGameModal({ game, cardOnFile, onSaveCard, onClose, onConfirm }) {
   const lang = useLang();
   const [name, setName] = useState(P(lang, game.name));
   const [sq, setSq] = useState(null), [rc, setRc] = useState(null);
   const [step, setStep] = useState(new URLSearchParams(location.search).get("done")==="1" ? "done" : "confirm");
   const pick = (setter) => { const i=document.createElement("input"); i.type="file"; i.accept="image/*"; i.onchange=e=>{ const f=e.target.files[0]; if(f) setter(URL.createObjectURL(f)); }; i.click(); };
-  const doConfirm = () => { onConfirm({ name:{en:name,zh:name}, coverSquare:sq, coverRect:rc }); setStep("done"); };
+  const buildPatch = () => ({ name:{en:name,zh:name}, coverSquare:sq, coverRect:rc });
+  // 上线游戏也计 MAU → 首次上线(无卡)先过卡门；有卡直接上线
+  const doConfirm = () => { if (!cardOnFile) { setStep("card"); } else { onConfirm(buildPatch()); setStep("done"); } };
+  const onCardSaved = (c) => { onSaveCard && onSaveCard(c); onConfirm(buildPatch()); setStep("done"); };
+  if (step === "card") return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal card-gate-modal" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <CardForm lang={lang} onSave={onCardSaved} />
+      </div>
+    </div>,
+    document.body
+  );
   if (step === "done") return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
       <div className="pub-modal" onClick={e=>e.stopPropagation()}>
@@ -1411,7 +1436,7 @@ function PublishGameModal({ game, onClose, onConfirm }) {
         <label className="pub-namef"><span>{tr(lang,"Game name","游戏名称")}</span><input value={name} onChange={e=>setName(e.target.value)}/></label>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
-          <button className="btn primary lg" onClick={doConfirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+          <button className="btn primary lg" onClick={doConfirm}><Ic.check style={{ width:18, height:18 }}/> {cardOnFile ? tr(lang,"Confirm & publish","确认上线") : tr(lang,"Next: add card & go live","下一步：绑卡并上线")}</button>
         </div>
       </div>
     </div>,
@@ -1422,7 +1447,7 @@ const GAME_STA = {
   draft:   { en:"Draft",   zh:"草稿",   cls:"st-draft" },
   live:    { en:"Live",    zh:"已上线", cls:"st-live" },
 };
-function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline, onDelete }) {
+function MyGamesView({ myGames, cardOnFile, onSaveCard, onNew, onOpen, onPublish, onOffline, onDelete }) {
   const lang = useLang();
   const [filt, setFilt] = useState("all");
   const [selMode, setSelMode] = useState(false);
@@ -1469,7 +1494,7 @@ function MyGamesView({ myGames, onNew, onOpen, onPublish, onOffline, onDelete })
           );
         })}
       </div>
-      {pubGame && <PublishGameModal game={pubGame} onClose={()=>setPubGame(null)} onConfirm={(patch)=>{ onPublish(pubGame, patch); }}/>}
+      {pubGame && <PublishGameModal game={pubGame} cardOnFile={cardOnFile} onSaveCard={onSaveCard} onClose={()=>setPubGame(null)} onConfirm={(patch)=>{ onPublish(pubGame, patch); }}/>}
       {appQr && <AppQRModal onClose={()=>setAppQr(false)}/>}
     </div>
   );
@@ -1735,8 +1760,18 @@ const WIN_TIERS = [
 function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onConfirm }) {
   const lang = useLang();
   const [step, setStep] = useState(new URLSearchParams(location.search).get("done")==="1" ? "done" : "confirm");
-  // 卡在注册/绑卡步已收，上线弹窗不再显示付款方式（去 off-canon 定价 + 不重复要卡）
-  const confirm = () => { onConfirm(); setStep("done"); };
+  // 上线活动计 MAU → 首次上线(无卡)先过卡门；有卡直接上线（不重复要卡）
+  const confirm = () => { if (!cardOnFile) { setStep("card"); } else { onConfirm(); setStep("done"); } };
+  const onCardSaved = (c) => { onSaveCard && onSaveCard(c); onConfirm(); setStep("done"); };
+  if (step === "card") return ReactDOM.createPortal(
+    <div className="pub-scrim" onClick={onClose}>
+      <div className="pub-modal card-gate-modal" onClick={e=>e.stopPropagation()}>
+        <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <CardForm lang={lang} onSave={onCardSaved} />
+      </div>
+    </div>,
+    document.body
+  );
   if (step === "done") return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
@@ -1758,7 +1793,7 @@ function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onCon
         <div className="pub-confirm-name">{P(lang, activity.name)}</div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
-          <button className="btn primary lg" onClick={confirm}><Ic.check style={{ width:18, height:18 }}/> {tr(lang,"Confirm & publish","确认上线")}</button>
+          <button className="btn primary lg" onClick={confirm}><Ic.check style={{ width:18, height:18 }}/> {cardOnFile ? tr(lang,"Confirm & publish","确认上线") : tr(lang,"Next: add card & go live","下一步：绑卡并上线")}</button>
         </div>
       </div>
     </div>,
@@ -2731,6 +2766,10 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null); // 下线撤销 toast：{ undo }（可逆动作不弹前置确认）
   const [pickForm, setPickForm] = useState(false); // 建活动第一步：选形态弹窗
+  // 集中收卡闸门：任何"给客人玩"的上线都过这里。有卡直接执行；无卡先弹 CardGate、绑卡后再执行原动作。
+  // 覆盖绕过发布弹窗的直接上线（如活动管理页卡片「上线」按钮 onSetStatus live）。发布弹窗内已自带卡步、不重复。
+  const [cardGate, setCardGate] = useState(null); // 待执行的 proceed 函数 or null
+  const requireCard = (proceed) => { if (cardOnFile) proceed(); else setCardGate(() => proceed); };
   const takeOffline = (act) => { const prev = act.status||"live"; setActivities(list => list.map(a => a.id===act.id ? {...a, status:"offline"} : a)); setToast({ undo:()=>setActivities(list => list.map(a => a.id===act.id ? {...a, status:prev} : a)) }); };
   const takeGameOffline = (g) => { setMyGames(list => list.map(x => x.id===g.id ? {...x, status:"draft"} : x)); setToast({ undo:()=>setMyGames(list => list.map(x => x.id===g.id ? {...x, status:"live"} : x)) }); };
   const undoOffline = () => { setToast(t => { if (t) t.undo(); return null; }); };
@@ -2808,14 +2847,15 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
           : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={openNewActPicker} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a))} onDelete={(ids)=>setActivities(list=>list.filter(a=>!ids.includes(a.id)))} />
-          : sec === "games" ? <MyGamesView myGames={myGames} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} onDelete={(ids)=>setMyGames(gs=>gs.filter(g=>!ids.includes(g.id)))} />
+          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : requireCard(()=>setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a)))} onDelete={(ids)=>setActivities(list=>list.filter(a=>!ids.includes(a.id)))} />
+          : sec === "games" ? <MyGamesView myGames={myGames} cardOnFile={cardOnFile} onSaveCard={setCardOnFile} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} onDelete={(ids)=>setMyGames(gs=>gs.filter(g=>!ids.includes(g.id)))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} outlets={outlets} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
           : <ReportsView onTune={()=>setSec("activities")} outlets={outlets} vouchers={actVouchers} hasLive={!!liveAct} hasActs={activities.length>0} hasLiveGame={myGames.some(g=>g.status==="live")} multiAct={activities.filter(a=>a.status==="live").length>=2} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onBilling={()=>setSec("me")} liveName={liveAct ? P(lang, liveAct.name) : ""} />}
       </main>
       {toast && <UndoToast onUndo={undoOffline} onClose={()=>setToast(null)} lang={lang}/>}
       {pickForm && <NewActivityPicker onPick={createAct} onClose={()=>setPickForm(false)}/>}
+      {cardGate && <CardGate lang={lang} onSave={(c)=>{ setCardOnFile(c); const p=cardGate; setCardGate(null); p&&p(); }} onClose={()=>setCardGate(null)} />}
     </div>
   );
 }

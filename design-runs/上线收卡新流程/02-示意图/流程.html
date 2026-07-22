@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KiX · 上线才收卡 · 新流程示意</title>
+<style>
+:root{
+  --green:#16A34A; --greenD:#15803D; --greenL:#22C55E; --green-wash:#ECFDF3;
+  --ink:#0E1319; --muted:#5B6670; --line:#E4E8EC; --bg:#F5F7F8; --white:#fff;
+  --amber:#B45309; --amber-wash:#FEF3E2; --red:#DC2626; --red-wash:#FEF2F2;
+  --r:16px; --shadow:0 1px 3px rgba(16,25,20,.06),0 8px 24px rgba(16,25,20,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#E8EDF0;--muted:#95A0A8;--line:#26313A;--bg:#0E1319;--white:#161C22;
+        --green-wash:#0E2A1A;--amber-wash:#2A2010;--red-wash:#2A1414;--shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);}
+}
+:root[data-theme=dark]{--ink:#E8EDF0;--muted:#95A0A8;--line:#26313A;--bg:#0E1319;--white:#161C22;
+        --green-wash:#0E2A1A;--amber-wash:#2A2010;--red-wash:#2A1414;--shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);}
+:root[data-theme=light]{--ink:#0E1319;--muted:#5B6670;--line:#E4E8EC;--bg:#F5F7F8;--white:#fff;
+        --green-wash:#ECFDF3;--amber-wash:#FEF3E2;--red-wash:#FEF2F2;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.55;-webkit-font-smoothing:antialiased;padding:32px 20px 80px}
+.wrap{max-width:1160px;margin:0 auto}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:14.5px;margin-top:6px;max-width:640px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--greenD);
+  background:var(--green-wash);padding:3px 9px;border-radius:99px;margin-bottom:14px}
+
+/* flow map */
+.map{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;margin:22px 0 30px;box-shadow:var(--shadow)}
+.map h2{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:16px;text-transform:uppercase}
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.fnode{flex:1;min-width:150px;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;position:relative;background:var(--white)}
+.fnode.free{border-color:var(--greenD);background:var(--green-wash)}
+.fnode.card{border-color:var(--amber);background:var(--amber-wash)}
+.fnode .k{font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+.fnode.free .k{color:var(--greenD)} .fnode.card .k{color:var(--amber)}
+.fnode .t{font-size:14.5px;font-weight:700;margin:4px 0 3px}
+.fnode .d{font-size:12.5px;color:var(--muted);line-height:1.45}
+.fnode .pill{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px}
+.pill.no{background:var(--greenD);color:#fff} .pill.yes{background:var(--amber);color:#fff}
+.arrow{display:flex;align-items:center;color:var(--muted);font-size:20px;font-weight:300;flex:0 0 auto}
+.branch{display:flex;flex-direction:column;gap:8px;flex:1.4;min-width:190px}
+
+/* screen grid */
+.section-h{font-size:15px;font-weight:800;margin:34px 0 4px;display:flex;align-items:center;gap:9px}
+.section-h .n{width:22px;height:22px;border-radius:99px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;display:grid;place-items:center}
+.section-note{color:var(--muted);font-size:13px;margin-bottom:16px;padding-left:31px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+
+/* modal frame = web dialog */
+.frame{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.frame-cap{font-size:12px;font-weight:700;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--bg)}
+.frame-cap .st{font-weight:800;font-size:10.5px;letter-spacing:.03em;padding:2px 7px;border-radius:5px}
+.st.def{background:var(--green-wash);color:var(--greenD)}
+.st.err{background:var(--red-wash);color:var(--red)}
+.st.alt{background:var(--amber-wash);color:var(--amber)}
+.body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:0}
+
+/* register auth screen */
+.steps{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:18px}
+.steps .on{color:var(--greenD)} .steps i{flex:1;height:1.5px;background:var(--line)}
+.h-lg{font-size:20px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+.p-sub{font-size:13.5px;color:var(--muted);margin-bottom:18px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.inp{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:15px;background:var(--white);color:var(--ink)}
+.inp.err{border-color:var(--red);background:var(--red-wash)}
+.otp{display:flex;gap:8px}
+.otp .cell{flex:1;aspect-ratio:1;border:1.5px solid var(--line);border-radius:10px;display:grid;place-items:center;font-size:20px;font-weight:700;background:var(--white)}
+.otp .cell.f{border-color:var(--greenD)} .otp .cell.e{border-color:var(--red);background:var(--red-wash);color:var(--red)}
+.err-msg{color:var(--red);font-size:12.5px;margin-top:7px;display:flex;gap:5px;align-items:center}
+.btn{width:100%;border:none;border-radius:11px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px}
+.btn.pri{background:var(--greenD);color:#fff}
+.btn.pri:disabled{background:var(--line);color:var(--muted)}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:600;padding:10px}
+.reassure{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--greenD);background:var(--green-wash);border-radius:10px;padding:10px;margin-top:14px}
+.reassure svg{width:15px;height:15px;flex:0 0 auto}
+
+/* game publish modal */
+.covers{display:flex;gap:12px;margin:8px 0 16px;align-items:flex-end}
+.cover{border-radius:12px;background:linear-gradient(135deg,var(--greenL),var(--greenD));position:relative;display:grid;place-items:center;color:#fff;overflow:hidden;height:104px}
+.cover.sq{width:104px;flex:0 0 auto} .cover.wide{flex:1}
+.cover .lb{position:absolute;top:7px;left:8px;font-size:9.5px;font-weight:700;background:rgba(255,255,255,.22);padding:2px 6px;border-radius:5px}
+.cover .gm{font-size:22px} .cover .re{position:absolute;bottom:7px;right:8px;font-size:10px;background:rgba(0,0,0,.3);padding:2px 7px;border-radius:5px}
+.free-note{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--greenD);margin:2px 0 4px}
+.free-note svg{width:15px;height:15px}
+
+/* card step */
+.trust{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+.trow{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink)}
+.trow svg{width:17px;height:17px;color:var(--greenD);flex:0 0 auto;margin-top:1px}
+.cardf{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin:4px 0 2px}
+.cardf .cf-top{padding:11px 13px;font-size:15px;color:var(--muted);border-bottom:1.5px solid var(--line);display:flex;justify-content:space-between}
+.cardf .cf-bot{display:flex}
+.cardf .cf-bot span{flex:1;padding:11px 13px;font-size:15px;color:var(--muted)}
+.cardf .cf-bot span:first-child{border-right:1.5px solid var(--line)}
+.cardf.err{border-color:var(--red)}
+.consent{font-size:11.5px;color:var(--muted);line-height:1.5;margin:10px 0 4px}
+.consent a{color:var(--greenD);text-decoration:underline;cursor:pointer}
+.charge-note{text-align:center;font-size:12.5px;font-weight:700;color:var(--greenD);margin-top:11px}
+.enter-note{text-align:center;font-size:12px;color:var(--muted);margin-top:11px}
+.trial-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--greenD);background:var(--green-wash);padding:5px 11px;border-radius:99px;margin-bottom:12px}
+.decline{background:var(--red-wash);color:var(--red);border-radius:10px;padding:11px 13px;font-size:12.5px;display:flex;gap:8px;align-items:flex-start;margin:12px 0 2px}
+.decline svg{width:16px;height:16px;flex:0 0 auto;margin-top:1px}
+.oncard{display:flex;align-items:center;gap:11px;border:1.5px solid var(--green);background:var(--green-wash);border-radius:11px;padding:13px;margin:6px 0 4px}
+.oncard .brand{width:34px;height:22px;border-radius:4px;background:linear-gradient(135deg,#635BFF,#4B44C7);flex:0 0 auto}
+.oncard .num{font-size:14px;font-weight:700} .oncard .sm{font-size:12px;color:var(--muted)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.legend b{color:var(--ink)}
+.legend .dot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:middle;margin-right:5px}
+.toggle{position:fixed;top:16px;right:16px;background:var(--white);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink);box-shadow:var(--shadow);z-index:10}
+</style>
+</head>
+<body>
+<button class="toggle" onclick="var r=document.documentElement;r.dataset.theme=(r.dataset.theme==='dark'?'light':'dark')">◐ 主题</button>
+<div class="wrap">
+  <span class="tag">设计流水线 · 上线才收卡</span>
+  <h1>账号免费进后台，一旦上线给客人玩就绑卡（游戏 / 活动一样）</h1>
+  <p class="sub">分界线不是"游戏 vs 活动"，是<b>"给自己用 vs 给客人玩"</b>：建游戏/预览/逛后台免费；<b>任何上线</b>（客人能扫码玩＝产生 MAU）才绑卡。对标 Shopify / Squarespace / Wix「免费建站 → 上线才付费」。</p>
+
+  <!-- FLOW MAP -->
+  <div class="map">
+    <h2>流程地图</h2>
+    <div class="flow">
+      <div class="fnode free">
+        <div class="k">访客态 · 工作台</div>
+        <div class="t">建游戏 / 预览</div>
+        <div class="d">落地页扫码就玩、套品牌、预览。已有，不改。</div>
+        <div class="pill no">零账号 · 零卡</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fnode free">
+        <div class="k">① 账号门</div>
+        <div class="t">验证进后台</div>
+        <div class="d">点「上线」触发。手机(国内)/邮箱(海外) OTP，验证即建号进后台。</div>
+        <div class="pill no">不收卡</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fnode card">
+        <div class="k">② 卡门 · 任何上线</div>
+        <div class="t">绑卡并上线</div>
+        <div class="d">游戏或活动，只要客人能扫码玩＝产生 MAU。首次上线绑卡，前 3 个月免费。</div>
+        <div class="pill yes">唯一收卡点</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: ACCOUNT GATE -->
+  <div class="section-h"><span class="n">1</span>账号门（去卡版）</div>
+  <div class="section-note">原 Register 两步（验证→绑卡）改为<b>单步验证</b>；卡步删除。底部只留极轻一行"进入后台免费"——<b>不提"信用卡"</b>（避免粉色大象效应把卡的焦虑勾出来）。</div>
+  <div class="grid">
+    <!-- default -->
+    <div class="frame">
+      <div class="frame-cap"><span>账号门 · 默认</span><span class="st def">DEFAULT</span></div>
+      <div class="body">
+        <div class="steps"><span class="on">验证进入</span></div>
+        <div class="h-lg">验证一下，进入后台</div>
+        <div class="p-sub">用手机号收验证码，验证即进入，免费。</div>
+        <div class="field"><label>手机号</label><div class="inp">+65 · 9123 4567</div></div>
+        <button class="btn pri">发送验证码</button>
+        <div class="enter-note">进入后台免费，随时可退出。</div>
+      </div>
+    </div>
+    <!-- error -->
+    <div class="frame">
+      <div class="frame-cap"><span>账号门 · 验证码错误</span><span class="st err">ERROR</span></div>
+      <div class="body">
+        <div class="steps"><span class="on">验证进入</span></div>
+        <div class="h-lg">输入验证码</div>
+        <div class="p-sub">已发送至 +65 9123 4567 · <a style="color:var(--greenD)">重发</a></div>
+        <div class="otp"><div class="cell e">8</div><div class="cell e">2</div><div class="cell e">1</div><div class="cell e">0</div><div class="cell e">5</div><div class="cell e">9</div></div>
+        <div class="err-msg"><svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>验证码不对，请重新输入或重发</div>
+        <button class="btn pri" disabled>验证并进入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: GAME PUBLISH -->
+  <div class="section-h"><span class="n">2</span>上线确认（游戏 / 活动都一样）</div>
+  <div class="section-note">确认封面（方形+长方形，AI 已生成、可替换）+ 名字（活动再加奖品+时间）。<b>首次上线 → 进卡门</b>（第 3 屏）；已有卡在档 → 直接上线。游戏和活动只是内容不同，收卡逻辑相同。</div>
+  <div class="grid">
+    <div class="frame">
+      <div class="frame-cap"><span>上线游戏 · 确认（首次，无卡）</span><span class="st def">DEFAULT</span></div>
+      <div class="body">
+        <div class="h-lg">上线这个游戏？</div>
+        <div class="p-sub">客人扫码就能玩，随时可下线。</div>
+        <div class="covers">
+          <div class="cover sq"><span class="lb">方形封面</span><span class="gm">🎡</span></div>
+          <div class="cover wide"><span class="lb">长方形封面</span><span class="gm">🎡</span></div>
+        </div>
+        <div class="field"><label>游戏名（可改）</label><div class="inp">幸运大转盘</div></div>
+        <div class="free-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+          客人玩即计入活跃玩家 · 前 3 个月免费
+        </div>
+        <button class="btn pri">下一步：绑卡并上线 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: ACTIVITY CARD GATE -->
+  <div class="section-h"><span class="n">3</span>卡门 · 绑卡步（任何首次上线的唯一收卡点）</div>
+  <div class="section-note">首次上线（游戏或活动）都到这一屏。信任设计整块从原注册步搬来：前3月免费 / 今天不扣 / 7天提醒 / 随时取消 / Stripe。此刻是她主动把游戏摆到客人面前的意图峰值（画像·Sarah）。</div>
+  <div class="grid">
+    <!-- default -->
+    <div class="frame">
+      <div class="frame-cap"><span>上线 · 绑卡（首次，无卡在档）</span><span class="st def">DEFAULT</span></div>
+      <div class="body">
+        <span class="trial-badge">✦ 前 3 个月免费</span>
+        <div class="h-lg">绑张卡，活动就上线</div>
+        <div class="p-sub">免费期后按玩你游戏的人数计费，S$29/月起。</div>
+        <div class="trust">
+          <div class="trow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>快到期时提前 <b>7 天</b>提醒你，大约在 2026 年 10 月 21 日。</span></div>
+          <div class="trow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span><b>随时取消</b>，无绑定、无违约金。</span></div>
+          <div class="trow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>卡号交给 <b>Stripe</b> 加密，我们看不到。</span></div>
+        </div>
+        <div class="cardf">
+          <div class="cf-top"><span>卡号</span><span>💳</span></div>
+          <div class="cf-bot"><span>有效期 MM/YY</span><span>CVC</span></div>
+        </div>
+        <div class="consent">绑卡即表示同意 <a>服务条款</a> 与 <a>隐私政策</a>，并授权 KiX 在免费期结束后按月扣费（S$29/月起，按活跃玩家计）；可随时取消。</div>
+        <button class="btn pri">绑卡并上线</button>
+        <div class="charge-note">今天不会扣款。</div>
+      </div>
+    </div>
+    <!-- card on file -->
+    <div class="frame">
+      <div class="frame-cap"><span>再次上线 · 已有卡在档</span><span class="st alt">CARD ON FILE</span></div>
+      <div class="body">
+        <div class="h-lg">上线并开始？</div>
+        <div class="p-sub">已绑卡，游戏或活动直接上线，仍在免费期内。</div>
+        <div class="oncard">
+          <span class="brand"></span>
+          <div><div class="num">•••• 4242</div><div class="sm">Visa · 到期 08/28</div></div>
+          <a style="margin-left:auto;color:var(--greenD);font-size:12.5px;font-weight:600;cursor:pointer">更换</a>
+        </div>
+        <div class="free-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          免费期剩 2 个月 · 今天不扣款
+        </div>
+        <button class="btn pri">确认上线</button>
+      </div>
+    </div>
+    <!-- decline -->
+    <div class="frame">
+      <div class="frame-cap"><span>上线 · 卡被拒</span><span class="st err">ERROR</span></div>
+      <div class="body">
+        <span class="trial-badge">✦ 前 3 个月免费</span>
+        <div class="h-lg">绑张卡，活动就上线</div>
+        <div class="p-sub">免费期后按玩你游戏的人数计费。</div>
+        <div class="cardf err">
+          <div class="cf-top"><span style="color:var(--ink)">•••• •••• •••• 0002</span><span>💳</span></div>
+          <div class="cf-bot"><span style="color:var(--ink)">08 / 28</span><span style="color:var(--ink)">123</span></div>
+        </div>
+        <div class="decline">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>这张卡被发卡行拒绝了（未扣任何费用）。换一张卡，或联系你的银行。</span>
+        </div>
+        <button class="btn pri">换卡重试</button>
+        <div class="charge-note">今天不会扣款。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--greenD)"></span><b>绿=免费</b>：给自己用（建/预览/逛后台），不收卡</span>
+    <span><span class="dot" style="background:var(--amber)"></span><b>琥珀=卡门</b>：给客人玩（任何上线，游戏或活动）＝产生 MAU，首次绑卡</span>
+    <span>先逛后台＝账号门单独走；第一次上线＝账号→卡背靠背；之后已有卡直接上线。</span>
+  </div>
+</div>
+</body>
+</html>

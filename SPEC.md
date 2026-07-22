@@ -92,7 +92,7 @@
   - ⚠️ `challenge`（旧限时挑战赛，定点开赛+名次区间奖池）**已被 DT 替换、从 main 移除**，完整代码保留在 git 支线 `kc-challenge`（origin 待 push）。渲染卡/编辑器仍向后兼容读 `form:'challenge'` 的历史数据。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?newdt=1`(直达空白每日锦标赛 DT 编辑器) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页) `?legal=tos|privacy|player`(打开法律文本弹窗)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(已废——账号门无卡步；卡门改在任何上线时，用 `?card=0` + 点上线触发) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?newdt=1`(直达空白每日锦标赛 DT 编辑器) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页) `?legal=tos|privacy|player`(打开法律文本弹窗)。
 
 ---
 
@@ -100,8 +100,8 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 
 ### 3.1 注册后置（发布闸门）+ 收卡（2026-07-08；2026-07-14 改「验证即建号」v3，见 §11/§13 + CHANGELOG #93）
 - **未登录全程免注册**：落地页→建游戏全部可用、可玩、可改。
-- 仅当点「上线」时进发布闸门（`register`）。**发布闸门 = 两子步：① 验证身份（`AuthEntry`：按 IP 分区，海外邮箱 OTP+SSO / 国内手机 OTP；验证即建号，删旧的「店名/地区/邮箱码/手机」4 栏表单）② 绑卡（Stripe，收卡放最后一步）**。建号后资料延后到「恭喜+补资料」页（`Welcome`，可跳过），不再前置收店名/国家/手机。
-- **绑卡步信任设计**：条款副标题(前 3 月免费·之后 S$29/月起、只算新生意、老客免费，一次) + 三条不同安心(到期前 7 天提醒 / 随时下线取消 / Stripe 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Stripe hosted fields**，原型 mock。
+- ⭐ **v2（2026-07-22，见 CHANGELOG #103，推翻本节旧"两子步验证→绑卡"）**：**账号门与卡门解耦**。点「上线」触发的注册（`register`）= **只验证建号（`AuthEntry`，按 IP 分区），不收卡**（建游戏第三步存草稿+进后台，canon 不自动上线→非 go-live）。**卡在任何"上线给客人玩"时才收**（游戏/活动首次上线，见 §6.4 第 7 条 + `CardForm`/`CardGate`/`requireCard`）。
+- **卡门信任设计（`CardForm`）**：副标(前 3 月免费·之后 S$29/月起) + 三条安心(到期前 7 天提醒 / 随时下线取消 / Stripe 加密看不到卡号) + 纯动作按钮「绑卡并上线」+ CTA 旁唯一「今天不会扣款」。卡只 tokenize 不扣款（SetupIntent 语义）；生产走 **Stripe hosted fields**，原型 mock。
 - ⚠️ **定价已改版（2026-07-20，见 CHANGELOG #100）——下方 §4.0 旧口径中「walk-in/到店=计费」「梯度 0.49→0.12」「只对新生意/老客免费」「落地页 2 卡」均作废**。现行 = 软件永久免费 + **MAU 用量阶梯 3 档 + Custom**（Starter S$29/≤500 · Growth S$79/≤2,500 · Pro S$199/≤10,000 · Custom=Talk to us）+ **3 月免费试用到期自动转付** + 卡在发布闸门收；落地页 = 单 Start free + 倒色阶等高阶梯；ToS §7.4 用宽表述指向公示价目表。数字待财务核。下方旧描述待逐条清（follow-up）。
 - ⭐ **计费口径 = bible §4.0 CANON（2026-07-09，`mozatyin/kix-platform`）**：软件永久免费；基础费按**品牌 MAU**（本月玩过≥1次的活跃用户）= `max($29/品牌/月 地板, 梯度费)`、**≤12% 增量**、**只算新生意、永不碰老客存量**；免费窗口 = 满 3 个月或活跃用户达 1,000（先到）。梯度 0–1k=$0.49/1k–5k=$0.39/5k–20k=$0.29/20k–100k=$0.19/100k+=$0.12。广告 B = 竞价（非固定 CPA）。**旧「S$3/位新客·pay-per-result·从不收月费」全部作废**，商家端所有文案已迁。
   - ⚠️ **UI 呈现（2026-07-09；已被 2026-07-20 改版取代，见 §Pricing / CHANGELOG #100——落地页 2 卡→阶梯、套餐→3 档只读、后台计费→MAU；下为旧记录）**：① 落地页 Pricing = **2 卡 + 免费→付费时间线**（现在 S$0 → 之后 $0.49/活跃玩家），非并列多档；用户好处排序（免费定制品牌游戏 → 老客免费 → 越多越便宜封顶12% → 多店合并账单）。② **全平台 UI 不强调 $29 月度地板价**（撤下所有显眼处，只在 FAQ 软性披露「很低的月度最低消费」防 bill-shock）。③ FAQ 用 per-active-player 梯度表（边际累进）讲清「越多越便宜」。④ 套餐（我的>套餐）无 freemium 分层，只 **标准版**（含免费窗口→按增长）+ **连锁版**（联系我们）。⑤ 计费单位 UI 暂定 **active player（MAU）**；⚠️ 后台旧「到店=计费」叙事与此的统一为**待办**（Joyce 暂按 active player，后台对齐另起一轮）。
@@ -229,11 +229,11 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
   - 左上「← 上一步」（回 swipe）；主按钮 **`上线`**（未登录 → 注册闸门 `toPublishGate`，符合"注册后置到发布闸门"）。
 - 步骤条**水平居中**于顶栏。「上一步」在 swipe 页移到**左上角**（`alignSelf:flex-start`）。
 
-### 4.3 发布闸门（验证即建号 v3，2026-07-14）
-- **步骤条**：1·验证 → 2·绑卡（`reg-steps`）。
-- **验证步**（`AuthEntry`）：标题按目标命名「最后一步：验证身份就能上线」；按 IP 分区——海外=邮箱输入 + Google/Apple SSO；国内=手机号 +86。验证通过即建号（无 4 栏表单）。底部只放条款声明（**删「已有账号登录」链**）。
-- **绑卡步**：见 §3.1，主按钮「绑卡并上线」（`cardOk` 前禁用=**明显置灰** `not-allowed`，非旧的实心浅绿假激活）。
-- **绑卡后 → 进主页，主页上叠加「恭喜+补资料」遮罩弹窗**（`Welcome`，非独立整页，2026-07-14）：新用户绑卡后先落到主页（`publishDone` 设 `welcomeOpen`），主页压 `.welcome-overlay` 半透明遮罩、上浮弹窗——品牌绿成功徽章 + 「欢迎加入 KiX」+ 店名(漏斗预填)/WhatsApp(选填)/国家(IP 预填)；主「保存并进入」+ 次「稍后再说，先逛逛」+ 点遮罩关闭（**可跳过、非硬闸门**）。调试 `?welcome=1`。
+### 4.3 账号门（验证即建号；⭐ v2 2026-07-22 去卡步，见 CHANGELOG #103）
+- **单步验证**（原 1·验证→2·绑卡的步骤条已删）：`AuthEntry` 验证即建号进后台；标题「登录或注册」，footer「免费进入，随时可退出」（不提"信用卡"）。卡移到任何上线时的卡门（§6.4-7）。
+- **验证步**（`AuthEntry`）：标题「登录或注册」；按 IP 分区——海外=邮箱输入 + Google/Apple SSO；国内=手机号 +86。验证通过即建号（无 4 栏表单）。底部条款声明 +「免费进入，随时可退出」（**删「已有账号登录」链**）。
+- **卡门**（v2 移出账号门，见 §6.4-7）：任何上线未存卡时出 `CardForm`，主按钮「绑卡并上线」（`cardOk` 前禁用=**明显置灰** `not-allowed`）。
+- **验证后 → 进主页，主页上叠加「恭喜+补资料」遮罩弹窗**（`Welcome`，非独立整页，2026-07-14）：新用户验证后先落到主页（`publishDone` 设 `welcomeOpen`），主页压 `.welcome-overlay` 半透明遮罩、上浮弹窗——品牌绿成功徽章 + 「欢迎加入 KiX」+ 店名(漏斗预填)/WhatsApp(选填)/国家(IP 预填)；主「保存并进入」+ 次「稍后再说，先逛逛」+ 点遮罩关闭（**可跳过、非硬闸门**）。调试 `?welcome=1`。
 - 建号默认资料策略（店名派生 / 国家按 IP / 手机可空）见 §13 + 前端方案 §3.2。
 
 ### 4.4 上线成功 Done — ❌ 已废除（2026-06-30 移出流程，2026-07-02 删除代码）
@@ -639,7 +639,7 @@ Player（客人，端侧最小化）
 4. **每人限领**：`per_customer_limit` 在抽券时按 `player_id` 校验。
 5. **召回**：`winback/send` 发的是**召回通知**（push/WhatsApp 提醒回店），不是直接发券。
 6. **计费（2026-07-20 改版，见 CHANGELOG #100）**：软件永久免费；**前 3 个月免费试用 → 到期自动转付**；按 **MAU（当月玩过≥1次的活跃玩家）** 计费（3 档含额度 + 超额，见 §4.0 顶部 / §Pricing）。**旧「按到店核销笔数计费」作废**——到店兑奖现在是成功指标、非计费单位。
-7. **付款方式（card on file，2026-07-06 新增）**：**gate 放「上线活动」，不放注册**（注册保持手机验证码一步，维持激活铁律；卡是漏斗里掉转化最狠的字段之一）。首次上线活动且未存卡 → 在上线确认弹窗内收集卡（**Stripe SetupIntent，usage=off_session，不扣款**、仅 tokenize 存 `customer`）；已存卡则显示 `•••• last4 · 更换`。**上线游戏不收卡**（游戏无奖品/无到店/无计费）。首次 MAU 计费时用该 PaymentMethod 建订阅/PaymentIntent。文案须点明"前 3 个月免费、之后按当月活跃玩家计费、随时可取消"以降恐惧。理由见决策文档 `Desktop/Mozat/kix/[分析] 2026-07-06 商家端-信用卡预存储+下载App入口.md`。
+7. **付款方式（card on file）⭐ v2 2026-07-22（见 CHANGELOG #103，推翻本条旧口径）**：**两道门解耦**——账号门（进后台/建/预览/逛后台）**不收卡**；**卡门＝任何"上线给客人玩"（游戏 or 活动，客人扫码玩＝产生 MAU）首次绑卡**。**「上线游戏不收卡」已废**——纯游戏被客人玩也算 MAU（Joyce 2026-07-22 拍）。任何 go-live 未存卡 → 卡门（`CardForm`：**Stripe SetupIntent，off_session，不扣款**、tokenize 存 `customer`）；已存卡显示 `•••• last4 · 更换`。集中闸门 `requireCard` 覆盖所有上线入口（含活动管理页卡片直接上线）。文案点明"前 3 个月免费、之后按当月活跃玩家计费、随时可取消"。理由见 `Desktop/Mozat/kix/[决策] 2026-07-20-KiX注册收卡时机-三体.md` + `design-runs/上线收卡新流程/`。
 
 ### 10.4 原型变量 → 后端字段映射（给研发对照）
 
