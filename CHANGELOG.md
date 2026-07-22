@@ -6,6 +6,24 @@
 
 ## 2026-07-21
 
+### 102. 每日锦标赛 DT（`form:'dt'`）替换旧限时挑战赛；旧 challenge 存支线 `kc-challenge`（本地已实现，未 push）
+- **背景**：把 KiX App 现有玩法「Daily Tournament」做成**品牌可定制**版上架商家 portal，替代旧 KC 限时挑战赛模板。根因=旧 challenge 是一次性造势、事件内无"再来"钩子；DT 是多日留存引擎（每天回来+累积大奖），直补 KiX「They stay」。设计流水线全程存 `design-runs/DT-品牌锦标赛/`（00方向/01蓝图PRD/02示意图Pencil/03评审清单）。
+- **机制**：品牌设时长(天) → 客人连玩几天 → **每天按当日名次发「每日奖」小奖** → **最后一天按累积总分发「末日大奖」**。奖分金/银/铜/铁四档奖牌皮，商家填**前 N 名**（绝对人数，不用 Top X%，成本可估）+ 奖励；**铁档**可选「前N名」或「所有有分的人」保底。每日/末日两梯独立配置，每日梯可留空=纯累积赛。
+- **`NewActivityPicker`（`journey.jsx`）**：「限时挑战赛」卡 → **「每日锦标赛」卡**（天天来 / 促复购养回头客 / 例：7天·每天前3名赢·累积总分赢大奖）。
+- **DT 编辑器（`ActivityEditor` `form==='dt'` 分支 + 新组件 `DurationEditor`/`MedalLadderEditor`）**：活动名 → **时长**(3/7/14/自定+开始日期，最短2天，绿底锚定=视觉焦点) → **每日奖梯**(绿左带) → **末日大奖梯**(琥珀左带) → 绑定游戏 → 门店/二维码/上线(复用长期活动)。奖牌行=奖牌 pill + 前N名(铁档带模式开关) + 奖励(类型下拉/名称/**上传图片**/券码来源，复用 `PrizeLadderEditor` 奖品块)。「套用示例」`DT_DAILY_SAMPLE`/`DT_GRAND_SAMPLE`；「+加一档奖牌」按金>银>铜>铁补。
+- **成本条**：每日梯主数字「全程最多发 N 份奖」=单日×天数（评审必改：防 ×天数 账单吓退）；末日梯「最后一天发 N 份大奖」+铁档人人有份不计数。现金奖 0 隐去。
+- **游戏面板**：`longrun`/`dt` 共用面板的「新建游戏」从网格内虚线卡 → **右上角绿色按钮**（Joyce 定，`.ladder-head` header）。
+- **活动列表卡**：加 `form:'dt'` 分支（徽章「🏆锦标赛」；draft「N天·M奖·X门店」/live「进行中·N天锦标赛」/offline「X人参赛·Y到店」）。
+- **数据模型**：`{form:'dt', duration:{days,startDate}, dailyLadder:[{medal,count,prize}], grandLadder:[{medal,count?,mode?,prize}], tiebreak}`；`blankDT`/`openAct` 深拷贝 DT 字段。
+- **CSS（`index.html`）**：`.dt-anchor/.dt-key/.dt-days/.dt-day/.dt-daynum/.dt-note/.panel.ml-daily(绿左带)/.ml-grand(琥珀左带)/.dt-when/.medal-pill/.iron-seg/.mlspace/.ml-empty/.ml-note`。
+- **旧 challenge**：整套（`form:'challenge'` + `ScheduleEditor`/`PrizeLadderEditor` 等）从 main 移除入口、代码保留在 git 支线 `kc-challenge`；渲染仍兼容历史 `challenge` 数据。
+- **⚠️ 研发接口**：每日/末日结算、名次、累积、出券、推送=后端；前N名>实际参赛"发到实际名次"、小样本并档规则待产品定。**调试**：`?newdt=1` 直达空白 DT 编辑器。
+- **修复**：初版用了不存在的 `Ic.calendar`/`Ic.info` → React #130 崩溃，改 `Ic.gift`/`Ic.shield`。
+- **评审收紧 pass（设计评审官 + 文字审查官，见 design-runs 03 Round2）**：①成本条去绿→中性底 + 数字字号顶（`.ml-* .cost-bar` 覆盖，绿实底只留时长锚点）；②删跨组件机制复述 + 统一术语（档→奖牌、总冠军→末日大奖）+ 去破折号；③现金档溢出修复（删多余 `mlspace` 双 flex:1；`.pcash input` 锁宽 flex:none 防窄屏截断）。
+- **Joyce 迭代收敛**：①`.dt-cpreview` 玩家预览条**固定只显总奖券个数**「玩家在 App 看到 N 份奖 · D 天」（去掉早前 $奖池/+好礼 分支；C 端 $ 奖池逻辑归 App 团队，见 `Desktop/Mozat/kix/[决策] 2026-07-21-*`）；②**奖牌行券码来源 = 右侧不打眼小链接**`.pcode-mini`「券码：自动 · 上传自有码」（默认系统自动生成，点击才上传自有码文件→显「✓ 文件名 · 改回自动」；2026-07-22 从下拉简化为链接、default auto）；DT 不支持商家为实物填单价——纯膨胀无校验，见决策文档；③图片上传方块去"图"字改纯图标；④时长面板：删空副标「活动跑几天」+ 去「先填这个」eyebrow、底部说明从白框 block 降单行灰字、**补回一处机制说明**「客人连玩几天…每天发『每日奖』…最后一天发『总冠军大奖』」（点名两档、机制只此一处不散落）；⑤**「末日大奖」全局改名「总冠军大奖」**（"末日"=doomsday 负面误译；EN 保持 grand finale）；⑥**每日奖默认折叠**（`MedalLadderEditor` 加 `open` state；daily 空时折叠成「每日奖·可选」一条 + 「添加每日奖」点开即加一档；grand 必填始终展开；`blankDT.dailyLadder`→`[]`）；⑦空态按 grand/daily 分文案（修 bug：总冠军空态曾错显「还没设每日奖」）+ 每日奖空态精简；⑧**删每日/总冠军两条 per-ladder 成本条**（`.cost-bar` 冗余，总数改由底部 `.dt-cpreview` 预览条单一计算，随配置动态）；⑨日期输入 `.dt-anchor .field input[type=date]` 锁平台字体 Plus Jakarta + 14px（原系统字体偏大不一致）、天数 chip 16→15px。
+- **Joyce 迭代 v6**：①**底部改「成本小结」`.dt-costsum`**（替代玩家份数预览）= 「这场活动的成本：N 份奖·现金 S$X·铁牌人人有份·空名次不花钱」+ **可编辑「预估总价值」`activity.estCost`**（系统自动预估=现金精确+非现金档×S$5，商家可覆盖；纯商家成本认知、不上玩家端，与"不让商家填玩家侧奖池值"不冲突）；②**每日奖默认态改回空态解释卡**（去 thin fold bar/`open` state），一句话讲「加了=客人每天回来拿小奖；不加=只拼总冠军大奖」；③空态/加档按钮 `btn primary`→`btn ghost`（去绿，绿只留时长锚点）；④**开始日期 + 预计结束同行**（`.dt-daterow`，系统算 start+天数-1 → 「M 月 D 日结束」，去掉单独占行的 note）；⑤删每日/总冠军 per-ladder 成本条后 `medalStats` 移到底部小结统一算；文案二次精简。
+- **Joyce 迭代 v7（排版收口）**：①券码区拆成 `.pc-status`「券码 系统自动生成」灰字状态 + `.pc-upload`「上传自有码」绿色小 chip 按钮（原「券码：自动·上传自有码」糊一坨、看不出可点）；②时长面板 `.dt-anchor` **去绿改白**（跟其它 panel 统一）；③天数 chip `.dt-day` 扁平化（padding 8/16、font14、border1px）；④「预计结束」**去框**改 `.dt-endtxt` 行内小灰字（原 box 像待填输入）。
+
 ### 101. 落地页再定位：视频版 hero + 地图从 hero 降为「辅助发现步骤流」段（landing-video → main；push）
 - **背景**：#98「进地图」把 hero 做成消费者城市地图。Joyce 复盘后认为**地图不是全新强调功能、应弱化为辅助特征**，顶部与第二屏回归旧的游戏优先叙事，地图移到核心故事之后单列一段。先在本地 `landing-map`（#98 地图完整版快照）/`landing-video`（本变体）两支线 A/B，最终选定视频版设为 main。
 - **Hero（`journey.jsx` Hero + `index.html` `.herovid/.hv-*/.hv-wrap`）**：地图卡 → **16:10 长方形产品视频占位**（播放键 + 右上「实拍演示」live 徽标 + 底部「看 30 秒怎么玩」+ 隐约转盘底 + 两张活动浮层贴角）。副标题改游戏优先「一个你自己品牌的小游戏，客人来玩、赢券，进店消费」。hero 栅格右列加宽 `.94/1.06` 适配横向视频。**⚠️ 研发接真实产品视频**（换掉占位，尺寸位置不变）。

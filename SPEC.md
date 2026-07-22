@@ -86,12 +86,13 @@
 - `lang`：`en`（默认）/ `zh`。
 - `need` / `game` / `brand`：本次建游戏的输入、所选模板、品牌（色/logo/商品图）。
 - `myGames`：商家已创建的游戏数组（纯视觉模板实例）。
-- `activities`：商家的活动数组。两种形态（`form`，2026-07-09）：
+- `activities`：商家的活动数组。两种形态（`form`）：
   - `longrun`（现有，默认）：`{id, name, form:'longrun', outletIds, vouchers, gameId, winScore, status, logo?, stat?}` —— 时间窗+达标赢券。
-  - `challenge`（限时挑战赛）：`{id, name, form:'challenge', outletIds, gameId, status, logo?, schedule:{mode:'oneoff'|'recurring', date?, days?:[0-6], time, roundMins, endDate?}, tiebreak:'earliest', prizeLadder:[{from, to, prize:{type:'cash'|'item'|'discount'|'custom', denom?&count?(cash：商家自定面额×张数，总额=denom×count) | pct?(discount), label?(名称/商品名), img?(配图), codeSource?:'auto'|'custom', codeFile?}}], stat?:{players, walkins, newCust}}` —— 定点开赛+排名定奖（见 §3.9a）。奖品券码=系统自动生成或商家上传自有码（同长期活动 codeSource）。
+  - `dt`（每日锦标赛 Daily Tournament，2026-07-21，替代旧 `challenge`）：`{id, name, form:'dt', outletIds, gameId, status, logo?, tiebreak:'earliest', duration:{days, startDate}, dailyLadder:[…], grandLadder:[…], stat?:{players, walkins, newCust}}` —— 多日累积+每日名次+末日累积大奖（见 §3.9a）。**奖牌梯行** = `{medal:'gold'|'silver'|'bronze'|'iron', count?(前N名), mode?('count'|'all'，仅 iron：'all'=所有有分的人), prize:{…同下券结构}}`。`dailyLadder` 每天按当日名次发（可空=不发每日奖）；`grandLadder` 第 duration.days 天按累积总分发一次。`prize` 结构复用：`{type:'cash'|'item'|'discount'|'custom', denom?&count?(cash：面额×张数) | pct?(discount), label?, img?(上传配图), codeSource?:'auto'|'custom', codeFile?}`。
+  - ⚠️ `challenge`（旧限时挑战赛，定点开赛+名次区间奖池）**已被 DT 替换、从 main 移除**，完整代码保留在 git 支线 `kc-challenge`（origin 待 push）。渲染卡/编辑器仍向后兼容读 `form:'challenge'` 的历史数据。
 - `outlets`：账号下的门店数组（结构化地址）。
 
-URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页) `?legal=tos|privacy|player`(打开法律文本弹窗)。
+URL 调试参数：`?screen=`(landing/describe/building/results/preview/register/login/app) `?sec=`(home/activities/games/redeem/reports/me) `?lang=`(en/zh) `?authed=1` `?edit=1`(进 My games 直接打开游戏工作台) `?editact=1/2/3`(直达第 N 个活动编辑器) `?need=<店名>`(选游戏/编辑页带入店名，派生品牌配色) `?nowalkins=1`(主页 S1"已上线待到店"态) `?rstep=card`(注册直达绑卡子步) `?act=<id>`(直达该活动编辑器) `?pickact=1`(开新建活动形态弹窗) `?newdt=1`(直达空白每日锦标赛 DT 编辑器) `?card=0/1`(强制无卡/有卡；默认 authed=有卡) `?trialleft=N`(试用剩余天数) `?region=cn`(登录页国内手机视图，默认海外邮箱+SSO) `?welcome=1`(主页「恭喜+补资料」遮罩弹窗，配 `?fresh=1` 看空态) `?screen=choose`(账号选择页) `?accounts=multi`(登录后进账号选择页) `?legal=tos|privacy|player`(打开法律文本弹窗)。
 
 ---
 
@@ -159,21 +160,24 @@ URL 调试参数：`?screen=`(landing/describe/building/results/preview/register
 - **游戏状态机（2 态，2026-07-03）**：`draft`（草稿）/ `live`（已上线）。游戏**可脱离活动独立上线**（客人扫码即玩，无奖品/无时限）。`draft` —点「上线」（弹确认弹窗：方形+长方形封面 AI 默认可替换 + 改名）→ `live`；`live` —下线→ `draft`（游戏无时限无奖品，**不设 offline**——下线与草稿同义）。我的游戏页有状态筛选标签（全部/已上线/草稿）。**多选删除（2026-07-13）**：我的游戏页 / 活动列表页顶部「选择」→ 进入选择态，顶部筛选栏变**上下文操作栏**（取消 / 已选 N / 全选·取消全选 / 红色「删除 (N)」），卡片选中 = 绿框 + 右上角✓、卡内操作按钮隐藏；红色删除按 `window.confirm` 二次确认后 `setMyGames/setActivities` 过滤删除。对齐 Gmail/Drive/Photos 批量选择范式；CSS `.selbar/.selbar-n/.selbar-del`。
 - ⚠️ **审核后台 review-admin.html 逻辑已与商家端脱节**（商家端去审批直接上线，审核后台仍展示"待审批"队列）；暂留，待定改「发布后审核」或删除。
 - **活动编辑器**（`ActivityEditor`）：从上到下 = 顶部进度条（修改/审批/上线） → 活动名称 + 活动期限（开始/结束日期） → 奖品券（`VoucherEditor`，**单券、无有效期**） → 选游戏（展示用户已创建的所有游戏大卡片，点选即绑定；卡片下方「选择」「查看详情」按钮；末尾「+ 新建游戏」卡） → **参与门店（`OutletScope`，移到底部、紧挨二维码；已上线时置灰锁定，改门店需先下线）** → 活动二维码（**上线后每门店各一个 + 下载**） → 底部按钮（按状态：提交审核 / 取消提交 / 下线活动 / 修改并重新提交）+ 保存。
-- **游戏选择器**：活动编辑器中展示商家已创建的所有游戏（大卡片 + 玩法动画预览），已绑定的游戏标记「已选」，可点击切换。末尾有「+ 新建游戏」大卡片入口。
+- **游戏选择器**：活动编辑器中展示商家已创建的所有游戏（大卡片 + 玩法动画预览），已绑定的游戏标记「已选」，可点击切换。面板**右上角**绿色「+ 新建游戏」按钮（2026-07-21 从网格内虚线卡改为 header 按钮，`longrun`/`dt` 共用）。
 
-### 3.9a 限时挑战赛（`form:'challenge'`，2026-07-09）⭐
-第二种活动形态，与长期活动并列。品牌**自营**（用自己的品牌游戏、自己的排行榜、自己的档期），非赞助平台夜赛。
-- **建活动第一步**：形态选择弹窗 `NewActivityPicker`（长期活动 vs 限时挑战赛对比卡，含"适合/例"）。选完进对应编辑器。
-- **挑战赛编辑器**（`ActivityEditor` 内按 `form` 分支）：活动名+Logo → **档期 `ScheduleEditor`**（一次性/循环 段选、循环选星期 chips、开赛时间、单局时长、循环截止）→ **阶梯奖池 `PrizeLadderEditor`**（逐档 `名次区间 from–to → 奖品`；奖品四类可配 `cash`(填 S$)/`item`(商品名+图，UI 名「免费商品 / Free item」)/`discount`(填%)/`custom`(自填名+图)；「套用示例奖池」`SAMPLE_LADDER` 一键铺 + 「复制上一档」+ 删；**成本条** = 名额合计 + 现金奖合计 + "按实际排名发、空名次不发不花钱"，**不折现/不加总折扣与商品**，避免臆测总价与损失厌恶）→ **赛制**（同分裁决=先提交者靠前 + 每人每场限一局，均 app 侧保证；**不设最低人数门槛**，来多少人都照常开赛）→ 游戏/门店/二维码/上线复用长期活动那套。
-- **不设人数上限/中奖上限**：开赛前人数不可知、人已参赛无法回头取消；成本由 card-on-file + MAU 计费兜底，无需封顶。
-- **App 侧契约**（Portal 只配置）：倒计时卡 + 开赛推送 → 限时玩一局 → 赛后排行榜 → 名次出券 → 到店兑奖（计入 MAU 计费口径，同长期活动）。排行榜结算/名次出券/推送 = 后端职责。
-- **helper**：`ladderStats(ladder)`→{slots,cash}；`schedSummary`/`nextSession`/`nextLabel`（`nextSession` 对过期一次性返 null → 卡显「已跑完」）。
+### 3.9a 每日锦标赛 DT（`form:'dt'`，2026-07-21，替代旧 challenge）⭐
+第二种活动形态，与长期活动并列。品牌**自营多日锦标赛**：设时长 → 客人连玩几天 → 每天按当日名次发小奖 → 最后一天按累积总分发大奖。**根因**：旧 challenge 是一次性造势、事件内无"再来"钩子；DT 是多日留存引擎，直补 KiX「They stay（成常客）」。设计流水线全程见 `design-runs/DT-品牌锦标赛/`。
+- **建活动第一步**：`NewActivityPicker`（长期活动 vs **每日锦标赛** 对比卡，含"适合/例"）。选完进对应编辑器。
+- **DT 编辑器**（`ActivityEditor` 内 `form==='dt'` 分支）：活动名+Logo → **时长 `DurationEditor`**（该页唯一主动作；天数快选 3/7/14/自定 + 开始日期；**最短 2 天**；绿底锚定=视觉焦点）→ **每日奖梯 `MedalLadderEditor kind="daily"`**（绿左色带）→ **末日大奖梯 `MedalLadderEditor kind="grand"`**（琥珀左色带）→ 绑定游戏 → 门店/二维码/上线复用长期活动那套。
+- **奖牌梯（`MedalLadderEditor`）**：金/银/铜/铁四档奖牌皮（玩家侧显 Gold/Silver/Bronze/Iron Champion）；每档 = **前 N 名（绝对人数，不用 Top X%——成本可估、承接旧 from-to）** + 奖励(类型/名称/上传图/券码来源，复用 `PrizeLadderEditor` 奖品块)。**铁档**多一个模式开关 `前 N 名 / 所有有分的人`（`mode:'count'|'all'`，`all`=保底人人有份、行内灰字提示"人数由到场决定"）。「套用示例」一键铺（`DT_DAILY_SAMPLE`/`DT_GRAND_SAMPLE`）；「+ 加一档奖牌」按 gold>silver>bronze>iron 顺序补下一枚。
+- **成本条（每套独立、命门修正）**：每日梯主数字 = **「全程最多发 N 份奖」= 单日名额 × duration.days**（防店主被 ×天数 账单吓到）；末日梯 = 「最后一天发 N 份大奖」+ 铁档"人人有份"不计数、`hasAll` 单列提示。现金奖为 0 时隐去分句。
+- **每日奖可留空** → DT 退化为纯末日累积锦标赛（编辑器画空态引导）。
+- **App 侧契约**（Portal 只配置）：DT 卡+每日倒计时 → 玩当天分 → **每日 0 点结算当日名次发每日奖** → 累积总分 → **第 duration.days 天结算累积名次发末日大奖** → 名次出券 → 到店兑奖（计 MAU）。结算/名次/累积/推送/出券 = 后端。
+- **⚠️ 后端产品规则（本次仅标注、未做）**：前 N 名 > 实际参赛数时"发到实际名次为止"；小样本并档规则（App 现版"5 人以上才排名"）待定。
+- **helper**：`medalStats(ladder, dayMult)`→{slots,cash,hasAll,slotsTot,cashTot}；`DT_MEDALS`/`DT_MEDAL(k)`。旧 `PrizeLadderEditor`/`ScheduleEditor`/`ladderStats`/`schedSummary` 等挑战赛专用件随 challenge 移到支线 `kc-challenge`（main 仍保留供历史数据兼容渲染）。
 
 ### 3.9b 活动列表卡内容（产品三体收敛，2026-07-09）⭐
 `ActivitiesView` 卡片按 form × status 自适应，原则 = **只放"可动作/可识别"信息；不放不可知前瞻或用户自设已知值；完整分析归数据页**。
 - **footer 动作按状态**：`live` 主按钮 = 「门店二维码」（高频，点→多店弹 `ActivityQRSheet` 逐门店下载、单店直下），⋯ = 复制/在 KiX App 里看/下线；`offline` 主按钮 = 「上线」，⋯ = 复制/二维码/在 KiX App 里看；`draft` = 直接「复制」按钮（无 ⋯）。整卡点击 = 打开编辑器。
 - **longrun 卡**：live/offline 显「X 人到店（含 Y 新客）」+ (**仅 live**) 券库存条「送 X · 剩 Y」(≤15% 橙/=0 红「打开可补券」)；draft 显「X 张券 · Y 门店」。
-- **challenge 卡**：live 显「下一场 · <今天/明天/周五/日期 时间>」(过期=「已跑完」)；offline 显「X 人参赛 · Y 到店」(已发生实测)；draft 显「N 个奖 · X 门店」。徽章「🏆限时赛」。
+- **dt 卡**（2026-07-21）：live 显「进行中 · N 天锦标赛」；offline 显「X 人参赛 · Y 到店兑奖」(有 stat) 否则「已结束」；draft 显「N 天 · M 个奖 · X 门店」（M = 每日名额×天数 + 末日名额）。徽章「🏆锦标赛」。（旧 challenge 卡逻辑随 form 移支线。）
 - **筛选 pill**：全部/修改中/已上线/已下线（零计数隐藏；选中态计数归零→自动重置回"全部"）。徽章文案 `draft` = 「修改中」（与筛选一致，不再叫"草稿"）。
 
 ### 3.10 二维码体系（两种码，用途不同）⭐

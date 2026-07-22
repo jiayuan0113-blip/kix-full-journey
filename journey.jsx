@@ -1667,14 +1667,23 @@ function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, 
             {shown.map(act => {
               const tpl = TEMPLATES.find(t => t.id === act.gameId) || TEMPLATES[0];
               const isChal = (act.form||"longrun") === "challenge";
+              const isDT = (act.form||"longrun") === "dt";
               const ls = isChal ? ladderStats(act.prizeLadder) : null;
+              const dtDays = (act.duration&&act.duration.days)||7;
+              const dtPrizes = isDT ? (medalStats(act.dailyLadder, dtDays).slotsTot + medalStats(act.grandLadder,1).slots) : 0;
               const ran = act.status==="live" || act.status==="offline";
               return (
                 <div key={act.id} className="mgcard clickable" style={sel.has(act.id)?{ outline:"2.5px solid var(--green)", outlineOffset:2 }:undefined} onClick={()=> selMode ? toggleSel(act.id) : onOpen(act)}>
                   <div className="mgart"><GamePreview kind={tpl.kind} colors={tpl.g} /><span className={"mgstatus act-badge " + ACT_STA[act.status||"draft"].cls}>{(act.status||"draft")==="live" && <span className="b"></span>}{P(lang, ACT_STA[act.status||"draft"])}</span>{selMode && <span style={{ position:"absolute", top:10, right:10, zIndex:5, width:26, height:26, borderRadius:"50%", background: sel.has(act.id)?"var(--green)":"rgba(255,255,255,.92)", border: sel.has(act.id)?"none":"2px solid #fff", display:"grid", placeItems:"center", color:"#fff", fontWeight:800, fontSize:15, boxShadow:"0 2px 6px rgba(0,0,0,.25)" }}>{sel.has(act.id)?"✓":""}</span>}{!selMode && <div className="play"><span>{tr(lang,"Open & edit","打开编辑")} <Ic.arrow style={{ width:14, height:14 }}/></span></div>}</div>
                   <div className="mgmeta">
-                    <div className="nm">{isChal && <span className="chal-badge"><Ic.trophy style={{ width:11, height:11 }}/>{tr(lang,"Challenge","限时赛")}</span>}{P(lang, act.name)}</div>
-                    {isChal
+                    <div className="nm">{isChal && <span className="chal-badge"><Ic.trophy style={{ width:11, height:11 }}/>{tr(lang,"Challenge","限时赛")}</span>}{isDT && <span className="chal-badge"><Ic.trophy style={{ width:11, height:11 }}/>{tr(lang,"Tournament","锦标赛")}</span>}{P(lang, act.name)}</div>
+                    {isDT
+                      ? (()=>{ const isLive=act.status==="live", isOff=act.status==="offline"; return <>
+                          {isLive && <div className="chal-when next"><span className="cw-dot"></span>{tr(lang,`Running · ${dtDays}-day tournament`,`进行中 · ${dtDays} 天锦标赛`)}</div>}
+                          {isOff && (act.stat ? <div className="act-stat"><b>{act.stat.players}</b> {tr(lang,"played","人参赛")} · <b>{act.stat.walkins}</b> {tr(lang,"redeemed","到店兑奖")}</div> : <div className="chal-when">{tr(lang,"Ended","已结束")}</div>)}
+                          {!ran && <div className="st">{tr(lang,`${dtDays} days`,`${dtDays} 天`)} · {dtPrizes} {tr(lang,"prizes","个奖")} · {act.outletIds.length} {tr(lang,"outlets","家门店")}</div>}
+                        </>; })()
+                      : isChal
                       ? (()=>{ const isLive=act.status==="live", isOff=act.status==="offline"; const ns=isLive?nextSession(act.schedule):null; return <>
                           <div className={"chal-when"+(isLive&&ns?" next":"")}>{isLive&&ns && <span className="cw-dot"></span>}{isOff ? tr(lang,"Ended","已结束") : isLive ? (ns ? tr(lang,"Next","下一场")+" · "+nextLabel(act.schedule,lang) : tr(lang,"Finished","已跑完")) : schedSummary(act.schedule,lang)}</div>
                           {isOff && act.stat && <div className="act-stat"><b>{act.stat.players}</b> {tr(lang,"played","人参赛")} · <b>{act.stat.walkins}</b> {tr(lang,"redeemed","到店兑奖")}</div>}
@@ -1745,7 +1754,7 @@ function ActivityPublishModal({ activity, cardOnFile, onSaveCard, onClose, onCon
       <div className="pub-modal" style={{ width:440 }} onClick={e=>e.stopPropagation()}>
         <button className="pub-x" onClick={onClose}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <h3>{tr(lang,"Publish activity","上线活动")}</h3>
-        <p className="pub-sub">{(activity.form||"longrun")==="challenge" ? tr(lang,"Once live, customers can join the race and win by rank.","上线后客人即可扫码参赛、按名次赢奖。") : tr(lang,"Once live, customers can play and win vouchers right away.","上线后客人即可扫码玩、赢券进店。")}</p>
+        <p className="pub-sub">{(activity.form||"longrun")==="dt" ? tr(lang,"Once live, customers play daily to climb the leaderboard and win by rank.","上线后客人即可每天扫码冲榜、按名次赢奖。") : (activity.form||"longrun")==="challenge" ? tr(lang,"Once live, customers can join the race and win by rank.","上线后客人即可扫码参赛、按名次赢奖。") : tr(lang,"Once live, customers can play and win vouchers right away.","上线后客人即可扫码玩、赢券进店。")}</p>
         <div className="pub-confirm-name">{P(lang, activity.name)}</div>
         <div className="pub-actions">
           <button className="btn ghost lg" onClick={onClose}>{tr(lang,"Cancel","取消")}</button>
@@ -1846,10 +1855,10 @@ function NewActivityPicker({ onPick, onClose }) {
       line:{en:"Customers play anytime and win a voucher when they hit the target.",zh:"这段时间客人随时扫码玩，达标就赢券。"},
       fit:{en:"Daily traffic · clear stock · new-item trials",zh:"日常引流 · 清库存 · 新品试吃"},
       eg:{en:"Play within 2 weeks, win a voucher, redeem in store",zh:"两周内玩游戏得券，到店兑"} },
-    { k:"challenge", ic:<Ic.trophy/>, tag:{en:"One big push",zh:"冲一波"}, nm:{en:"Timed challenge",zh:"限时挑战赛"},
-      line:{en:"Everyone competes at a set time, and top ranks win the big prizes.",zh:"约定某晚同时开赛，比分数排名，名次高赢大奖。"},
-      fit:{en:"Buzz & hype · festival peaks · headline prizes",zh:"造话题 · 节日冲人气 · 大奖吸睛"},
-      eg:{en:"Fri 21:00, 3-min score race, top 100 win",zh:"本周五 21:00，3 分钟冲分，前 100 名赢奖"} },
+    { k:"dt", ic:<Ic.trophy/>, tag:{en:"Keep them coming",zh:"天天来"}, nm:{en:"Daily tournament",zh:"每日锦标赛"},
+      line:{en:"Players come back every day to climb the leaderboard, winning a small prize daily and a big prize at the end.",zh:"连续几天，客人每天回来冲榜赢小奖，最后一天按总分赢大奖。"},
+      fit:{en:"Repeat visits · build regulars · multi-day buzz",zh:"促复购 · 养回头客 · 多日热度"},
+      eg:{en:"7 days · daily top-3 win · grand prize by total score",zh:"7 天 · 每天前 3 名赢 · 累积总分赢大奖"} },
   ];
   return ReactDOM.createPortal(
     <div className="pub-scrim" onClick={onClose}>
@@ -1936,7 +1945,7 @@ function PrizeLadderEditor({ ladder, setLadder }) {
               <div className="lrank">{tr(lang,"Rank","第")}<input type="number" min="1" value={r.from} onChange={e=>updRank(i,{from:+e.target.value})}/><span>–</span><input type="number" min="1" value={r.to} onChange={e=>updRank(i,{to:+e.target.value})}/>{tr(lang,"","名")}</div>
               <div className="lprize">
                 <select value={r.prize.type} onChange={e=>updPrize(i,{ type:e.target.value })}>{PRIZE_TYPES.map(pt=>(<option key={pt.k} value={pt.k}>{tr(lang,pt.en,pt.zh)}</option>))}</select>
-                {r.prize.type==="cash"     && <div className="pfield pcash">{tr(lang,"S$","每张 S$")}<input type="number" min="0" value={r.prize.denom||""} onChange={e=>updPrize(i,{denom:+e.target.value})}/><span className="pcash-x">×</span><input type="number" min="1" value={r.prize.count||""} onChange={e=>updPrize(i,{count:+e.target.value})}/>{tr(lang,"vouchers","张")}{total>0 && <span className="cash-split">= S${total}</span>}</div>}
+                {r.prize.type==="cash"     && <div className="pfield pcash">{tr(lang,"S$","S$")}<input type="number" min="0" value={r.prize.denom||""} onChange={e=>updPrize(i,{denom:+e.target.value})}/><span className="pcash-x">×</span><input type="number" min="1" value={r.prize.count||""} onChange={e=>updPrize(i,{count:+e.target.value})}/>{tr(lang,"vouchers","张")}{total>0 && <span className="cash-split">= S${total}</span>}</div>}
                 {r.prize.type==="discount" && <div className="pfield"><input type="number" min="0" max="100" value={r.prize.pct||""} onChange={e=>updPrize(i,{pct:+e.target.value})}/>%</div>}
               </div>
               <div className="lact">
@@ -1946,19 +1955,149 @@ function PrizeLadderEditor({ ladder, setLadder }) {
             </div>
             <div className="lrow-detail">
               <input className="pname" placeholder={r.prize.type==="item"?tr(lang,"Item name","商品名称") : r.prize.type==="custom"?tr(lang,"Prize name","奖品名称") : tr(lang,"Prize name (optional)","奖品名称（选填）")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>
-              <label className="pimg" title={tr(lang,"Prize photo","奖品配图")}>{r.prize.img ? <img src={r.prize.img} alt=""/> : <><Ic.image style={{ width:15, height:15 }}/><span>{tr(lang,"Photo","图")}</span></>}<input type="file" accept="image/*" hidden onChange={e=>onImg(i,e)}/></label>
-              <div className="pcode">
-                <select value={r.prize.codeSource||"auto"} onChange={e=>updPrize(i,{ codeSource:e.target.value, ...(e.target.value==="auto"?{codeFile:null}:{}) })}>
-                  <option value="auto">{tr(lang,"Auto-generate codes","系统自动生成券码")}</option>
-                  <option value="custom">{tr(lang,"Upload my codes","上传自有券码")}</option>
-                </select>
-                {r.prize.codeSource==="custom" && <button type="button" className="linkbtn" onClick={()=>pickCodes(i)}>{r.prize.codeFile ? "✓ "+r.prize.codeFile : tr(lang,"Upload QR / code file","上传二维码/码文件")}</button>}
+              <label className="pimg" title={tr(lang,"Prize photo","奖品配图")}>{r.prize.img ? <img src={r.prize.img} alt=""/> : <Ic.image style={{ width:16, height:16 }}/>}<input type="file" accept="image/*" hidden onChange={e=>onImg(i,e)}/></label>
+              <div className="pcode-mini">
+                {(r.prize.codeSource||"auto")!=="custom"
+                  ? <><span className="pc-status">{tr(lang,"Codes: system-generated","券码 系统自动生成")}</span><button type="button" className="pc-upload" onClick={()=>pickCodes(i)}>{tr(lang,"Upload own","上传自有码")}</button></>
+                  : <><span className="pc-status ok">✓ {r.prize.codeFile||tr(lang,"custom codes","自有码")}</span><button type="button" className="pc-upload" onClick={()=>updPrize(i,{ codeSource:"auto", codeFile:null })}>{tr(lang,"Use auto","改回自动")}</button></>}
               </div>
             </div>
           </div>
         ); })}
       </div>
       <button className="btn ghost sm" style={{ marginTop:12 }} onClick={addRow}><span style={{ fontSize:16, lineHeight:1 }}>+</span> {tr(lang,"Add a tier","加一档")}</button>
+    </div>
+  );
+}
+
+/* ===== DT 每日锦标赛(Daily Tournament)：第三种活动形态（替代旧 challenge，旧版存支线 kc-challenge） =====
+   机制：品牌设时长(天) → 客人连玩几天 → 每天按当日名次发「每日奖」→ 最后一天按累积总分发「末日大奖」。
+   奖分金/银/铜/铁四档奖牌，商家填「前 N 名」+ 奖励；铁档可选「前N名」或「所有有分的人」保底。每日/末日两梯独立配置。 */
+const DT_MEDALS = [
+  { k:"gold",   en:"Gold",   zh:"金牌", ic:"🥇", pill:"#FBF0CE", txt:"#7A5800" },
+  { k:"silver", en:"Silver", zh:"银牌", ic:"🥈", pill:"#EAEEF1", txt:"#566571" },
+  { k:"bronze", en:"Bronze", zh:"铜牌", ic:"🥉", pill:"#F2E1D2", txt:"#8A4A1E" },
+  { k:"iron",   en:"Iron",   zh:"铁牌", ic:"🛡️", pill:"#E6E9EC", txt:"#4A555F" },
+];
+const DT_MEDAL = (k) => DT_MEDALS.find(m=>m.k===k) || DT_MEDALS[0];
+// 每日奖示例：金3/银10/铜30（不含铁——每天给全员=券洪水）
+const DT_DAILY_SAMPLE = [
+  { medal:"gold",   count:3,  prize:{ type:"item",     label:"买一送一券" } },
+  { medal:"silver", count:10, prize:{ type:"discount", pct:20 } },
+  { medal:"bronze", count:30, prize:{ type:"item",     label:"免费小食" } },
+];
+// 末日大奖示例：金1/银5/铜20 + 铁档人人有份保底
+const DT_GRAND_SAMPLE = [
+  { medal:"gold",   count:1,  prize:{ type:"custom",   label:"全月免单券" } },
+  { medal:"silver", count:5,  prize:{ type:"cash",     denom:20, count:1 } },
+  { medal:"bronze", count:20, prize:{ type:"item",     label:"买一送一券" } },
+  { medal:"iron",   mode:"all", prize:{ type:"item",   label:"纪念小食券" } },
+];
+// 成本统计：只加总可精确的现金奖 + 名额（铁档"人人有份"不计数）；每日梯 ×天数=全程
+function medalStats(ladder, dayMult) {
+  let slots=0, cash=0, hasAll=false;
+  (ladder||[]).forEach(r => {
+    if (r.medal==="iron" && r.mode==="all") { hasAll=true; return; }
+    const n = Math.max(0, +r.count||0); slots += n;
+    if (r.prize && r.prize.type==="cash") cash += n * cashTotal(r.prize);
+  });
+  const mult = dayMult || 1;
+  return { slots, cash, hasAll, slotsTot:slots*mult, cashTot:cash*mult };
+}
+
+function DurationEditor({ duration, setDuration }) {
+  const lang = useLang();
+  const d = duration || { days:7, startDate:"" };
+  const presets = [3,7,14];
+  const isCustom = !presets.includes(d.days);
+  const set = (patch) => setDuration({ ...d, ...patch });
+  // 预计结束日期 = 开始日期 + (天数-1)
+  const endTxt = (() => {
+    if (!d.startDate) return tr(lang,"end date shows once you pick a start","填开始日期后算出结束日");
+    const e = new Date(d.startDate); e.setDate(e.getDate() + (d.days - 1));
+    return lang==="zh" ? `预计 ${e.getMonth()+1} 月 ${e.getDate()} 日结束` : `Ends ~${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][e.getMonth()]} ${e.getDate()}`;
+  })();
+  return (
+    <div className="panel dt-anchor" style={{ marginTop:16 }}>
+      <div className="ladder-head"><h3 style={{ margin:0 }}>{tr(lang,"Tournament length","锦标赛时长")}</h3></div>
+      <p className="ph-sub" style={{ marginTop:2, marginBottom:2 }}>{tr(lang,"Players compete over several days. Each day's rank wins a daily prize; total score wins the grand finale on the last day.","客人连玩几天冲分：每天按当日名次发「每日奖」，最后一天按累积总分发「总冠军大奖」。")}</p>
+      <div className="dt-days">
+        {presets.map(n => (<button key={n} type="button" className={"dt-day"+(d.days===n?" on":"")} onClick={()=>set({ days:n })}>{tr(lang,`${n} days`,`${n} 天`)}</button>))}
+        <button type="button" className={"dt-day"+(isCustom?" on":"")} onClick={()=>set({ days:isCustom?d.days:21 })}>{tr(lang,"Custom","自定天数")}</button>
+        {isCustom && <input type="number" min="2" className="dt-daynum" value={d.days} onChange={e=>set({ days:Math.max(2, +e.target.value||2) })}/>}
+      </div>
+      <div className="dt-daterow">
+        <div className="field" style={{ margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={d.startDate||""} onChange={e=>set({ startDate:e.target.value })}/></div>
+        <span className={"dt-endtxt"+(d.startDate?"":" ph")}>{endTxt}</span>
+      </div>
+    </div>
+  );
+}
+
+function MedalLadderEditor({ kind, ladder, setLadder, days }) {
+  const lang = useLang();
+  const rows = ladder || [];
+  const grand = kind === "grand";
+  const updPrize = (i,patch) => setLadder(rows.map((r,j)=> j===i ? {...r, prize:{...r.prize, ...patch}} : r));
+  const updRow   = (i,patch) => setLadder(rows.map((r,j)=> j===i ? {...r, ...patch} : r));
+  const usedMedals = rows.map(r=>r.medal);
+  const nextMedal = DT_MEDALS.find(m => !usedMedals.includes(m.k));
+  const addRow = () => { if(!nextMedal) return; const isIron = nextMedal.k==="iron"; setLadder([...rows, isIron ? { medal:"iron", mode:"all", prize:{ type:"item", label:"" } } : { medal:nextMedal.k, count:5, prize:{ type:"discount", pct:10 } }]); };
+  const delRow = (i) => setLadder(rows.filter((_,j)=>j!==i));
+  const useSample = () => setLadder((grand?DT_GRAND_SAMPLE:DT_DAILY_SAMPLE).map(r=>({...r, prize:{...r.prize}})));
+  const onImg = (i,e) => { const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>updPrize(i,{img:rd.result}); rd.readAsDataURL(f); };
+  const pickCodes = (i) => { const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*,.csv,.zip,.xlsx,.pdf"; inp.onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f) updPrize(i,{codeSource:"custom", codeFile:f.name}); }; inp.click(); };
+  return (
+    <div className={"panel "+(grand?"ml-grand":"ml-daily")} style={{ marginTop:16 }}>
+      <div className="ladder-head">
+        <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>{grand?tr(lang,"Grand finale prizes","总冠军大奖"):tr(lang,"Daily prizes","每日奖")}<span className={"dt-when "+(grand?"grand":"daily")}>{grand?tr(lang,"awarded once","最后一天发一次"):tr(lang,"awarded daily","每天发")}</span></h3>
+        <button className="linkbtn" onClick={useSample}>{tr(lang,"Use sample","套用示例")}</button>
+      </div>
+      {rows.length > 0 && <p className="ph-sub">{grand
+        ? tr(lang,"Awarded once on the last day by total score.","最后一天按累积总分发一次。")
+        : tr(lang,"Awarded daily by that day's rank.","每天按当日名次发。")}</p>}
+      {rows.length === 0
+        ? <div className="ml-empty">
+            <div className="ml-empty-ic"><Ic.gift style={{ width:20, height:20 }}/></div>
+            <div className="ml-empty-t">{grand ? tr(lang,"No grand prize yet","还没设总冠军大奖") : tr(lang,"Daily prizes (optional)","每日奖（可选）")}</div>
+            <p>{grand
+              ? tr(lang,"Set at least one tier, awarded on the last day by total score.","至少设一档，最后一天按累积总分发。")
+              : tr(lang,"With daily prizes, each day settles by that day's rank; the final day settles again by cumulative rank.","设了每日奖，每天按当天名次结算一次；最后一天再按累计名次结算总冠军大奖。")}</p>
+            <button className="btn ghost sm" onClick={addRow}><span style={{ fontSize:16, lineHeight:1 }}>+</span> {grand ? tr(lang,"Add a grand prize","加一个总冠军奖") : tr(lang,"Add a daily prize","加一个每日奖")}</button>
+          </div>
+        : <div className="ladder-rows">
+        {rows.map((r,i) => { const m=DT_MEDAL(r.medal); const iron=r.medal==="iron"; const total=cashTotal(r.prize); return (
+          <div className="lcard" key={i}>
+            <div className="lrow-top">
+              <span className="medal-pill" style={{ background:m.pill, color:m.txt }}>{m.ic} {tr(lang,m.en,m.zh)}</span>
+              {iron && <div className="iron-seg">
+                <button type="button" className={r.mode!=="all"?"on":""} onClick={()=>updRow(i,{ mode:"count", count:r.count||10 })}>{tr(lang,"Top N","前 N 名")}</button>
+                <button type="button" className={r.mode==="all"?"on":""} onClick={()=>updRow(i,{ mode:"all" })}>{tr(lang,"Everyone scored","所有有分的人")}</button>
+              </div>}
+              {(!iron || r.mode!=="all") && <div className="lrank mlrank">{tr(lang,"Top","前")}<input type="number" min="1" value={r.count||""} onChange={e=>updRow(i,{count:+e.target.value})}/>{tr(lang,"","名")}</div>}
+              <div className="lprize">
+                <select value={r.prize.type} onChange={e=>updPrize(i,{ type:e.target.value })}>{PRIZE_TYPES.map(pt=>(<option key={pt.k} value={pt.k}>{tr(lang,pt.en,pt.zh)}</option>))}</select>
+                {r.prize.type==="cash"     && <div className="pfield pcash">{tr(lang,"S$","S$")}<input type="number" min="0" value={r.prize.denom||""} onChange={e=>updPrize(i,{denom:+e.target.value})}/><span className="pcash-x">×</span><input type="number" min="1" value={r.prize.count||""} onChange={e=>updPrize(i,{count:+e.target.value})}/>{tr(lang,"vouchers","张")}{total>0 && <span className="cash-split">= S${total}</span>}</div>}
+                {r.prize.type==="discount" && <div className="pfield"><input type="number" min="0" max="100" value={r.prize.pct||""} onChange={e=>updPrize(i,{pct:+e.target.value})}/>%</div>}
+              </div>
+              <div className="lact">
+                <button type="button" title={tr(lang,"Remove","删除")} onClick={()=>delRow(i)}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+              </div>
+            </div>
+            {iron && r.mode==="all" && <div className="ml-note"><Ic.shield style={{ width:13, height:13 }}/>{tr(lang,"Given to everyone who played and scored. Headcount depends on turnout, could be many.","发给所有玩过、拿到分数的人；人数由到场决定，可能很多、成本不固定。")}</div>}
+            <div className="lrow-detail">
+              <input className="pname" placeholder={r.prize.type==="item"?tr(lang,"Item name","商品名称") : r.prize.type==="custom"?tr(lang,"Prize name","奖品名称") : tr(lang,"Prize name (optional)","奖品名称（选填）")} value={r.prize.label||""} onChange={e=>updPrize(i,{label:e.target.value})}/>
+              <label className="pimg" title={tr(lang,"Prize photo","奖品配图")}>{r.prize.img ? <img src={r.prize.img} alt=""/> : <Ic.image style={{ width:16, height:16 }}/>}<input type="file" accept="image/*" hidden onChange={e=>onImg(i,e)}/></label>
+              <div className="pcode-mini">
+                {(r.prize.codeSource||"auto")!=="custom"
+                  ? <><span className="pc-status">{tr(lang,"Codes: system-generated","券码 系统自动生成")}</span><button type="button" className="pc-upload" onClick={()=>pickCodes(i)}>{tr(lang,"Upload own","上传自有码")}</button></>
+                  : <><span className="pc-status ok">✓ {r.prize.codeFile||tr(lang,"custom codes","自有码")}</span><button type="button" className="pc-upload" onClick={()=>updPrize(i,{ codeSource:"auto", codeFile:null })}>{tr(lang,"Use auto","改回自动")}</button></>}
+              </div>
+            </div>
+          </div>
+        ); })}
+      </div>}
+      {rows.length > 0 && nextMedal && <button className="btn ghost sm" style={{ marginTop:12 }} onClick={addRow}><span style={{ fontSize:16, lineHeight:1 }}>+</span> {tr(lang,`Add ${nextMedal.en} tier`,`加一个奖牌`)}</button>}
     </div>
   );
 }
@@ -1971,6 +2110,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
   const [pubOpen, setPubOpen] = useState(new URLSearchParams(location.search).get("pub")==="1");
   const [appQr, setAppQr] = useState(false);
   const isChal = (activity.form||"longrun") === "challenge";
+  const isDT = (activity.form||"longrun") === "dt";
   const onLogo = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => upd("logo", rd.result); rd.readAsDataURL(f); };
   const curTier = (WIN_TIERS.find(t=>t.score===(activity.winScore||1000)) || WIN_TIERS[1]).k;
   // 活动直接上线（无审批）：draft/offline —上线→ live；live —下线→ offline
@@ -1982,27 +2122,37 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
       <div className="panel">
         <h3>{tr(lang,"Activity name","活动名称")}</h3>
         <div className="act-idrow">
-          <div className="field" style={{ flex:1, margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={isChal ? tr(lang,"e.g. Friday Night Challenge","例如：周五夜赛") : tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
+          <div className="field" style={{ flex:1, margin:0 }}><input value={P(lang, activity.name)} onChange={e => upd("name",{en:e.target.value,zh:e.target.value})} placeholder={isDT ? tr(lang,"e.g. 7-Day Score Showdown","例如：七天冲分赛") : isChal ? tr(lang,"e.g. Friday Night Challenge","例如：周五夜赛") : tr(lang,"e.g. Weekend Coffee Promo","例如：周末咖啡促销")} /></div>
           <label className="act-logo-up" title={tr(lang,"Brand logo","品牌 Logo")}>
             {activity.logo ? <img src={activity.logo} alt=""/> : <><Ic.image style={{ width:17, height:17 }}/><span>Logo</span></>}
             <input type="file" accept="image/*" hidden onChange={onLogo}/>
           </label>
         </div>
-        <p className="ph-sub" style={{ marginTop:8 }}>{isChal ? tr(lang,"Brand logo shows on the poster, app card, and leaderboard. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报、App 卡片和排行榜上。留空则沿用所选游戏的品牌。") : tr(lang,"Brand logo shows on the poster and app card. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报和 App 卡片上。留空则沿用所选游戏的品牌。")}</p>
-        {!isChal && <><div style={{ display:"flex", gap:12, marginTop:14 }}>
+        <p className="ph-sub" style={{ marginTop:8 }}>{(isChal||isDT) ? tr(lang,"Brand logo shows on the poster, app card, and leaderboard. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报、App 卡片和排行榜上。留空则沿用所选游戏的品牌。") : tr(lang,"Brand logo shows on the poster and app card. Leave empty to use the game's brand.","品牌 Logo 会显示在活动海报和 App 卡片上。留空则沿用所选游戏的品牌。")}</p>
+        {!isChal && !isDT && <><div style={{ display:"flex", gap:12, marginTop:14 }}>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"Start date","开始日期")}</label><input type="date" value={activity.startDate||""} onChange={e=>upd("startDate",e.target.value)}/></div>
           <div className="field" style={{ flex:1, margin:0 }}><label>{tr(lang,"End date","结束日期")} <span className="opt">{tr(lang,"(optional)","（选填）")}</span></label><input type="date" value={activity.endDate||""} onChange={e=>upd("endDate",e.target.value)}/></div>
         </div>
         <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Leave the end date empty to run indefinitely; take it offline anytime.","结束日期留空 = 长期有效，随时可手动下线。")}</p></>}
       </div>
-      {isChal
+      {isDT
+        ? (()=>{ const _days=(activity.duration&&activity.duration.days)||7; const dS=medalStats(activity.dailyLadder,_days), gS=medalStats(activity.grandLadder,1); const _prizes=dS.slotsTot+gS.slots; const _cash=dS.cashTot+gS.cashTot; const cashSlots=(arr,mult)=>(arr||[]).reduce((s,r)=>s+((r.prize&&r.prize.type==="cash"&&!(r.medal==="iron"&&r.mode==="all"))?(r.count||0)*(mult||1):0),0); const _nonCash=_prizes-(cashSlots(activity.dailyLadder,_days)+cashSlots(activity.grandLadder,1)); const _est=activity.estCost!=null?activity.estCost:(_cash+_nonCash*5); return <>
+            <DurationEditor duration={activity.duration} setDuration={d => upd("duration", d)} />
+            <MedalLadderEditor kind="daily" ladder={activity.dailyLadder} setLadder={l => upd("dailyLadder", l)} days={_days} />
+            <MedalLadderEditor kind="grand" ladder={activity.grandLadder} setLadder={l => upd("grandLadder", l)} days={_days} />
+            <div className="dt-costsum">
+              <div className="cs-txt"><div className="cs-h">{tr(lang,"What this tournament costs you","这场活动的成本")}</div><div className="cs-sub">{_prizes} {tr(lang,"prizes","份奖")}{_cash>0?` · ${tr(lang,"cash","现金")} S$${_cash}`:""}{gS.hasAll?tr(lang," · Iron for all"," · 铁牌人人有份"):""} · {tr(lang,"unclaimed ranks cost nothing","空名次不花钱")}</div></div>
+              <div className="cs-est"><label>{tr(lang,"Est. total value","预估总价值")}</label><div className="cs-inp"><span>S$</span><input type="number" min="0" value={_est} onChange={e=>upd("estCost", e.target.value===""?null:+e.target.value)}/></div></div>
+            </div>
+          </>; })()
+        : isChal
         ? <><ScheduleEditor schedule={activity.schedule} setSchedule={s => upd("schedule", s)} />
             <PrizeLadderEditor ladder={activity.prizeLadder} setLadder={l => upd("prizeLadder", l)} /></>
         : <div className="panel" style={{ marginTop:16 }}>
             <VoucherEditor vouchers={activity.vouchers} setVouchers={vs => upd("vouchers", vs)} showStock />
           </div>}
       <div className="panel" style={{ marginTop:16 }}>
-        <h3>{tr(lang,"Game","游戏")}</h3>
+        <div className="ladder-head"><h3 style={{ margin:0 }}>{tr(lang,"Game","游戏")}</h3><button className="btn primary sm" onClick={onNewGame} style={{ padding:"8px 14px", fontSize:13 }}><span style={{ fontSize:15, lineHeight:1, marginRight:2 }}>+</span> {tr(lang,"New game","新建游戏")}</button></div>
         <p className="ph-sub">{myGames.length ? tr(lang,"Pick which game to use for this activity.","选一个游戏用在这个活动上。") : tr(lang,"You don't have a game yet, create one first.","你还没有游戏，先建一个。")}</p>
         <div className="mygames" style={{ marginTop:16 }}>
           {myGames.map(g => {
@@ -2020,9 +2170,8 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
               </div>
             );
           })}
-          <button className="mgnew" onClick={onNewGame}><span className="plus">+</span>{tr(lang,"New game","新建游戏")}</button>
         </div>
-        {!isChal && <><div className="win-cond">
+        {!isChal && !isDT && <><div className="win-cond">
           <span className="wc-lbl">{tr(lang,"How hard to win","赢奖难度")}</span>
           <div className="wc-tiers">
             {WIN_TIERS.map(t => (
@@ -2034,6 +2183,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
         </div>
         <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Harder = fewer people win and vouchers last longer; easier = more people win and walk in faster. You decide.","越难，赢的人越少、券发得越慢；越易，越多人赢、越快把客人带到店。你自己定。")}</p></>}
         {isChal && <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Players race for a high score in this game, and ranking decides the prizes above.","玩家在这个游戏里冲高分，排名决定上面的奖池。")}</p>}
+        {isDT && <p className="ph-sub" style={{ marginTop:8 }}>{tr(lang,"Players compete for a high score, and the rankings decide the prizes above.","玩家玩这个游戏冲分，排名决定上面的奖。")}</p>}
       </div>
       {isChal && <div className="panel" style={{ marginTop:16 }}>
         <h3>{tr(lang,"Race rules","赛制")}</h3>
@@ -2041,6 +2191,7 @@ function ActivityEditor({ activity, setActivity, outlets, setOutlets, myGames, c
         <p className="ph-sub" style={{ marginTop:6 }}><Ic.shield style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5 }}/>{tr(lang,"One play per person per round, enforced in the KiX app.","每人每场限玩一局，由 KiX App 保证。")}</p>
         <p className="ph-sub" style={{ marginTop:6 }}><Ic.trophy style={{ width:14, height:14, verticalAlign:"-2px", marginRight:5, color:"#C2410C" }}/>{tr(lang,"Prizes are awarded by actual final rank, with no minimum turnout needed.","按最终实际排名发奖，不设最低人数门槛，来多少人都照常开赛。")}</p>
       </div>}
+      {isDT && <p className="ph-sub dt-rules-note">{tr(lang,"Ties broken by earliest submission · awards drop to the actual rank if fewer join.","赛制：同分先到者靠前 · 参赛不足则发到实际名次。")}</p>}
       <div className="panel" style={{ marginTop:16 }}>
         <OutletScope outlets={outlets} gameOutlets={activity.outletIds} setGameOutlets={ids => upd("outletIds", ids)} setOutlets={setOutlets} locked={live} />
         {live && <p className="ph-sub" style={{ marginTop:10 }}>{tr(lang,"To change outlets, take the activity offline first.","要改门店，请先把活动下线。")}</p>}
@@ -2590,17 +2741,18 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   const goMe = () => { setMenuOpen(false); setEditing(null); setEditingAct(null); setSec("me"); };
   const liveAct = activities.find(a => a.status === "live");
   const actVouchers = liveAct ? liveAct.vouchers : DEFAULT_VOUCHERS;
-  const openAct = (act) => { setEditingAct({...act, vouchers:(act.vouchers||[]).map(v=>({...v})), prizeLadder:(act.prizeLadder||[]).map(p=>({...p, prize:{...p.prize}})), schedule:act.schedule?{...act.schedule, days:[...(act.schedule.days||[])]}:undefined }); };
+  const openAct = (act) => { setEditingAct({...act, vouchers:(act.vouchers||[]).map(v=>({...v})), prizeLadder:(act.prizeLadder||[]).map(p=>({...p, prize:{...p.prize}})), schedule:act.schedule?{...act.schedule, days:[...(act.schedule.days||[])]}:undefined, duration:act.duration?{...act.duration}:undefined, dailyLadder:act.dailyLadder?act.dailyLadder.map(r=>({...r, prize:{...r.prize}})):undefined, grandLadder:act.grandLadder?act.grandLadder.map(r=>({...r, prize:{...r.prize}})):undefined }); };
   // 建活动第一步先选形态（长期/挑战赛），再进对应编辑器
   const openNewActPicker = () => { setEditing(null); setEditingAct(null); setPickForm(true); };
   const blankLongrun = () => ({ id:"a"+Date.now(), form:"longrun", name:{en:"New activity",zh:"新活动"}, outletIds:outlets.map(o=>o.id), vouchers:STARTER_VOUCHERS.map(v=>({...v})), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft" });
   const blankChallenge = () => ({ id:"a"+Date.now(), form:"challenge", name:{en:"New challenge",zh:"新挑战赛"}, outletIds:outlets.map(o=>o.id), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft", schedule:{ mode:"oneoff", date:"", days:[5,6,0], time:"21:00", roundMins:3, endDate:"" }, tiebreak:"earliest", prizeLadder:[ { from:1,to:1,prize:{type:"cash",denom:5,count:4} }, { from:2,to:5,prize:{type:"discount",pct:20} }, { from:6,to:20,prize:{type:"discount",pct:10} } ] });
-  const createAct = (form) => { setPickForm(false); openAct(form==="challenge" ? blankChallenge() : blankLongrun()); };
+  const blankDT = () => ({ id:"a"+Date.now(), form:"dt", name:{en:"New tournament",zh:"新锦标赛"}, outletIds:outlets.map(o=>o.id), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft", duration:{ days:7, startDate:"" }, tiebreak:"earliest", dailyLadder:[], grandLadder:DT_GRAND_SAMPLE.map(r=>({...r, prize:{...r.prize}})) });
+  const createAct = (form) => { setPickForm(false); openAct(form==="dt" ? blankDT() : form==="challenge" ? blankChallenge() : blankLongrun()); };
   // 复制现有活动：同游戏/券/门店/赢奖条件，名字加副本，回到 draft、清空运行数据，打开编辑器微调
   const dupAct = (act) => { openAct({ ...act, id:"a"+Date.now(), name:{ en:(act.name.en||"Activity")+" (copy)", zh:(act.name.zh||"活动")+"（副本）" }, vouchers:(act.vouchers||[]).map(v=>({...v, awarded:0, redeemed:0})), stat:undefined, status:"draft" }); };
   const saveAct = () => { setActivities(as => { const idx = as.findIndex(a=>a.id===editingAct.id); return idx>=0 ? as.map((a,i)=>i===idx?editingAct:a) : [...as, editingAct]; }); setEditingAct(null); };
   // 调试：?act=<id> 直接打开该活动编辑器；?pickact=1 打开形态选择弹窗
-  useEffect(() => { const p=new URLSearchParams(location.search); const id=p.get("act"); if(id){ const a=activities.find(x=>x.id===id); if(a) openAct(a); } if(p.get("pickact")==="1") setPickForm(true); }, []);
+  useEffect(() => { const p=new URLSearchParams(location.search); const id=p.get("act"); if(id){ const a=activities.find(x=>x.id===id); if(a) openAct(a); } if(p.get("pickact")==="1") setPickForm(true); if(p.get("newdt")==="1") openAct(blankDT()); }, []);
   const barTitle = inBuild ? tr(lang,"New game","新建游戏")
     : inEdit ? <><button className="iconx sm" onClick={()=>setEditing(null)} style={{ marginRight:10, verticalAlign:"middle" }}><Ic.back/></button>{P(lang,editing.name)}</>
     : inActEdit ? <><button className="iconx sm" onClick={()=>setEditingAct(null)} style={{ marginRight:10, verticalAlign:"middle" }}><Ic.back/></button>{P(lang,editingAct.name)}</>
