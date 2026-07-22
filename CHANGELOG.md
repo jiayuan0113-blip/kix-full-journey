@@ -6,6 +6,18 @@
 
 ## 2026-07-22
 
+### 105. 主页多活动/多游戏聚合 + A2 数据露出 + 聚合标题直达「已上线」
+- **背景**：#104 的状态机用 `activities.find(live)` 只取第一个 live 活动，多活动/多游戏时露馅。Joyce 要求想清楚多个活动和游戏的情况。
+- **两阶段模型**（想清楚后）：**开业跑道（上线第一个活动，单活动 + 进度条 C/B/A1）→ 运营台（在跑，业务级聚合，任意数量活动/游戏，无进度条）**。你不会同时 onboard 两个；A2 归进运营台（1 活动 + 0 到店的特例）。
+  - `liveActs = activities.filter(live)`（不再 find 第一个）；`operating = nAct≥1 && (qrDownloaded || hasWalkins || nAct≥2)`。
+  - 运营台 hero 聚合：**1 活动→活动名 + 券剩余**；**≥2 活动→「N 个活动进行中」+ 今日总玩/总到店（跨活动聚合，不显单个券剩余）**。券提醒跨所有 live 活动挑最紧张。
+  - B（游戏 live 无活动）同样聚合：1 游戏→名 / **≥2 游戏→「N 个游戏在跑」**。
+  - 运营台 `hasWalkins` 切换：有到店→兑奖流水 FEED + 召回卡；还没到店→游玩动态 feed（有人玩了/新玩家扫码/连玩3局）+ 数据条「N 上线以来玩过 → 看完整数据和趋势」（→ 数据页=历史看板）。
+- **聚合标题「N 个活动进行中」点击 → 活动页并预选「已上线」分类**：`ActivitiesView` 新增 `initFilt` prop；`AppShell` 加 `actFilt` state + `goActs(f)` 助手；`HomeView` 聚合标题走新 prop `onGoActivitiesLive`（=`goActs("live")`），单活动标题仍 `onGoActivity`（开该活动编辑器）。
+- **影响文件**：`journey.jsx`（`HomeView` 重构为两阶段聚合 + `HomeRunway`；`ActivitiesView` 收 `initFilt`；`AppShell` 加 `actFilt`/`goActs`，`HomeView`/`ActivitiesView` 透传）。
+- **调试**：`?oneact=1`（截断到 1 个 live 活动，看 A1/A2 单活动态）；配合 `?nowalkins=1`/`?qr=1`/`?fresh=1`/`?nogame=1`/`?lang=zh`。
+- **⚠️ 研发**：运营台聚合口径 = 跨所有 live 活动/游戏的当日总数；「N 个活动进行中」点击进活动列表须携带 live 筛选；游玩动态 feed 需真实 play 事件源（demo 用占位）。
+
 ### 104. 主页空态整体重设计：「开业跑道」五态（C/B/A1/A2/营业态）+ HomeRunway 进度条
 - **背景/决策**：主页非营业态从旧「单 CTA hero + 竖直上手清单（游戏已创建/上线活动/打印码/首客到店）」重构为**「开业跑道」模型**。设计流水线全程 `design-runs/首页空态重设计/`（00方向/03评审清单/02示意图）；经设计评审官 + 产品三体 + 文字审查官三方评审 + Joyce 多轮迭代。
 - **核心原则（Joyce 拍板）**：① **home 常驻主动作 = 扫码兑奖（收银台）**，不是数据展示、不是一次性下载；② **下载门店码 = 一次性 bootstrap**，下载后 home 永久锚定"扫码兑奖"；③ **免费试用信息只在上线前（C 态）**，已上线态不显；④ 一个页面一个动作，次动作（只上线游戏）放 hero 下方引导条、不与主 CTA 并列打架。

@@ -1253,61 +1253,79 @@ function HomeRunway({ cur, lang }) {
     </div>
   );
 }
-function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewAct, onRedeem, onGoActivity, onGoActivities, onGoGames, onGoReports, outlets = OUTLETS }) {
+function HomeView({ game, brand, onShare, onRecall, activities, liveGames, onNewAct, onRedeem, onGoActivity, onGoActivities, onGoActivitiesLive, onGoGames, onGoReports, outlets = OUTLETS }) {
   const lang = useLang();
   const [recalled, setRecalled] = useState(false);
   const [scanOk, setScanOk] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [qrDownloaded, setQrDownloaded] = useState(new URLSearchParams(location.search).get("qr")==="1"); // A1↔A2 分水岭：门店码是否已下载（一次性）
   const doScan = () => { setScanning(true); setTimeout(() => { setScanning(false); setScanOk(true); setTimeout(() => setScanOk(false), 2800); }, 1700); };
-  const liveAct = activities && activities.find(a => a.status === "live");
-  const hasActs = activities && activities.length > 0;
-  const M = DEMO_METRICS;
-  // 分水岭：有真实到店(redeemed≥1) → 营业态 S2；否则启动态 S1。?nowalkins=1 演示"已上线待到店"
   const _p = new URLSearchParams(location.search);
+  const _noGame = _p.get("nogame") === "1";   // 调试：C 全空态（无 live 游戏）
+  const M = DEMO_METRICS;
+  // ⭐ 多活动/多游戏聚合：不再只取第一个 live
+  const _allLive = (activities||[]).filter(a => a.status === "live");
+  const liveActs = _p.get("oneact")==="1" ? _allLive.slice(0,1) : _allLive;   // 调试：截断到 1 个 live 活动，看 A1/A2 单活动态
+  const liveGamesArr = _noGame ? [] : (liveGames || []);
+  const nAct = liveActs.length, nGame = liveGamesArr.length;
+  const hasActs = activities && activities.length > 0;
   const _nw = _p.get("nowalkins") === "1";
   const walkins = _nw ? 0 : M.walkins;
-  const hasWalkins = !!liveAct && walkins > 0;
-  // 试用剩余天数（?trialleft=N 演示临近到期）；≤14 天亮预警 + 到期费率
+  const hasWalkins = nAct >= 1 && walkins > 0;
   const trialLeft = +_p.get("trialleft") || 47;
   const trialEnding = trialLeft <= 14;
-  // 券快发完提醒（发完即停=静默失败）：live 活动中券剩余 ≤15% 的
-  const lowStock = (activities||[]).filter(a=>a.status==="live").map(a=>{ const v=a.vouchers&&a.vouchers[0]; const qty=(v&&+v.qty)||0, rem=Math.max(0,qty-((v&&+v.awarded)||0)); return { a, qty, rem, pct: qty?rem/qty:1 }; }).filter(x=>x.qty>0 && x.pct<=0.15).sort((p,q)=>p.rem-q.rem);
-  // 当前 live 活动的券剩余（hero 第三个生命体征）
-  const _lv = liveAct && liveAct.vouchers && liveAct.vouchers[0];
+  // ⭐ 两阶段：开业跑道(上线第一个活动，单活动+进度条) → 运营台(在跑，业务级聚合，任意数量活动/游戏，无进度条)
+  //   运营台触发：门店码已下载 / 有到店兑奖 / ≥2 个 live 活动（都已过"上线第一个活动"的开业跑道）
+  const operating = nAct >= 1 && (qrDownloaded || hasWalkins || nAct >= 2);
+  const oneAct = nAct === 1 ? liveActs[0] : null;
+  // 券提醒：跨所有 live 活动，显最紧张的一个
+  const lowStock = liveActs.map(a=>{ const v=a.vouchers&&a.vouchers[0]; const qty=(v&&+v.qty)||0, rem=Math.max(0,qty-((v&&+v.awarded)||0)); return { a, qty, rem, pct: qty?rem/qty:1 }; }).filter(x=>x.qty>0 && x.pct<=0.15).sort((p,q)=>p.rem-q.rem);
+  const _lv = oneAct && oneAct.vouchers && oneAct.vouchers[0];   // 仅单活动在 hero 显券剩余（多活动歧义，交给券提醒条）
   const vQty = (_lv&&+_lv.qty)||0, vRem = _lv ? Math.max(0, vQty-((+_lv.awarded)||0)) : 0, vLow = vQty>0 && vRem/vQty<=0.15;
-  // 非营业态分水岭：liveAct→(qr已下?A2收银台:A1下载码) / liveGame→B / 都无→C 全空态
-  const _noGame = _p.get("nogame") === "1";   // 调试：演示 C 全空态（无 live 游戏）
-  const lg = _noGame ? null : liveGame;
+  const actTitle = oneAct ? P(lang, oneAct.name) : tr(lang, `${nAct} activities running`, `${nAct} 个活动进行中`);
+  const gameTitle = nGame === 1 ? P(lang, liveGamesArr[0].name) : tr(lang, `${nGame} games running`, `${nGame} 个游戏在跑`);
+  const playsFeed = [
+    { ic:"gamepad", bg:"#EEF2FF", c:"#4F46E5", t:tr(lang,"Someone played your game","有人玩了你的游戏"), z:tr(lang,"just now","刚刚") },
+    { ic:"star", bg:"#FFF7E8", c:"#F59E0B", t:tr(lang,"A new player scanned in","新玩家扫码进来"), z:tr(lang,"2 min ago","2 分钟前") },
+    { ic:"gamepad", bg:"#EEF2FF", c:"#4F46E5", t:tr(lang,"Someone played 3 rounds","有人连玩了 3 局"), z:tr(lang,"6 min ago","6 分钟前") },
+    { ic:"gamepad", bg:"#EEF2FF", c:"#4F46E5", t:tr(lang,"Someone played your game","有人玩了你的游戏"), z:tr(lang,"12 min ago","12 分钟前") },
+  ];
   return (
     <div className="app-body">
-      {hasWalkins ? (
-        /* ===== S2 营业态：收银台 + 成本一瞥 + 最近 + 召回（无上手清单，已毕业）===== */
+      {operating ? (
+        /* ===== 运营台（业务级聚合，任意数量活动/游戏，无跑道；hasWalkins 切换 兑奖流水+召回 / 游玩动态）===== */
         <>
           <div className="home-hero">
             <div style={{ flex:1 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
-                <span className="hl-live"><span className="b"></span>LIVE</span>
-                <h3 style={{ margin:0, cursor:"pointer" }} onClick={onGoActivity}>{P(lang, liveAct.name)} · {tr(lang,"up and running","进行中")} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
+                <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
+                <h3 style={{ margin:0, cursor:"pointer" }} onClick={oneAct?onGoActivity:onGoActivitiesLive}>{actTitle}{oneAct ? " · "+tr(lang,"up and running","进行中") : ""} <Ic.arrow style={{ width:13, height:13, opacity:.45 }}/></h3>
               </div>
               <div className="live3">
                 <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">{M.today.redeemed}</div><div className="l">{tr(lang,"redeemed in store","到店兑奖")}</div></div>
-                {vQty>0 && <div className="lc"><div className={"n"+(vLow?" low":"")}>{vRem}</div><div className="l">{tr(lang,"vouchers left","券剩余")}</div></div>}
+                <div className="lc"><div className="n">{hasWalkins ? M.today.redeemed : 0}</div><div className="l">{tr(lang,"redeemed in store","到店兑奖")}</div></div>
+                {oneAct && vQty>0 && <div className="lc"><div className={"n"+(vLow?" low":"")}>{vRem}</div><div className="l">{tr(lang,"vouchers left","券剩余")}</div></div>}
               </div>
             </div>
             <button className="btn primary" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
               <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码兑奖")}
             </button>
           </div>
-          {/* 成本一瞥：进门第一眼看到花多少（P3）*/}
-          <button className={"home-cost"+(trialEnding?" ending":"")} onClick={onGoReports}>
-            <span className="hc-cell"><b>{M.newCust}</b> {tr(lang,"new customers this month","本月新客")}</span>
-            <span className="hc-trial">{trialEnding
-              ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then billed as you grow`,`试用还剩 ${trialLeft} 天 · 到期后按增长计费`)}</>
-              : <>{<Ic.spark style={{ width:13, height:13 }}/>} {tr(lang,`First 3 months free · ${trialLeft} days left · now S$0`,`首 3 个月免费 · 还剩 ${trialLeft} 天 · 现在 S$0`)}</>}</span>
-            <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
-          </button>
+          {hasWalkins ? (
+            <button className={"home-cost"+(trialEnding?" ending":"")} onClick={onGoReports}>
+              <span className="hc-cell"><b>{M.newCust}</b> {tr(lang,"new customers this month","本月新客")}</span>
+              <span className="hc-trial">{trialEnding
+                ? <>{<Ic.bell style={{ width:13, height:13 }}/>} {tr(lang,`Free trial ends in ${trialLeft} days · then billed as you grow`,`试用还剩 ${trialLeft} 天 · 到期后按增长计费`)}</>
+                : <>{<Ic.spark style={{ width:13, height:13 }}/>} {tr(lang,`First 3 months free · ${trialLeft} days left · now S$0`,`首 3 个月免费 · 还剩 ${trialLeft} 天 · 现在 S$0`)}</>}</span>
+              <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
+            </button>
+          ) : (
+            <button className="home-cost" onClick={onGoReports}>
+              <span className="hc-cell"><b>{M.plays}</b> {tr(lang,"plays since launch","上线以来玩过")}</span>
+              <span className="hc-trial"><Ic.chart style={{ width:13, height:13 }}/> {tr(lang,"See full data & trends","看完整数据和趋势")}</span>
+              <Ic.arrow style={{ width:14, height:14, marginLeft:"auto", opacity:.5 }}/>
+            </button>
+          )}
           {lowStock.length>0 && <button className={"lowstock"+(lowStock[0].rem===0?" out":"")} onClick={onGoActivities}>
             <span className="ls-ic"><Ic.bell style={{ width:17, height:17 }}/></span>
             <span className="ls-t">{lowStock[0].rem===0
@@ -1317,55 +1335,40 @@ function HomeView({ game, brand, onShare, onRecall, activities, liveGame, onNewA
           </button>}
           <div className="panel" style={{ marginTop:16 }}>
             <h4 style={{ fontSize:16, fontWeight:800, margin:"0 0 12px" }}>{tr(lang,"Recent","最近")}</h4>
-            {FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))}
+            {hasWalkins
+              ? FEED.slice(0,4).map((f, i) => (<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft"><b>{P(lang,f.who)}</b> {P(lang,f.act)}</span><span className="fz">{P(lang,f.z)}</span></div>))
+              : playsFeed.map((f,i)=>(<div key={i} className="feed-row"><span className="fi" style={{ background:f.bg, color:f.c }}>{Ic[f.ic] && Ic[f.ic]()}</span><span className="ft">{f.t}</span><span className="fz">{f.z}</span></div>))}
           </div>
-          <div className={"recall" + (recalled ? " ok" : "")}>
+          {hasWalkins && <div className={"recall" + (recalled ? " ok" : "")}>
             <span className="ri">{recalled ? <Ic.check/> : <Ic.bell/>}</span>
             {recalled
               ? <div className="rt"><b>{tr(lang,"Win-back reminder sent to 18 regulars","召回通知已发送给 18 位老顾客")}</b><p>{tr(lang,"They've been nudged to come back; you'll see them walk in soon.","已经提醒他们回店了，等他们回来玩、来兑奖就行。")}</p></div>
               : <><div className="rt"><b>{tr(lang,"18 regulars haven't visited in 30+ days","有 18 位老顾客，超过 30 天没来了")}</b><p>{tr(lang,"Send a one-tap win-back reminder; it's your easiest repeat business.","一键发个召回通知把他们请回来，这是最容易赢回的复购。")}</p></div>
                 <button className="btn primary lg" onClick={()=>setRecalled(true)}>{tr(lang,"Send reminder to 18","通知召回 18 人")}</button></>}
-          </div>
+          </div>}
         </>
-      ) : liveAct ? (
-        qrDownloaded ? (
-          /* ===== A2 收银台待客：门店码已下载、还没到店兑奖 → home 永久锚定"扫码兑奖"（无跑道）===== */
-          <div className="home-hero">
-            <div style={{ flex:1 }}>
-              <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
-              <h3 style={{ marginTop:12 }}>{P(lang, liveAct.name)}</h3>
-              <div className="live3" style={{ marginTop:16 }}>
-                <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
-                <div className="lc"><div className="n">{walkins}</div><div className="l">{tr(lang,"redeemed in store","到店兑奖")}</div></div>
-              </div>
-            </div>
-            <button className="btn primary lg" style={{ alignSelf:"center", marginLeft:20, flexShrink:0, display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={onRedeem}>
-              <Ic.target style={{ width:16, height:16 }}/>{tr(lang,"Scan to redeem","扫码兑奖")}
-            </button>
-          </div>
-        ) : (
-          /* ===== A1 活动刚上线：先下载门店码（一次性 bootstrap）===== */
-          <>
-            <div className="home-hero">
-              <div style={{ flex:1 }}>
-                <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
-                <h3 style={{ marginTop:12 }}>{P(lang, liveAct.name)}</h3>
-              </div>
-              <div className="hh-action">
-                <button className="btn primary lg" onClick={()=>setQrDownloaded(true)}>{tr(lang,"Download outlet QR","下载门店二维码")}</button>
-                <span className="hmicro">{tr(lang,"One per outlet · post where customers can scan","每家店一张，贴在客人扫得到处")}</span>
-              </div>
-            </div>
-            <HomeRunway cur={2} lang={lang}/>
-          </>
-        )
-      ) : lg ? (
-        /* ===== B 游戏已上线、还没活动：庆祝在跑 + 引导加活动 ===== */
+      ) : nAct === 1 ? (
+        /* ===== A1 活动刚上线（恰 1 个 live 活动、门店码未下载、无到店）：先下载门店码（一次性 bootstrap）===== */
         <>
           <div className="home-hero">
             <div style={{ flex:1 }}>
               <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
-              <h3 style={{ marginTop:12 }}>{P(lang, lg.name)}</h3>
+              <h3 style={{ marginTop:12 }}>{P(lang, oneAct.name)}</h3>
+            </div>
+            <div className="hh-action">
+              <button className="btn primary lg" onClick={()=>setQrDownloaded(true)}>{tr(lang,"Download outlet QR","下载门店二维码")}</button>
+              <span className="hmicro">{tr(lang,"One per outlet · post where customers can scan","每家店一张，贴在客人扫得到处")}</span>
+            </div>
+          </div>
+          <HomeRunway cur={2} lang={lang}/>
+        </>
+      ) : nGame >= 1 ? (
+        /* ===== B 游戏已上线、还没活动（支持多游戏聚合）：庆祝在跑 + 引导加活动 ===== */
+        <>
+          <div className="home-hero">
+            <div style={{ flex:1 }}>
+              <span className="hl-live"><span className="b"></span>{tr(lang,"Live","进行中")}</span>
+              <h3 style={{ marginTop:12, cursor: nGame>1?"pointer":"default" }} onClick={nGame>1?onGoGames:undefined}>{gameTitle}</h3>
               <div className="live3" style={{ marginTop:16 }}>
                 <div className="lc"><div className="n">{M.today.plays}</div><div className="l">{tr(lang,"played today","今天玩了")}</div></div>
               </div>
@@ -1701,9 +1704,9 @@ function ActivityQRSheet({ act, outlets, lang, onDownload, onClose }) {
     document.body
   );
 }
-function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, onSetStatus, onDelete }) {
+function ActivitiesView({ activities, outlets = [], onNew, onOpen, onDuplicate, onSetStatus, onDelete, initFilt }) {
   const lang = useLang();
-  const [filt, setFilt] = useState("all");
+  const [filt, setFilt] = useState(initFilt || "all");
   const [selMode, setSelMode] = useState(false);
   const [sel, setSel] = useState(()=>new Set());
   const toggleSel = (id)=>setSel(s=>{ const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; });
@@ -2853,6 +2856,8 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
   const actVouchers = liveAct ? liveAct.vouchers : DEFAULT_VOUCHERS;
   const openAct = (act) => { setEditingAct({...act, vouchers:(act.vouchers||[]).map(v=>({...v})), prizeLadder:(act.prizeLadder||[]).map(p=>({...p, prize:{...p.prize}})), schedule:act.schedule?{...act.schedule, days:[...(act.schedule.days||[])]}:undefined, duration:act.duration?{...act.duration}:undefined, dailyLadder:act.dailyLadder?act.dailyLadder.map(r=>({...r, prize:{...r.prize}})):undefined, grandLadder:act.grandLadder?act.grandLadder.map(r=>({...r, prize:{...r.prize}})):undefined }); };
   // 建活动第一步先选形态（长期/挑战赛），再进对应编辑器
+  const [actFilt, setActFilt] = useState("all");   // 进活动页时的初始筛选（主页聚合标题→已上线）
+  const goActs = (f="all") => { setActFilt(f); setSec("activities"); };
   const openNewActPicker = () => { setEditing(null); setEditingAct(null); setPickForm(true); };
   const blankLongrun = () => ({ id:"a"+Date.now(), form:"longrun", name:{en:"New activity",zh:"新活动"}, outletIds:outlets.map(o=>o.id), vouchers:STARTER_VOUCHERS.map(v=>({...v})), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft" });
   const blankChallenge = () => ({ id:"a"+Date.now(), form:"challenge", name:{en:"New challenge",zh:"新挑战赛"}, outletIds:outlets.map(o=>o.id), gameId:(myGames[0]||TEMPLATES[0]).id, status:"draft", schedule:{ mode:"oneoff", date:"", days:[5,6,0], time:"21:00", roundMins:3, endDate:"" }, tiebreak:"earliest", prizeLadder:[ { from:1,to:1,prize:{type:"cash",denom:5,count:4} }, { from:2,to:5,prize:{type:"discount",pct:20} }, { from:6,to:20,prize:{type:"discount",pct:10} } ] });
@@ -2911,8 +2916,8 @@ function AppShell({ game, setGame, brand, setBrand, lang, setLang, sec, setSec, 
         {inBuild ? <div className="stage" style={{ padding:"22px 28px 60px" }}>{builder}</div>
           : inEdit ? <Workspace game={editing} brand={brand} setBrand={setBrand} setName={(nm)=>{ const id=editing.id; setEditing(g=>({...g, name:{en:nm, zh:nm}})); setMyGames(gs=>gs.map(x=>x.id===id?{...x, name:{en:nm, zh:nm}}:x)); }} />
           : inActEdit ? <ActivityEditor activity={editingAct} setActivity={setEditingAct} outlets={outlets} setOutlets={setOutlets} myGames={myGames} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} onNewGame={()=>{ setEditingAct(null); onNewGame(); }} onViewGame={(g)=>{ setEditing(g); }} onBack={saveAct} />
-          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGame={myGames.find(g=>g.status==="live")} onNewAct={openNewActPicker} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { setSec("activities"); } }} onGoActivities={()=>setSec("activities")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
-          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : requireCard(()=>setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a)))} onDelete={(ids)=>setActivities(list=>list.filter(a=>!ids.includes(a.id)))} />
+          : sec === "home" ? <HomeView game={game} brand={brand} onShare={()=>setSec("redeem")} onRecall={()=>setSec("reports")} activities={activities} liveGames={myGames.filter(g=>g.status==="live")} onNewAct={openNewActPicker} onRedeem={()=>setSec("redeem")} onGoActivity={()=>{ const first = activities[0]; if (first) openAct(first); else { goActs("all"); } }} onGoActivities={()=>goActs("all")} onGoActivitiesLive={()=>goActs("live")} onGoGames={()=>setSec("games")} onGoReports={()=>setSec("reports")} outlets={outlets} />
+          : sec === "activities" ? <ActivitiesView activities={activities} outlets={outlets} initFilt={actFilt} onNew={openNewActPicker} onOpen={openAct} onDuplicate={dupAct} onSetStatus={(act,st)=> st==="offline" ? takeOffline(act) : requireCard(()=>setActivities(list=>list.map(a=>a.id===act.id?{...a,status:st}:a)))} onDelete={(ids)=>setActivities(list=>list.filter(a=>!ids.includes(a.id)))} />
           : sec === "games" ? <MyGamesView myGames={myGames} cardOnFile={cardOnFile} onSaveCard={setCardOnFile} onNew={onNewGame} onOpen={(g)=>setEditing(g)} onPublish={(g,patch)=>setMyGames(gs=>gs.map(x=>x.id===g.id?{...x, ...patch, status:"live"}:x))} onOffline={takeGameOffline} onDelete={(ids)=>setMyGames(gs=>gs.filter(g=>!ids.includes(g.id)))} />
           : sec === "redeem" ? <RedeemView vouchers={actVouchers} onReport={()=>setSec("reports")} hasLive={!!liveAct} hasActs={activities.length>0} onNewAct={openNewActPicker} onGoActivities={()=>setSec("activities")} liveName={liveAct ? P(lang, liveAct.name) : ""} outlets={outlets} />
           : sec === "me" ? <MeView brand={brand} setBrand={setBrand} outlets={outlets} setOutlets={setOutlets} cardOnFile={cardOnFile} setCardOnFile={setCardOnFile} />
