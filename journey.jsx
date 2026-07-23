@@ -425,18 +425,18 @@ function WhyGame() {
 function FairDeal() {
   const lang = useLang();
   const C = [
-    { ic:Ic.pin, h:tr(lang,"They play their way in","让路过的人，玩着就进店"),
-      p:tr(lang,"Customers scan and play your branded game, win a voucher, and walk in to spend, and nearby players find you on the KiX map too. No ad space to buy.","客人扫码玩你的品牌游戏、赢券进店消费，附近玩家还能在 KiX 地图上发现你。你不用花钱买广告位。") },
-    { ic:Ic.ret, h:tr(lang,"Win back the ones who drifted off","太久没来的客人，请他们回来"),
-      p:tr(lang,"For customers who haven't been in for a while, bring them back with a tournament, a brand event or a fresh game, a reason worth returning for, not just another discount coupon.","对太久没到店的客人，用一场比赛、一个品牌活动或一款新游戏把他们请回来——给他们一个值得再来的理由，而不只是又一张折扣券。") },
-    { ic:Ic.shield, h:tr(lang,"Every dollar goes to a real customer","每一块钱，都对着一个真客人"),
-      p:tr(lang,"No paying for views no one acts on, no slashing your whole menu for everyone. A reward is won and capped, and only costs you when someone actually redeems in store; and KiX bills you only for people who really played.","你不为没人点开的曝光付钱，也不用全场打折补贴所有人。券是赢来的、有数量上限，只在客人真的到店兑现时才让一点利；给 KiX 的钱也只按真正玩过的人算。") },
+    { ic:Ic.pin, h:tr(lang,"They play their way in","路过的人，玩着就进店"),
+      p:tr(lang,"They scan, play, win a voucher, and walk in. Nearby players find you on the map, too. No ads to buy.","扫码、玩、赢券、进店。附近玩家还会在地图上刷到你——不用买广告。") },
+    { ic:Ic.ret, h:tr(lang,"Bring the missing regulars back","把走远的老客，请回来"),
+      p:tr(lang,"A tournament, a brand event, a fresh game, a reason to come back. Not just another coupon.","一场比赛、一个活动、一款新游戏，给他们回来的理由——不是又一张券。") },
+    { ic:Ic.shield, h:tr(lang,"Every dollar buys a real customer","每分钱，都花在真客人身上"),
+      p:tr(lang,"No paying for views. No cutting prices for everyone. You pay only for people who really play, and a reward costs you only when they walk in.","不为曝光付钱，不全场打折。只按真正玩过的人计费，奖励也只在客人到店兑现时才花。") },
   ];
   return (
     <section className="sec" id="why">
       <div className="sec-eye">{tr(lang,"WHY IT WORKS","为什么有效")}</div>
-      <h2 className="sec-h">{tr(lang,"Win new faces, keep the regulars, spend only on real ones","拉新客、留住老客、每块钱都花在真客人身上")}</h2>
-      <p className="sec-sub">{tr(lang,"All from a game that's yours, where your spend follows real customers, not a platform's impressions.","靠一个你自己品牌的游戏——钱跟着真客人走，不是交给平台买曝光。")}</p>
+      <h2 className="sec-h">{tr(lang,"Win new faces, keep your regulars, pay only for real ones","拉新客、留老客、不花冤枉钱")}</h2>
+      <p className="sec-sub">{tr(lang,"Your own branded game, where every dollar follows a real customer, not a platform's impressions.","一个属于你的品牌游戏——每分钱都跟着真客人，不喂平台曝光。")}</p>
       <div className="three">
         {C.map((c,i)=>(
           <div key={i} className="tcard">
