@@ -156,8 +156,8 @@ h1.hero-h .hl::after{content:"";position:absolute;left:-1px;right:-1px;bottom:.0
 .tcard{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:var(--sh-sm);transition:transform .18s,box-shadow .18s}
 .tcard:hover{transform:translateY(-4px);box-shadow:var(--sh)}
 .tcard .tnum{font-size:12.5px;font-weight:800;color:var(--green-d);letter-spacing:.05em}
-.tcard h3{font-size:21px;font-weight:800;letter-spacing:-.02em;margin:10px 0 8px}
-.tcard p{font-size:15px;color:var(--muted);margin:0}
+.tcard h3{font-size:17px;font-weight:800;letter-spacing:-.01em;margin:10px 0 7px}
+.tcard p{font-size:14px;color:var(--muted);margin:0;line-height:1.55}
 .tcard .viz{margin-top:18px;border-radius:14px;background:linear-gradient(180deg,#F7FBF9,#fff);border:1px solid var(--line-2);padding:16px;min-height:108px;display:flex;flex-direction:column;justify-content:center;gap:9px}
 .vrow{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--ink-2)}
 .vrow .vp{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:13px}
@@ -1544,6 +1544,16 @@ h1.big{font-size:clamp(30px,4.4vw,46px);line-height:1.12;letter-spacing:-.03em;f
 .mapsec-card h3{font-size:16.5px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:1px 0 5px}
 .mapsec-card p{font-size:14px;line-height:1.5;color:var(--muted);font-weight:500}
 @media(max-width:820px){.mapsec{grid-template-columns:1fr;gap:28px}.mapsec-vis{order:-1}}
+/* map section v2 (2026-07-23): full-width map image + 4 steps in a row below */
+.mapshot-wrap{max-width:1000px;margin:34px auto 0}
+.mapshot{width:100%;display:block;border-radius:20px;border:1px solid var(--line-2);box-shadow:var(--sh)}
+.mapsteps{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;list-style:none;padding:0;max-width:1000px;margin:34px auto 0}
+.mapsteps .mapstep{text-align:center}
+.mapsteps .mf-n{margin:0 auto 12px}
+.mapsteps .mapstep h3{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 5px;letter-spacing:-.01em}
+.mapsteps .mapstep p{font-size:13.5px;line-height:1.5;color:var(--muted);font-weight:500;margin:0}
+@media(max-width:820px){.mapsteps{grid-template-columns:1fr 1fr;gap:24px}}
+@media(max-width:600px){.mapsteps{grid-template-columns:1fr}}
 
 /* ===== map-first landing (2026-07-20) ===== */
 /* hero map card */

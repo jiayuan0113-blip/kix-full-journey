@@ -332,10 +332,6 @@ function Hero({ go }) {
           <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter") go(name); }} placeholder={tr(lang,"Your business name","你的店名")} />
           <button className="btn primary" onClick={()=>go(name)}>{tr(lang,"See my game →","看我的游戏 →")}</button>
         </div>
-        <div className="hero-chips">
-          <span className="hchip"><b>{tr(lang,"3 min","3 分钟")}</b>{tr(lang," to launch"," 上线")}</span>
-          <span className="hchip">{tr(lang,"Free to try","免费试用")}</span>
-        </div>
       </div>
       <div className="visual">
         <div className="hv-wrap">
@@ -418,26 +414,37 @@ function WhyGame() {
     { h:tr(lang,"They walk in","到店消费、成常客"),           p:tr(lang,"They redeem in store and keep coming back.","到店兑券消费，一次次回头。") },
   ];
   return (
-    <section className="sec" id="why">
+    <section className="sec" id="map">
       <h2 className="sec-h">{tr(lang,"Put your shop's game on the map, ","把你的店铺小游戏放上地图，")}<span className="hl">{tr(lang,"discovered worldwide","让全球人发现")}</span></h2>
-      <p className="sec-sub">{tr(lang,"Players browsing the map find you and tap in to play, with zero ad spend from you.","玩家在地图上逛店，顺手就发现你、点进来玩，你不花一分广告费。")}</p>
-      <div className="mapsec">
-        <div className="mapsec-vis"><MapHero lang={lang} /></div>
-        <ol className="mapflow">{F.map((s,i)=>(<li key={i} className="mapflow-step"><span className="mf-n">{i+1}</span><div><h3>{s.h}</h3><p>{s.p}</p></div></li>))}</ol>
-      </div>
+      <p className="sec-sub">{tr(lang,"Players browsing the map find you and tap in to play, no ad space to buy.","玩家在地图上逛店，顺手就发现你、点进来玩，你不用花钱买广告位。")}</p>
+      <div className="mapshot-wrap"><img className="mapshot" src="landing/map.png" alt={tr(lang,"Shops on the KiX map","KiX 地图上的店")}/></div>
+      <ol className="mapsteps">{F.map((s,i)=>(<li key={i} className="mapstep"><span className="mf-n">{i+1}</span><h3>{s.h}</h3><p>{s.p}</p></li>))}</ol>
     </section>
   );
 }
 function FairDeal() {
   const lang = useLang();
+  const C = [
+    { ic:Ic.pin, h:tr(lang,"They play their way in","让路过的人，玩着就进店"),
+      p:tr(lang,"Customers scan and play your branded game, win a voucher, and walk in to spend, and nearby players find you on the KiX map too. No ad space to buy.","客人扫码玩你的品牌游戏、赢券进店消费，附近玩家还能在 KiX 地图上发现你。你不用花钱买广告位。") },
+    { ic:Ic.ret, h:tr(lang,"Win back the ones who drifted off","太久没来的客人，请他们回来"),
+      p:tr(lang,"For customers who haven't been in for a while, bring them back with a tournament, a brand event or a fresh game, a reason worth returning for, not just another discount coupon.","对太久没到店的客人，用一场比赛、一个品牌活动或一款新游戏把他们请回来——给他们一个值得再来的理由，而不只是又一张折扣券。") },
+    { ic:Ic.shield, h:tr(lang,"Every dollar goes to a real customer","每一块钱，都对着一个真客人"),
+      p:tr(lang,"No paying for views no one acts on, no slashing your whole menu for everyone. A reward is won and capped, and only costs you when someone actually redeems in store; and KiX bills you only for people who really played.","你不为没人点开的曝光付钱，也不用全场打折补贴所有人。券是赢来的、有数量上限，只在客人真的到店兑现时才让一点利；给 KiX 的钱也只按真正玩过的人算。") },
+  ];
   return (
-    <section className="sec">
-      <div className="sec-eye">{tr(lang,"THE FAIR DEAL","公平的规则")}</div>
-      <h2 className="sec-h">{tr(lang,"Your brand's game, not a discount platform","你自己品牌的游戏，不是打折平台")}</h2>
-      <p className="sec-sub">{tr(lang,"Discount platforms train people to only show up when it's cheap. KiX gives you a branded game people play for fun, and you're billed by how many play, not by cutting your margin.","打折平台只会把客人训练成不打折不来。KiX 给你一个大家愿意玩的品牌游戏，按玩的人数计费，而不是靠砍你的利润。")}</p>
-      <div className="fair-vs">
-        <div className="fvs bad"><div className="lab"><span className="x">✕</span> {tr(lang,"DISCOUNT DEALS","打折平台")}</div><p>{tr(lang,"Deep cuts for everyone: you subsidise people who'd have paid anyway, and pull in one-time bargain hunters.","全场打骨折：本来就会买的人被你白白补贴，招来的多是薅一次就走的人。")}</p></div>
-        <div className="fvs good"><div className="lab"><Check/> KiX</div><p>{tr(lang,"A branded game that's yours. You keep your full margin and your customers, and pay only by how many people play.","一个属于你自己的品牌游戏。利润和客户都还是你的，只按玩的人数付费。")}</p></div>
+    <section className="sec" id="why">
+      <div className="sec-eye">{tr(lang,"WHY IT WORKS","为什么有效")}</div>
+      <h2 className="sec-h">{tr(lang,"Win new faces, keep the regulars, spend only on real ones","拉新客、留住老客、每块钱都花在真客人身上")}</h2>
+      <p className="sec-sub">{tr(lang,"All from a game that's yours, where your spend follows real customers, not a platform's impressions.","靠一个你自己品牌的游戏——钱跟着真客人走，不是交给平台买曝光。")}</p>
+      <div className="three">
+        {C.map((c,i)=>(
+          <div key={i} className="tcard">
+            <span style={{ display:"inline-flex", width:38, height:38, borderRadius:11, alignItems:"center", justifyContent:"center", background:"var(--green-50)", color:"var(--green-d)" }}>{c.ic()}</span>
+            <h3 style={{ marginTop:14 }}>{c.h}</h3>
+            <p>{c.p}</p>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -692,8 +699,8 @@ function Landing({ go, onSignIn, lang, setLang }) {
       </nav>
       <Hero go={go} />
       <Walkthrough/>
-      <SeeYourGame go={go} />
       <WhyGame/>
+      <FairDeal/>
       <Pricing go={go} />
       <Faq/>
       <section className="sec final-sec">

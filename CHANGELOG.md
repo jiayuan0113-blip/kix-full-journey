@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-07-23
+
+### 107. 落地页两幕重构 — 顺序重排 + 地图整幅图版式 + 「为什么有效」三卡（三体 + 诚实化）
+- **背景**：Joyce 要按「工具→网络」两幕叙事重排落地页；先综合调研（come-for-the-tool-stay-for-the-network / SMB SaaS section 顺序 / 冷启动薄网络风险），三体确定「为什么有效」三卡。方向卡存 `design-runs/落地页两幕重构/00-方向.md`。
+- **顺序重排**（`Landing()`）：Hero → Walkthrough(5 手机屏) → WhyGame(地图) → FairDeal(为什么有效) → Pricing → FAQ → 终屏 CTA。
+  - **删** `SeeYourGame`（中间重复的"输店名→看游戏"大手机屏，函数保留未渲染）→「输店名」只在 hero 出现一次。
+  - **删** hero 两个 chip（`3 分钟 上线` / `免费试用`，`.hero-chips`）。
+- **地图节（`WhyGame`，id `why`→`map`）改版式**：2 列(map 左/steps 右) → **整幅地图图 + 4 步横排在下**。`MapHero` mock → `<img className="mapshot" src="landing/map.png">`（占位=裁部署版真地图；⚠️ 待 Joyce 换正式图）。新 CSS `.mapshot-wrap/.mapshot/.mapsteps/.mapstep`。副标「不花一分广告费」→「不用花钱买广告位」。
+- **「为什么有效」节（`FairDeal`，id `why`）重做**：旧 2 卡「不是打折平台」→ **3 卡**（三体收敛，覆盖店主决策三问 拉新/留存/成本）：
+  - ①「让路过的人，玩着就进店」(Ic.pin) — 扫码 + 地图两入口、不买广告位。
+  - ②「太久没来的客人，请他们回来」(Ic.ret) — **用比赛/品牌活动/新游戏召回**（⚠️ Joyce 修正产品事实：非"自动发券"）。
+  - ③「每一块钱，都对着一个真客人」(Ic.shield) — 诚实口径：不为曝光付钱、不全场打折、券有上限只在到店兑现时让利、只按真玩的人计 MAU。
+  - 标题「拉新客、留住老客、每块钱都花在真客人身上」/ 副标「钱跟着真客人走，不是交给平台买曝光」。
+  - **诚实化背景**：Joyce 挑「发券=打折、送奖品=广告费」，撤回「不打折、不烧广告费」绝对说法，全线改「不买广告位 / 钱跟着真客人走」。
+  - **字号对齐 portal**：`.tcard h3` 21px→17px、`.tcard p` 15px→14px、字距 -.02em→-.01em（与 `.pppc`/`.mapstep` 一致；`.tcard` 仅 FairDeal 渲染用）。
+- **影响文件**：`journey.jsx`（`Landing`/`Hero`/`WhyGame`/`FairDeal`）、`index.html`（`.mapshot*`/`.mapsteps*` 新增、`.tcard h3/p` 调整）、新增 `landing/map.png`（占位图）。
+- **调试**：`?screen=landing&lang=zh|en`。
+- ⚠️ **canon 连带待办（未动，待 Joyce）**：pricing「EVERY PLAN INCLUDES」的「老客自动召回/Auto win-back」+ 未渲染 `ThreeThings` 卡2「30天自动发券」与 ②「比赛/活动/游戏召回」新口径冲突；地图标题「让全球人发现」薄网络下略满，建议改「让附近玩家发现你」。
+
+---
+
 ## 2026-07-22
 
 ### 106. 预览页（第3步·我的游戏）加「登录后 AI 还能做更多」预告条
