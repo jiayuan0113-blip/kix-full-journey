@@ -436,7 +436,7 @@ function FairDeal() {
     <section className="sec" id="why">
       <div className="sec-eye">{tr(lang,"WHY IT WORKS","为什么有效")}</div>
       <h2 className="sec-h">{tr(lang,"Win new faces, keep your regulars, pay only for real ones","拉新客、留老客、不花冤枉钱")}</h2>
-      <p className="sec-sub">{tr(lang,"Your own branded game. Every dollar follows a real customer, never an impression count.","一个属于你的品牌游戏。每分钱都跟着真客人走，不喂平台的曝光量。")}</p>
+      <p className="sec-sub">{tr(lang,"Your own branded game, where every dollar follows a real customer.","一个属于你的品牌游戏。每分钱都跟着真客人走。")}</p>
       <div className="three">
         {C.map((c,i)=>(
           <div key={i} className="tcard">
