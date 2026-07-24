@@ -20,6 +20,7 @@
   - **诚实化背景**：Joyce 挑「发券=打折、送奖品=广告费」，撤回「不打折、不烧广告费」绝对说法，全线改「不买广告位 / 钱跟着真客人走」。
   - **字号对齐 portal**：`.tcard h3` 21px→17px、`.tcard p` 15px→14px、字距 -.02em→-.01em（与 `.pppc`/`.mapstep` 一致；`.tcard` 仅 FairDeal 渲染用）。
   - **文案再收紧（中英，三体迭代）**：卡3 从 5 行压到 3 行；中文用 native 口语（标题「拉新客、留老客、不花冤枉钱」/「路过的人，玩着就进店」/「把走远的老客，请回来」/「每分钱，都花在真客人身上」），英文走短促节奏（"They scan, play, win a voucher, and walk in…"）。原则=动词开头/能短就短/无翻译腔。
+  - **文字审查官去 AI 味（副标+3 卡正文）**：清掉副标/卡1/卡2 共 3 处破折号 `——`（Joyce 零容忍项）；「不用买广告→带人进门的是游戏不是买来的广告位」「不全场打折→券得玩赢·有上限·到店兑现那刻才让利」把会被店主戳破的绝对话改成讲机制；拆英文翻译腔从句。标题/H2/eyebrow 审查判"保留"未动。
 - **影响文件**：`journey.jsx`（`Landing`/`Hero`/`WhyGame`/`FairDeal`）、`index.html`（`.mapshot*`/`.mapsteps*` 新增、`.tcard h3/p` 调整）、新增 `landing/map.png`（占位图）。
 - **调试**：`?screen=landing&lang=zh|en`。
 - ⚠️ **canon 连带待办（未动，待 Joyce）**：pricing「EVERY PLAN INCLUDES」的「老客自动召回/Auto win-back」+ 未渲染 `ThreeThings` 卡2「30天自动发券」与 ②「比赛/活动/游戏召回」新口径冲突；地图标题「让全球人发现」薄网络下略满，建议改「让附近玩家发现你」。

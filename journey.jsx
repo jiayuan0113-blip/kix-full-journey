@@ -426,17 +426,17 @@ function FairDeal() {
   const lang = useLang();
   const C = [
     { ic:Ic.pin, h:tr(lang,"They play their way in","路过的人，玩着就进店"),
-      p:tr(lang,"They scan, play, win a voucher, and walk in. Nearby players find you on the map, too. No ads to buy.","扫码、玩、赢券、进店。附近玩家还会在地图上刷到你——不用买广告。") },
+      p:tr(lang,"They scan, play, win a voucher, and walk in. Nearby players find you on the map, too. The game brings them in, not a bought ad slot.","扫码，玩，赢券，进店。附近的玩家还会在地图上刷到你。带人进门的是游戏，不是买来的广告位。") },
     { ic:Ic.ret, h:tr(lang,"Bring the missing regulars back","把走远的老客，请回来"),
-      p:tr(lang,"A tournament, a brand event, a fresh game, a reason to come back. Not just another coupon.","一场比赛、一个活动、一款新游戏，给他们回来的理由——不是又一张券。") },
+      p:tr(lang,"A tournament. A brand event. A fresh game. Give your lapsed regulars a reason to make the trip, not just another coupon.","一场比赛，一个新活动，一款新游戏。给走远的老客一个专程回来的理由，不是又塞一张券。") },
     { ic:Ic.shield, h:tr(lang,"Every dollar buys a real customer","每分钱，都花在真客人身上"),
-      p:tr(lang,"No paying for views. No cutting prices for everyone. You pay only for people who really play, and a reward costs you only when they walk in.","不为曝光付钱，不全场打折。只按真正玩过的人计费，奖励也只在客人到店兑现时才花。") },
+      p:tr(lang,"You don't pay for views. You pay only for the people who actually play. And a voucher only costs you the moment a real customer walks in to claim it.","曝光不用你付钱。只按真正玩过的人计费；券得玩赢、有上限，客人到店兑现那一刻才真的让利。") },
   ];
   return (
     <section className="sec" id="why">
       <div className="sec-eye">{tr(lang,"WHY IT WORKS","为什么有效")}</div>
       <h2 className="sec-h">{tr(lang,"Win new faces, keep your regulars, pay only for real ones","拉新客、留老客、不花冤枉钱")}</h2>
-      <p className="sec-sub">{tr(lang,"Your own branded game, where every dollar follows a real customer, not a platform's impressions.","一个属于你的品牌游戏——每分钱都跟着真客人，不喂平台曝光。")}</p>
+      <p className="sec-sub">{tr(lang,"Your own branded game. Every dollar follows a real customer, never an impression count.","一个属于你的品牌游戏。每分钱都跟着真客人走，不喂平台的曝光量。")}</p>
       <div className="three">
         {C.map((c,i)=>(
           <div key={i} className="tcard">
